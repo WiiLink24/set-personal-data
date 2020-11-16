@@ -1,0 +1,8 @@
+Taken from https://github.com/kokke/tiny-AES-c, commit 3f69a5899e58e2e398e8c32ce7b3a954dd593ed4.
+
+Two modifications have been made:
+ - Defining AES256 over AES128 as we need that, and
+ - only enabling CBC as it seems to be all Nintendo knows exists.
+
+Additionally, unrelated files have been removed.
+This action did not require any change to the source.
