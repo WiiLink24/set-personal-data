@@ -10,6 +10,12 @@
 static bool PDHasLoaded = false;
 static void *PDFilePointer = NULL;
 
+// Used to house key info when loading.
+struct KeyInfo {
+    unsigned char key[32];
+    unsigned char iv[16];
+};
+
 char *PD_GetTitleDataPath() {
     // TODO: Flesh out
 
@@ -99,19 +105,28 @@ void *PD_DecryptFile() {
     // Decrypt file.
     AES_CBC_decrypt_buffer(&ctx, fileBuffer, PD_FILE_LENGTH);
 
+    // Extremely simple validation.
+    if (memcmp(fileBuffer, EXPECTED_FILE_MAGIC, 5) != 0) {
+        // This doesn't appear to be valid.
+        free(fileBuffer);
+        return NULL;
+    }
+
+    // We have loaded succesfully.
+    PDHasLoaded = true;
+
     free(keyInfo);
     return fileBuffer;
 }
 
 void *PD_GetFileContents() {
-  // Check if we've previously loaded pd.dat.
-  if (!PDHasLoaded) {
-    printf("Loading...\n");
-    PDFilePointer = PD_DecryptFile();
-    PDHasLoaded = true;
-  } else {
-    printf("Not loading.\n");
-  }
+    // Check if we've previously loaded pd.dat.
+    if (!PDHasLoaded) {
+        printf("Loading...\n");
+        PDFilePointer = PD_DecryptFile();
+    } else {
+        printf("Not loading.\n");
+    }
 
-  return PDFilePointer;
+    return PDFilePointer;
 }

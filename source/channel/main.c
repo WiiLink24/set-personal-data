@@ -8,6 +8,7 @@
 #include "network.h"
 
 #include "pd_data.h"
+#include "pd_info.h"
 
 #define textPos(x, y) printf("\x1b[%d;%dH", y, x)
 
@@ -76,10 +77,19 @@ int main(void) {
     // Decrypt to file
     void *pdLocation = PD_GetFileContents();
 
+    if (pdLocation == NULL) {
+        // It appears something went awry down the line.
+        // TODO: please do proper error handling!
+        printf("An error occurred reading.\n");
+        goto stall;
+    }
+
     // Print on screen because we have no other operation for the moment.
     hexDump(pdLocation, 464);
-    sleep(2);
+    // hexDump(pdLocation, 0x53B);
+    // PD_ParseInfoBlock();
 
+stall:
     while (1) {
         WPAD_ScanPads();
         u32 pressed = WPAD_ButtonsDown(0);

@@ -1,10 +1,5 @@
 #define PD_FILE_LENGTH 0x4000
 
-struct KeyInfo {
-    unsigned char key[32];
-    unsigned char iv[16];
-};
-
 // Replace every ending null byte in a set of 8 with a byte
 // of the device's ID.
 static const unsigned char PERSONAL_DATA_KEY[32] = {
@@ -22,5 +17,8 @@ static const unsigned char PERSONAL_DATA_IV[16] = {
     0xb2, 0xb4, 0xc4, 0x5d, 0x27, 0xcd, 0x45, 0x9d,
     0x86, 0x1a, 0xba, 0x25, 0x00, 0x00, 0x00, 0x00,
 };
+
+// File magic (PDFF in ASCII) and 0x02 as the file's version.
+static const unsigned char EXPECTED_FILE_MAGIC[5] = "PDFF\x02";
 
 void *PD_GetFileContents();
