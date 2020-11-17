@@ -74,7 +74,8 @@ int main(void) {
         VIDEO_WaitVSync();
 
     // Decrypt to file
-    void *pdLocation = PD_DecryptFile();
+    void *pdLocation = PD_GetFileContents();
+
     // Print on screen because we have no other operation for the moment.
     hexDump(pdLocation, 464);
     sleep(2);

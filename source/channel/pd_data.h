@@ -23,4 +23,4 @@ static const unsigned char PERSONAL_DATA_IV[16] = {
     0x86, 0x1a, 0xba, 0x25, 0x00, 0x00, 0x00, 0x00,
 };
 
-void *PD_DecryptFile();
+void *PD_GetFileContents();

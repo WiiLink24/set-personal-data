@@ -6,6 +6,10 @@
 
 #include "pd_data.h"
 
+// Keep two static variables in order to retain state.
+static bool PDHasLoaded = false;
+static void *PDFilePointer = NULL;
+
 char *PD_GetTitleDataPath() {
     // TODO: Flesh out
 
@@ -95,7 +99,19 @@ void *PD_DecryptFile() {
     // Decrypt file.
     AES_CBC_decrypt_buffer(&ctx, fileBuffer, PD_FILE_LENGTH);
 
-    // TODO: cleanup
     free(keyInfo);
     return fileBuffer;
+}
+
+void *PD_GetFileContents() {
+  // Check if we've previously loaded pd.dat.
+  if (!PDHasLoaded) {
+    printf("Loading...\n");
+    PDFilePointer = PD_DecryptFile();
+    PDHasLoaded = true;
+  } else {
+    printf("Not loading.\n");
+  }
+
+  return PDFilePointer;
 }
