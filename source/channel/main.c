@@ -3,11 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <wiiuse/wpad.h>
 #include <unistr.h>
+#include <wiiuse/wpad.h>
 
-#include "network.h"
-
+#include "charmangler.h"
 #include "pd_data.h"
 #include "pd_info.h"
 
@@ -55,15 +54,20 @@ int main(void) {
     }
 
     // Print on screen because we have no other operation for the moment.
-    // hexDump(pdLocation, 464);
-    // hexDump(pdLocation, 0x53B);
     struct PDInfoBlock *infoBlock = PD_ParseInfoBlock();
     if (infoBlock == NULL) {
         printf("Failed to obtain INFO block.\n");
         goto stall;
     }
 
-    // printf("%d\n", u16_strlen(infoBlock->firstname));
+    printf("Email: %s\n", u16_to_char(infoBlock->emailAddress));
+    printf("First name: %s\n", u16_to_char(infoBlock->firstname));
+    printf("Surname: %s\n", u16_to_char(infoBlock->surname));
+    printf("Zip code: %s\n", u16_to_char(infoBlock->zipCode));
+    printf("City: %s\n", u16_to_char(infoBlock->city));
+    printf("Address: %s\n", u16_to_char(infoBlock->address));
+    printf("Apartment number: %s\n", u16_to_char(infoBlock->apartmentNumber));
+    printf("Phone number: %s\n", u16_to_char(infoBlock->phoneNumber));
 
 stall:
     while (1) {

@@ -1,7 +1,6 @@
 // We need gettime from LWP to match OSGetTime.
 #include "pd_info.h"
 #include "pd_data.h"
-#include <assert.h>
 #include <ogc/lwp_watchdog.h>
 #include <stdio.h>
 #include <string.h>
@@ -54,20 +53,16 @@ struct PDInfoBlock *PD_ParseInfoBlock() {
     memcpy(infoBlock->firstname, blockPointer + 60, 64);
     memcpy(infoBlock->surname, blockPointer + 124, 64);
     memcpy(infoBlock->zipCode, blockPointer + 188, 32);
-    // Observed to be 0x19E.
+    // Observed to be 0x19E. We're going to force it to be such.
     infoBlock->unknown = 0x19E;
     memcpy(infoBlock->stateOrPrefecture, blockPointer + 224, 64);
-    memcpy(infoBlock->city, blockPointer + 284, 64);
-    memcpy(infoBlock->address, blockPointer + 348, 256);
-    memcpy(infoBlock->apartmentNumber, blockPointer + 604, 256);
-    memcpy(infoBlock->phoneNumber, blockPointer + 860, 64);
-    memcpy(infoBlock->emailAddress, blockPointer + 924, 254);
+    memcpy(infoBlock->city, blockPointer + 288, 64);
+    memcpy(infoBlock->address, blockPointer + 352, 256);
+    memcpy(infoBlock->apartmentNumber, blockPointer + 608, 256);
+    memcpy(infoBlock->phoneNumber, blockPointer + 864, 64);
+    memcpy(infoBlock->emailAddress, blockPointer + 928, 254);
 
-    infoBlock->updateTime = *(uint64_t*)(blockPointer + 1183);
-
-    // The update time will be set upon save.
-    printf("last update time: %llu\n", infoBlock->updateTime);
-    printf("compare to: %llu\n", gettime());
+    infoBlock->updateTime = *(uint64_t *)(blockPointer + 1183);
 
     return infoBlock;
 }
