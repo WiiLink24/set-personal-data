@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <wiiuse/wpad.h>
+#include <unistr.h>
 
 #include "network.h"
 
@@ -15,52 +16,22 @@
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
 
-void hexDump(void *addr, int len) {
-    int i;
-    unsigned char buff[17];
-    unsigned char *pc = (unsigned char *)addr;
-
-    // Process every byte in the data.
-    for (i = 0; i < len; i++) {
-        // Multiple of 16 means new line (with line offset).
-
-        if ((i % 16) == 0) {
-            // Just don't print ASCII for the zeroth line.
-            if (i != 0)
-                printf("  %s\n", buff);
-
-            // Output the offset.
-            printf("  %04x ", i);
-        }
-
-        // Now the hex code for the specific character.
-        printf(" %02x", pc[i]);
-
-        // And store a printable ASCII character for later.
-        if ((pc[i] < 0x20) || (pc[i] > 0x7e)) {
-            buff[i % 16] = '.';
-        } else {
-            buff[i % 16] = pc[i];
-        }
-
-        buff[(i % 16) + 1] = '\0';
-    }
-
-    // Pad out last line if not exactly 16 characters.
-    while ((i % 16) != 0) {
-        printf("   ");
-        i++;
-    }
-
-    // And print the final ASCII bit.
-    printf("  %s\n", buff);
+void do_reset(u32 irq, void *ctx) {
+    // cya later!
+    exit(0);
 }
+
+void do_poweroff() { exit(0); }
 
 int main(void) {
     VIDEO_Init();
     WPAD_Init();
     ISFS_Initialize();
     CONF_Init();
+
+    // Make the Reset button functional.
+    SYS_SetResetCallback(do_reset);
+    SYS_SetPowerCallback(do_poweroff);
 
     rmode = VIDEO_GetPreferredMode(NULL);
     xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode));
@@ -74,9 +45,8 @@ int main(void) {
     if (rmode->viTVMode & VI_NON_INTERLACE)
         VIDEO_WaitVSync();
 
-    // Decrypt to file
+    // Decrypt file
     void *pdLocation = PD_GetFileContents();
-
     if (pdLocation == NULL) {
         // It appears something went awry down the line.
         // TODO: please do proper error handling!
@@ -85,9 +55,15 @@ int main(void) {
     }
 
     // Print on screen because we have no other operation for the moment.
-    hexDump(pdLocation, 464);
+    // hexDump(pdLocation, 464);
     // hexDump(pdLocation, 0x53B);
-    // PD_ParseInfoBlock();
+    struct PDInfoBlock *infoBlock = PD_ParseInfoBlock();
+    if (infoBlock == NULL) {
+        printf("Failed to obtain INFO block.\n");
+        goto stall;
+    }
+
+    // printf("%d\n", u16_strlen(infoBlock->firstname));
 
 stall:
     while (1) {

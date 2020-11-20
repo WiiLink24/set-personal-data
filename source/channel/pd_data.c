@@ -7,7 +7,6 @@
 #include "pd_data.h"
 
 // Keep two static variables in order to retain state.
-static bool PDHasLoaded = false;
 static void *PDFilePointer = NULL;
 
 // Used to house key info when loading.
@@ -113,15 +112,13 @@ void *PD_DecryptFile() {
     }
 
     // We have loaded succesfully.
-    PDHasLoaded = true;
-
     free(keyInfo);
     return fileBuffer;
 }
 
 void *PD_GetFileContents() {
     // Check if we've previously loaded pd.dat.
-    if (!PDHasLoaded) {
+    if (PDFilePointer == NULL) {
         printf("Loading...\n");
         PDFilePointer = PD_DecryptFile();
     } else {
