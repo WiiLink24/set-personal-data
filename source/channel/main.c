@@ -10,8 +10,6 @@
 #include "pd_data.h"
 #include "pd_info.h"
 
-#define textPos(x, y) printf("\x1b[%d;%dH", y, x)
-
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
 

@@ -22,7 +22,9 @@ char *PD_GetTitleDataPath() {
     case CONF_REGION_JP:
         return "/title/00010008/4843434a/data/nocopy/pd.dat";
     case CONF_REGION_US:
+        return "/title/00010008/48434345/data/nocopy/pd.dat";
     case CONF_REGION_EU:
+        return "/title/00010008/48434350/data/nocopy/pd.dat";
     case CONF_REGION_KR:
     case CONF_REGION_CN:
     default:
