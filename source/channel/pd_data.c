@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "pd_data.h"
+#include "pd_decrypted_dat.h"
 
 // Keep two static variables in order to retain state.
 static void *PDFilePointer = NULL;
@@ -67,7 +68,7 @@ struct KeyInfo *PD_GetKeyData() {
     return info;
 }
 
-void *PD_DecryptFile() {
+void *PD_EncryptFile() {
     struct KeyInfo *keyInfo = PD_GetKeyData();
     if (keyInfo == NULL) {
         // There's not a whole ton we can do.
@@ -83,17 +84,32 @@ void *PD_DecryptFile() {
         return NULL;
     }
 
-    // Read the contents of this file in NAND.
+    // Read our prebuilt content.
+    memcpy(fileBuffer, pd_decrypted_dat, PD_FILE_LENGTH);
+
+    // Encrypt file.
+    AES_CBC_encrypt_buffer(&ctx, fileBuffer, PD_FILE_LENGTH);
+
+    // Write encrypted file.
     char *filepath = PD_GetTitleDataPath();
-    s32 fd = ISFS_Open(filepath, ISFS_OPEN_READ);
+
+    ISFS_Delete(filepath);
+
+    s32 ret = ISFS_CreateFile(filepath, 0, 3, 3, 0);
+    if (ret < 0) {
+        printf("ISFS_CreateFile failed (%d)\n", ret);
+        return NULL;
+    }
+
+    s32 fd = ISFS_Open(filepath, ISFS_OPEN_WRITE);
     if (fd < 0) {
         printf("Error opening file at %s\n", filepath);
         return NULL;
     }
 
-    s32 ret = ISFS_Read(fd, fileBuffer, PD_FILE_LENGTH);
+    ret = ISFS_Write(fd, fileBuffer, PD_FILE_LENGTH);
     if (ret < 0) {
-        printf("Error reading file at %s\n", filepath);
+        printf("Error writing file at %s\n", filepath);
         return NULL;
     }
 
@@ -103,17 +119,8 @@ void *PD_DecryptFile() {
         return NULL;
     }
 
-    // Decrypt file.
-    AES_CBC_decrypt_buffer(&ctx, fileBuffer, PD_FILE_LENGTH);
-
-    // Extremely simple validation.
-    if (memcmp(fileBuffer, EXPECTED_FILE_MAGIC, 5) != 0) {
-        // This doesn't appear to be valid.
-        free(fileBuffer);
-        return NULL;
-    }
-
-    // We have loaded succesfully.
+    // We have loaded succesfully. Return our original contents.
+    memcpy(fileBuffer, pd_decrypted_dat, PD_FILE_LENGTH);
     free(keyInfo);
     return fileBuffer;
 }
@@ -122,7 +129,7 @@ void *PD_GetFileContents() {
     // Check if we've previously loaded pd.dat.
     if (PDFilePointer == NULL) {
         printf("Loading...\n");
-        PDFilePointer = PD_DecryptFile();
+        PDFilePointer = PD_EncryptFile();
     } else {
         printf("Not loading.\n");
     }
