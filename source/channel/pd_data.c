@@ -77,7 +77,7 @@ void *PD_EncryptFile() {
     // Write encrypted file.
     ISFS_Delete(filepath);
 
-    s32 ret = ISFS_CreateFile(filepath, 0, 3, 3, 0);
+    s32 ret = ISFS_CreateFile(filepath, 0, 3, 3, 3);
     if (ret < 0) {
         printf("ISFS_CreateFile failed (%d)\n", ret);
         return NULL;
