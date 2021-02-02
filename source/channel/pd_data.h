@@ -21,4 +21,10 @@ static const unsigned char PERSONAL_DATA_IV[16] = {
 // File magic (PDFF in ASCII) and 0x02 as the file's version.
 static const unsigned char EXPECTED_FILE_MAGIC[5] = "PDFF\x02";
 
+// Used to house key info when loading.
+struct KeyInfo {
+    unsigned char key[32];
+    unsigned char iv[16];
+};
+
 void *PD_GetFileContents();

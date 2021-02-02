@@ -1,0 +1,1 @@
+char *PD_GetDataPath();

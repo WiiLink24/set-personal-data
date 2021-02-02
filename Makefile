@@ -17,7 +17,7 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES	:=	source/musl source/aes source/channel
+SOURCES	:=	source/musl source/aes source/patches source/channel
 DATA		:=	data
 INCLUDES	:=
 
@@ -106,9 +106,9 @@ clean:
 	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol
 
 #---------------------------------------------------------------------------------
-run:
-	open -a Dolphin $(TARGET).elf
-	# wiiload $(TARGET).dol
+run: build
+	# open -a Dolphin $(TARGET).elf
+	wiiload $(TARGET).dol
 
 
 #---------------------------------------------------------------------------------
@@ -126,6 +126,11 @@ $(OUTPUT).elf: $(OFILES)
 # This rule links in binary data with the .jpg extension
 #---------------------------------------------------------------------------------
 %.dat.o	:	%.dat
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	$(bin2o)
+
+%.template.o	:	%.template
 #---------------------------------------------------------------------------------
 	@echo $(notdir $<)
 	$(bin2o)

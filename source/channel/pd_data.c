@@ -6,32 +6,10 @@
 
 #include "pd_data.h"
 #include "pd_decrypted_dat.h"
+#include "region.h"
 
 // Keep two static variables in order to retain state.
 static void *PDFilePointer = NULL;
-
-// Used to house key info when loading.
-struct KeyInfo {
-    unsigned char key[32];
-    unsigned char iv[16];
-};
-
-char *PD_GetTitleDataPath() {
-    // TODO: Flesh out
-
-    switch (CONF_GetRegion()) {
-    case CONF_REGION_JP:
-        return "/title/00010008/4843434a/data/nocopy/pd.dat";
-    case CONF_REGION_US:
-        return "/title/00010008/48434345/data/nocopy/pd.dat";
-    case CONF_REGION_EU:
-        return "/title/00010008/48434350/data/nocopy/pd.dat";
-    case CONF_REGION_KR:
-    case CONF_REGION_CN:
-    default:
-        return "/tmp/FILE_SHOULD_NOT_EXIST_PLEASE_FAIL";
-    }
-}
 
 struct KeyInfo *PD_GetKeyData() {
     struct KeyInfo *info = malloc(sizeof(struct KeyInfo));
@@ -90,9 +68,13 @@ void *PD_EncryptFile() {
     // Encrypt file.
     AES_CBC_encrypt_buffer(&ctx, fileBuffer, PD_FILE_LENGTH);
 
-    // Write encrypted file.
-    char *filepath = PD_GetTitleDataPath();
+    char *filepath = PD_GetDataPath();
+    if (filepath == NULL) {
+        printf("This console's region is not supported!\n");
+        return NULL;
+    }
 
+    // Write encrypted file.
     ISFS_Delete(filepath);
 
     s32 ret = ISFS_CreateFile(filepath, 0, 3, 3, 0);
@@ -128,10 +110,7 @@ void *PD_EncryptFile() {
 void *PD_GetFileContents() {
     // Check if we've previously loaded pd.dat.
     if (PDFilePointer == NULL) {
-        printf("Loading...\n");
         PDFilePointer = PD_EncryptFile();
-    } else {
-        printf("Not loading.\n");
     }
 
     return PDFilePointer;

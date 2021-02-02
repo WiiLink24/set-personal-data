@@ -1,5 +1,6 @@
 #include <gccore.h>
 #include <malloc.h>
+#include <patches/patches.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -22,6 +23,13 @@ void do_poweroff() { exit(0); }
 
 int main(void) {
     VIDEO_Init();
+
+    bool success = apply_patches();
+    if (!success) {
+        printf("Failed to apply patches!\n");
+        goto stall;
+    }
+
     WPAD_Init();
     ISFS_Initialize();
     CONF_Init();
@@ -41,6 +49,8 @@ int main(void) {
     VIDEO_WaitVSync();
     if (rmode->viTVMode & VI_NON_INTERLACE)
         VIDEO_WaitVSync();
+
+    printf("\n\n\n\n\n\n");
 
     // Decrypt file
     void *pdLocation = PD_GetFileContents();
@@ -67,6 +77,7 @@ int main(void) {
     printf("Apartment number: %s\n", u16_to_char(infoBlock->apartmentNumber));
     printf("Phone number: %s\n", u16_to_char(infoBlock->phoneNumber));
 
+    printf("\n\nEverything is created! Press the HOME button to exit.\n");
 stall:
     while (1) {
         WPAD_ScanPads();
