@@ -1,6 +1,6 @@
 #include <gccore.h>
 #include <malloc.h>
-#include <patches/patches.h>
+#include <libpatcher/libpatcher.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
