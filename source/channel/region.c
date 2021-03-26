@@ -38,9 +38,7 @@ char *GetTMDPath() {
     return path;
 }
 
-char *PD_InstallTemplates() {
-  return NULL;
-}
+char *PD_InstallTemplates() { return NULL; }
 
 char *PD_GetDataPath() {
     region = GetRegionTitle();

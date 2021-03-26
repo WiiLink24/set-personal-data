@@ -1,6 +1,6 @@
 #include <gccore.h>
-#include <malloc.h>
 #include <libpatcher/libpatcher.h>
+#include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -14,29 +14,15 @@
 static void *xfb = NULL;
 static GXRModeObj *rmode = NULL;
 
-void do_reset(u32 irq, void *ctx) {
-    // cya later!
-    exit(0);
-}
-
-void do_poweroff() { exit(0); }
+static void power_cb() { STM_ShutdownToStandby(); }
+static void reset_cb() { STM_RebootSystem(); }
 
 int main(void) {
     VIDEO_Init();
 
-    bool success = apply_patches();
-    if (!success) {
-        printf("Failed to apply patches!\n");
-        goto stall;
-    }
-
-    WPAD_Init();
-    ISFS_Initialize();
-    CONF_Init();
-
-    // Make the Reset button functional.
-    SYS_SetResetCallback(do_reset);
-    SYS_SetPowerCallback(do_poweroff);
+    // Make hardware buttons functional.
+    SYS_SetPowerCallback(power_cb);
+    SYS_SetResetCallback(reset_cb);
 
     rmode = VIDEO_GetPreferredMode(NULL);
     xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode));
@@ -50,7 +36,17 @@ int main(void) {
     if (rmode->viTVMode & VI_NON_INTERLACE)
         VIDEO_WaitVSync();
 
+    bool success = apply_patches();
+    if (!success) {
+        printf("Failed to apply patches!\n");
+        goto stall;
+    }
+
     printf("\n\n\n\n\n\n");
+
+    WPAD_Init();
+    ISFS_Initialize();
+    CONF_Init();
 
     // Decrypt file
     void *pdLocation = PD_GetFileContents();
