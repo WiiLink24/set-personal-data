@@ -17,7 +17,6 @@
 
 #include "gui.h"
 #include "input.h"
-#include "menu.h"
 #include "video.h"
 
 int rumbleRequest[4] = {0, 0, 0, 0};

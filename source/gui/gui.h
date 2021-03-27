@@ -42,11 +42,10 @@
 #include <wchar.h>
 #include <wiiuse/wpad.h>
 
-#include "audio.h"
 #include "FreeTypeGX.h"
+#include "audio.h"
 #include "filelist.h"
 #include "input.h"
-#include "menu.h"
 #include "oggplayer.h"
 #include "pngu.h"
 #include "video.h"
@@ -163,25 +162,25 @@ class GuiTrigger {
     ~GuiTrigger();
     //! Sets a simple trigger. Requires: element is selected, and trigger button
     //! is pressed \param ch Controller channel number \param wiibtns Wii
-    //!controller trigger button(s) - classic controller buttons are considered
-    //!separately \param gcbtns GameCube controller trigger button(s)
+    //! controller trigger button(s) - classic controller buttons are considered
+    //! separately \param gcbtns GameCube controller trigger button(s)
     void SetSimpleTrigger(s32 ch, u32 wiibtns, u16 gcbtns);
     //! Sets a held trigger. Requires: element is selected, and trigger button
     //! is pressed \param ch Controller channel number \param wiibtns Wii
-    //!controller trigger button(s) - classic controller buttons are considered
-    //!separately \param gcbtns GameCube controller trigger button(s)
+    //! controller trigger button(s) - classic controller buttons are considered
+    //! separately \param gcbtns GameCube controller trigger button(s)
     void SetHeldTrigger(s32 ch, u32 wiibtns, u16 gcbtns);
     //! Sets a button-only trigger. Requires: Trigger button is pressed
     //!\param ch Controller channel number
     //!\param wiibtns Wii controller trigger button(s) - classic controller
-    //!buttons are considered separately \param gcbtns GameCube controller
-    //!trigger button(s)
+    //! buttons are considered separately \param gcbtns GameCube controller
+    //! trigger button(s)
     void SetButtonOnlyTrigger(s32 ch, u32 wiibtns, u16 gcbtns);
     //! Sets a button-only trigger. Requires: trigger button is pressed and
     //! parent window of element is in focus \param ch Controller channel number
     //!\param wiibtns Wii controller trigger button(s) - classic controller
-    //!buttons are considered separately \param gcbtns GameCube controller
-    //!trigger button(s)
+    //! buttons are considered separately \param gcbtns GameCube controller
+    //! trigger button(s)
     void SetButtonOnlyInFocusTrigger(s32 ch, u32 wiibtns, u16 gcbtns);
     //! Get X or Y value from Wii Joystick (classic, nunchuk) input
     //!\param stick Controller stick (left = 0, right = 1)
@@ -198,19 +197,19 @@ class GuiTrigger {
     s8 WPAD_StickY(u8 stick);
     //! Move menu selection left (via pad/joystick). Allows scroll delay and
     //! button overriding \return true if selection should be moved left, false
-    //!otherwise
+    //! otherwise
     bool Left();
     //! Move menu selection right (via pad/joystick). Allows scroll delay and
     //! button overriding \return true if selection should be moved right, false
-    //!otherwise
+    //! otherwise
     bool Right();
     //! Move menu selection up (via pad/joystick). Allows scroll delay and
     //! button overriding \return true if selection should be moved up, false
-    //!otherwise
+    //! otherwise
     bool Up();
     //! Move menu selection down (via pad/joystick). Allows scroll delay and
     //! button overriding \return true if selection should be moved down, false
-    //!otherwise
+    //! otherwise
     bool Down();
 
     WPADData wpaddata; //!< Wii controller trigger data
@@ -364,7 +363,7 @@ class GuiElement {
     int GetEffect();
     //! Checks whether the specified coordinates are within the element's
     //! boundaries \param x X coordinate \param y Y coordinate \return true if
-    //!contained within, false otherwise
+    //! contained within, false otherwise
     bool IsInside(int x, int y);
     //! Sets the element's position
     //!\param x X coordinate
@@ -388,7 +387,7 @@ class GuiElement {
     virtual void SetFocus(int f);
     //! Sets the element's state
     //!\param s State (STATE_DEFAULT, STATE_SELECTED, STATE_CLICKED,
-    //!STATE_DISABLED) \param c Controller channel (0-3, -1 = none)
+    //! STATE_DISABLED) \param c Controller channel (0-3, -1 = none)
     virtual void SetState(int s, int c = -1);
     //! Resets the element's state to STATE_DEFAULT
     virtual void ResetState();
@@ -404,7 +403,7 @@ class GuiElement {
     virtual void ResetText();
     //! Called constantly to allow the element to respond to the current input
     //! data \param t Pointer to a GuiTrigger, containing the current input data
-    //!from PAD/WPAD
+    //! from PAD/WPAD
     virtual void Update(GuiTrigger *t);
     //! Called constantly to redraw the element
     virtual void Draw();
@@ -480,11 +479,11 @@ class GuiWindow : public GuiElement {
     ~GuiWindow();
     //! Appends a GuiElement to the GuiWindow
     //!\param e The GuiElement to append. If it is already in the GuiWindow, it
-    //!is removed first
+    //! is removed first
     void Append(GuiElement *e);
     //! Inserts a GuiElement into the GuiWindow at the specified index
     //!\param e The GuiElement to insert. If it is already in the GuiWindow, it
-    //!is removed first \param i Index in which to insert the element
+    //! is removed first \param i Index in which to insert the element
     void Insert(GuiElement *e, u32 i);
     //! Removes the specified GuiElement from the GuiWindow
     //!\param e GuiElement to be removed
@@ -498,7 +497,7 @@ class GuiWindow : public GuiElement {
     //! Returns the GuiElement at the specified index
     //!\param index The index of the element
     //!\return A pointer to the element at the index, NULL on error (eg: out of
-    //!bounds)
+    //! bounds)
     GuiElement *GetGuiElementAt(u32 index) const;
     //! Returns the size of the list of elements
     //!\return The size of the current element list
@@ -526,7 +525,7 @@ class GuiWindow : public GuiElement {
     //! If B or 1 button is pressed, changes focus to the next available element
     //! This is intended for the primary GuiWindow only
     //!\param t Pointer to a GuiTrigger, containing the current input data from
-    //!PAD/WPAD
+    //! PAD/WPAD
     void ToggleFocus(GuiTrigger *t);
     //! Moves the selected element to the element to the left or right
     //!\param d Direction to move (-1 = left, 1 = right)
@@ -543,7 +542,7 @@ class GuiWindow : public GuiElement {
     //! Updates the window and all elements contains within
     //! Allows the GuiWindow and all elements to respond to the input data
     //! specified \param t Pointer to a GuiTrigger, containing the current input
-    //!data from PAD/WPAD
+    //! data from PAD/WPAD
     void Update(GuiTrigger *t);
 
   protected:
@@ -672,8 +671,8 @@ class GuiText : public GuiElement {
     //! Sets up preset values to be used by GuiText(t)
     //! Useful when printing multiple text elements, all with the same
     //! attributes set \param sz Font size \param c Font color \param w Maximum
-    //!width of texture image (for text wrapping) \param s Font size \param h
-    //!Text alignment (horizontal) \param v Text alignment (vertical)
+    //! width of texture image (for text wrapping) \param s Font size \param h
+    //! Text alignment (horizontal) \param v Text alignment (vertical)
     void SetPresets(int sz, GXColor c, int w, u16 s, int h, int v);
     //! Sets the font size
     //!\param s Font size
@@ -818,7 +817,7 @@ class GuiButton : public GuiElement {
     void ResetText();
     //! Constantly called to allow the GuiButton to respond to updated input
     //! data \param t Pointer to a GuiTrigger, containing the current input data
-    //!from PAD/WPAD
+    //! from PAD/WPAD
     void Update(GuiTrigger *t);
 
   protected:
