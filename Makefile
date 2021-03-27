@@ -17,8 +17,8 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES	:=	source/musl source/aes source/patches source/channel
-DATA		:=	data
+SOURCES	:=	source/musl source/aes source/gui source/channel
+DATA		:=	data/title data/fonts data/i10n data/gui
 INCLUDES	:=
 
 #---------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	 -lwiiuse -lbte -logc -lm -lunistring -lpatcher
+LIBS	:=	 -lpatcher -lpng `freetype-config --libs` -lz -lfat -lwiiuse -lbte -lasnd -logc -lvorbisidec -logg
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -84,6 +84,7 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES), -iquote $(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
 					-I$(CURDIR)/$(BUILD) \
 					-I$(LIBOGC_INC) \
+					-I$(PORTLIBS_PATH)/ppc/include/freetype2 \
 					-I$(CURDIR)/source
 
 #---------------------------------------------------------------------------------
@@ -107,8 +108,8 @@ clean:
 
 #---------------------------------------------------------------------------------
 run: build
-	# open -a Dolphin $(TARGET).elf
-	wiiload $(TARGET).dol
+	open -a Dolphin $(TARGET).elf
+	# wiiload $(TARGET).elf
 
 
 #---------------------------------------------------------------------------------
@@ -123,7 +124,7 @@ $(OUTPUT).dol: $(OUTPUT).elf
 $(OUTPUT).elf: $(OFILES)
 
 #---------------------------------------------------------------------------------
-# This rule links in binary data with the .jpg extension
+# These rules link in binary data
 #---------------------------------------------------------------------------------
 %.dat.o	:	%.dat
 #---------------------------------------------------------------------------------
@@ -131,7 +132,22 @@ $(OUTPUT).elf: $(OFILES)
 	$(bin2o)
 
 %.template.o	:	%.template
-#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	$(bin2o)
+
+%.png.o	:	%.png
+	@echo $(notdir $<)
+	$(bin2o)
+
+%.pcm.o	:	%.pcm
+	@echo $(notdir $<)
+	$(bin2o)
+
+%.ttf.o	:	%.ttf
+	@echo $(notdir $<)
+	$(bin2o)
+
+%.lang.o	:	%.lang
 	@echo $(notdir $<)
 	$(bin2o)
 
