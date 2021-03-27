@@ -124,7 +124,7 @@ class GuiSound {
     //!\param t Sound format type (SOUND_PCM or SOUND_OGG)
     GuiSound(const u8 *s, s32 l, int t);
     //! Destructor
-    ~GuiSound();
+    virtual ~GuiSound();
     //! Start sound playback
     void Play();
     //! Stop sound playback
@@ -159,7 +159,7 @@ class GuiTrigger {
     //! Constructor
     GuiTrigger();
     //! Destructor
-    ~GuiTrigger();
+    virtual ~GuiTrigger();
     //! Sets a simple trigger. Requires: element is selected, and trigger button
     //! is pressed \param ch Controller channel number \param wiibtns Wii
     //! controller trigger button(s) - classic controller buttons are considered
@@ -228,7 +228,7 @@ class GuiElement {
     //! Constructor
     GuiElement();
     //! Destructor
-    ~GuiElement();
+    virtual ~GuiElement();
     //! Set the element's parent
     //!\param e Pointer to parent element
     void SetParent(GuiElement *e);
@@ -476,7 +476,7 @@ class GuiWindow : public GuiElement {
     //!\param h Height of window
     GuiWindow(int w, int h);
     //! Destructor
-    ~GuiWindow();
+    virtual ~GuiWindow();
     //! Appends a GuiElement to the GuiWindow
     //!\param e The GuiElement to append. If it is already in the GuiWindow, it
     //! is removed first
@@ -561,7 +561,7 @@ class GuiImageData {
     //!\param h Max image height (0 = not set)
     GuiImageData(const u8 *i, int w = 0, int h = 0);
     //! Destructor
-    ~GuiImageData();
+    virtual ~GuiImageData();
     //! Gets a pointer to the image data
     //!\return pointer to image data
     u8 *GetImage();
@@ -599,7 +599,7 @@ class GuiImage : public GuiElement {
     //!\param c Image color
     GuiImage(int w, int h, GXColor c);
     //! Destructor
-    ~GuiImage();
+    virtual ~GuiImage();
     //! Sets the image rotation angle for drawing
     //!\param a Angle (in degrees)
     void SetAngle(float a);
@@ -659,7 +659,7 @@ class GuiText : public GuiElement {
     //!\param t Text
     GuiText(const char *t);
     //! Destructor
-    ~GuiText();
+    virtual ~GuiText();
     //! Sets the text of the GuiText element
     //!\param t Text
     void SetText(const char *t);
@@ -729,7 +729,7 @@ class GuiTooltip : public GuiElement {
     //!\param t Text
     GuiTooltip(const char *t);
     //! Destructor
-    ~GuiTooltip();
+    virtual ~GuiTooltip();
     //! Gets the element's current scale
     float GetScale();
     //! Sets the text of the GuiTooltip element
@@ -756,7 +756,7 @@ class GuiButton : public GuiElement {
     //!\param h Height
     GuiButton(int w = 0, int h = 0);
     //! Destructor
-    ~GuiButton();
+    virtual ~GuiButton();
     //! Sets the button's image
     //!\param i Pointer to GuiImage object
     void SetImage(GuiImage *i);
@@ -852,9 +852,10 @@ class GuiKeyboard : public GuiWindow {
     char kbtextstr[256];
 
   protected:
-    u32 kbtextmaxlen;
-    int shift;
-    int caps;
+    size_t kbtextmaxlen;
+    bool shift;
+    bool caps;
+
     GuiText *kbText;
     GuiImage *keyTextboxImg;
     GuiText *keyCapsText;

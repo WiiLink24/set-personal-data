@@ -10,14 +10,18 @@
 
 #include "gui.h"
 
-static char tmptxt[MAX_KEYBOARD_DISPLAY];
+static char displayText[MAX_KEYBOARD_DISPLAY + 1];
 
-static char *GetDisplayText(char *t) {
-    if (!t)
+static char *GetDisplayText(char *fullStr) {
+    if (!fullStr)
         return NULL;
 
-    snprintf(tmptxt, MAX_KEYBOARD_DISPLAY, "%s", t);
-    return &tmptxt[0];
+    strncpy(displayText, fullStr, MAX_KEYBOARD_DISPLAY);
+
+    // Null terminate full string
+    displayText[MAX_KEYBOARD_DISPLAY] = '\0';
+
+    return displayText;
 }
 
 /**
@@ -27,8 +31,8 @@ static char *GetDisplayText(char *t) {
 GuiKeyboard::GuiKeyboard(char *t, u32 max) {
     width = 540;
     height = 400;
-    shift = 0;
-    caps = 0;
+    shift = false;
+    caps = false;
     selectable = true;
     focus = 0; // allow focus
     alignmentHor = ALIGN_CENTRE;
@@ -296,7 +300,7 @@ startloop:
                 }
 
                 if (keyBtn[i][j]->GetState() == STATE_CLICKED) {
-                    int len = strlen(kbtextstr);
+                    size_t len = strlen(kbtextstr);
 
                     if (len < kbtextmaxlen - 1) {
                         if (shift || caps) {

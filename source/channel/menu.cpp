@@ -466,9 +466,9 @@ static int MenuSettings() {
 
 static int MenuSettingsFile() {
     int menu = MENU_NONE;
-    int ret;
     int i = 0;
     OptionList options;
+
     sprintf(options.name[i++], "Load Device");
     sprintf(options.name[i++], "Save Device");
     sprintf(options.name[i++], "Folder 1");
