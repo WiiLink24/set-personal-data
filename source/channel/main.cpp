@@ -43,23 +43,18 @@ int main(void) {
     bool success = apply_patches();
     if (!success) {
         printf("Failed to apply patches!\n");
-        goto stall;
+        sleep(5);
+        WII_ReturnToMenu();
     }
 
-    printf("\n\n\n\n\n\n");
-
-    WPAD_Init();
     ISFS_Initialize();
     CONF_Init();
-
     SetupPads();
     InitAudio();
     InitFreeType((u8 *)font_ttf, font_ttf_size);
     InitGUIThreads();
 
     MainMenu(1);
-
-    goto stall;
 
     // Decrypt file
     // void *pdLocation = PD_GetFileContents();
@@ -88,14 +83,6 @@ int main(void) {
     // u16_to_char(infoBlock->phoneNumber));
     //
     // printf("\n\nEverything is created! Press the HOME button to exit.\n");
-stall:
-    while (1) {
-        WPAD_ScanPads();
-        u32 pressed = WPAD_ButtonsDown(0);
-        if (pressed & WPAD_BUTTON_HOME)
-            ExitApp();
-        VIDEO_WaitVSync();
-    }
 
     return 0;
 }
