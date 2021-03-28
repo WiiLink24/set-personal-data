@@ -27,6 +27,7 @@
 #include "button_large_png.h"
 #include "button_over_png.h"
 #include "button_png.h"
+#include "channel_gradient_png.h"
 #include "dialogue_box_png.h"
 #include "keyboard_key_over_png.h"
 #include "keyboard_key_png.h"

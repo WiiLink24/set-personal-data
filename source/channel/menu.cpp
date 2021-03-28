@@ -308,12 +308,12 @@ static int MenuSettings() {
     trigHome.SetButtonOnlyTrigger(
         -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
 
-
     GuiText firstNameBtnTxt("First Name", 22, (GXColor){0, 0, 0, 255});
     firstNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage firstNameBtnImg(&btnLargeOutline);
     GuiImage firstNameBtnImgOver(&btnLargeOutlineOver);
-    GuiButton firstNameBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    GuiButton firstNameBtn(btnLargeOutline.GetWidth(),
+                           btnLargeOutline.GetHeight());
     firstNameBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     firstNameBtn.SetPosition(-165, 120);
     firstNameBtn.SetLabel(&firstNameBtnTxt);
@@ -327,7 +327,8 @@ static int MenuSettings() {
     lastNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage lastNameBtnImg(&btnLargeOutline);
     GuiImage lastNameImgOver(&btnLargeOutlineOver);
-    GuiButton lastNameBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    GuiButton lastNameBtn(btnLargeOutline.GetWidth(),
+                          btnLargeOutline.GetHeight());
     lastNameBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     lastNameBtn.SetPosition(0, 120);
     lastNameBtn.SetLabel(&lastNameBtnTxt);
@@ -343,8 +344,7 @@ static int MenuSettings() {
     emailBtnTxt2.SetPosition(0, +20);
     GuiImage emailBtnImg(&btnLargeOutline);
     GuiImage emailBtnImgOver(&btnLargeOutlineOver);
-    GuiButton emailBtn(btnLargeOutline.GetWidth(),
-                        btnLargeOutline.GetHeight());
+    GuiButton emailBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
     emailBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
     emailBtn.SetPosition(-75, 120);
     emailBtn.SetLabel(&emailBtnTxt1, 0);
@@ -369,13 +369,12 @@ static int MenuSettings() {
     saveBtn.SetTrigger(&trigA);
     saveBtn.SetEffectGrow();
 
-
     GuiText exitBtnTxt("Exit", 22, (GXColor){0, 0, 0, 255});
     GuiImage exitBtnImg(&btnOutline);
     GuiImage exitBtnImgOver(&btnOutlineOver);
     GuiButton exitBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     exitBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-    exitBtn.SetPosition(100, -35);
+    exitBtn.SetPosition(100, -15);
     exitBtn.SetLabel(&exitBtnTxt);
     exitBtn.SetImage(&exitBtnImg);
     exitBtn.SetImageOver(&exitBtnImgOver);
@@ -389,7 +388,7 @@ static int MenuSettings() {
     GuiImage resetBtnImgOver(&btnOutlineOver);
     GuiButton resetBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     resetBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
-    resetBtn.SetPosition(-100, -35);
+    resetBtn.SetPosition(-100, -15);
     resetBtn.SetLabel(&resetBtnTxt);
     resetBtn.SetImage(&resetBtnImg);
     resetBtn.SetImageOver(&resetBtnImgOver);
@@ -415,11 +414,7 @@ static int MenuSettings() {
     while (menu == MENU_NONE) {
         usleep(THREAD_SLEEP);
 
-        if (firstNameBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_SETTINGS_FILE;
-        } else if (lastNameBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_SETTINGS_FILE;
-        } else if (emailBtn.GetState() == STATE_CLICKED) {
+        if (emailBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SETTINGS_FILE;
         } else if (exitBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EXIT;
@@ -519,9 +514,21 @@ void MainMenu(int menu) {
 
     mainWindow = new GuiWindow(screenwidth, screenheight);
 
-    bgImg = new GuiImage(screenwidth, screenheight, (GXColor){50, 50, 50, 255});
-    bgImg->ColorStripe(30);
+    bgImg = new GuiImage(screenwidth, screenheight, (GXColor){0, 0, 0, 255});
+
+    // Create a white stripe beneath the title and above actionable buttons.
+    bgImg->ColorStripe(75, (GXColor){0xff, 0xff, 0xff, 255});
+    bgImg->ColorStripe(76, (GXColor){0xff, 0xff, 0xff, 255});
+
+    bgImg->ColorStripe(screenheight - 75, (GXColor){0xff, 0xff, 0xff, 255});
+    bgImg->ColorStripe(screenheight - 76, (GXColor){0xff, 0xff, 0xff, 255});
+
+    GuiImage *channelGradient =
+        new GuiImage(new GuiImageData(channel_gradient_png));
+    channelGradient->SetTile(screenwidth);
+
     mainWindow->Append(bgImg);
+    mainWindow->Append(channelGradient);
 
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,

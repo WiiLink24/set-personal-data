@@ -628,14 +628,10 @@ class GuiImage : public GuiElement {
     //!\param y Y coordinate
     //!\param color Pixel color
     void SetPixel(int x, int y, GXColor color);
-    //! Directly modifies the image data to create a color-striped effect
-    //! Alters the RGB values by the specified amount
-    //!\param s Amount to increment/decrement the RGB values in the image
-    void ColorStripe(int s);
-    //! Sets a stripe effect on the image, overlaying alpha blended rectangles
-    //! Does not alter the image data
-    //!\param s Alpha amount to draw over the image
-    void SetStripe(int s);
+    //! Modifies the image data to create a stripe.
+    //!\param y Y coordinate to create the stripe at
+    //!\param color Pixel color
+    void ColorStripe(int y, GXColor color);
 
   protected:
     int imgType; //!< Type of image data (IMAGE_TEXTURE, IMAGE_COLOR,
@@ -643,7 +639,6 @@ class GuiImage : public GuiElement {
     u8 *image;   //!< Poiner to image data. May be shared with GuiImageData data
     f32 imageangle; //!< Angle to draw the image
     int tile;       //!< Number of times to draw (tile) the image horizontally
-    int stripe; //!< Alpha value (0-255) to apply a stripe effect to the texture
 };
 
 //! Display, manage, and manipulate text in the GUI

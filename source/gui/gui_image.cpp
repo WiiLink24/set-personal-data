@@ -9,6 +9,7 @@
  ***************************************************************************/
 
 #include "gui.h"
+
 /**
  * Constructor for the GuiImage class.
  */
@@ -18,7 +19,6 @@ GuiImage::GuiImage() {
     height = 0;
     imageangle = 0;
     tile = -1;
-    stripe = 0;
     imgType = IMAGE_DATA;
 }
 
@@ -33,7 +33,6 @@ GuiImage::GuiImage(GuiImageData *img) {
     }
     imageangle = 0;
     tile = -1;
-    stripe = 0;
     imgType = IMAGE_DATA;
 }
 
@@ -43,7 +42,6 @@ GuiImage::GuiImage(u8 *img, int w, int h) {
     height = h;
     imageangle = 0;
     tile = -1;
-    stripe = 0;
     imgType = IMAGE_TEXTURE;
 }
 
@@ -53,7 +51,6 @@ GuiImage::GuiImage(int w, int h, GXColor c) {
     height = h;
     imageangle = 0;
     tile = -1;
-    stripe = 0;
     imgType = IMAGE_COLOR;
 
     if (!image)
@@ -131,61 +128,12 @@ void GuiImage::SetPixel(int x, int y, GXColor color) {
     *(image + offset + 33) = color.b;
 }
 
-void GuiImage::SetStripe(int s) { stripe = s; }
-
-void GuiImage::ColorStripe(int shift) {
-    GXColor color;
-    int x, y = 0;
-    int alt = 0;
-
-    int thisHeight = this->GetHeight();
+void GuiImage::ColorStripe(int y, GXColor color) {
+    int x = 0;
     int thisWidth = this->GetWidth();
 
-    for (; y < thisHeight; ++y) {
-        if (y % 3 == 0)
-            alt ^= 1;
-
-        if (alt) {
-            for (x = 0; x < thisWidth; ++x) {
-                color = GetPixel(x, y);
-
-                if (color.r < 255 - shift)
-                    color.r += shift;
-                else
-                    color.r = 255;
-                if (color.g < 255 - shift)
-                    color.g += shift;
-                else
-                    color.g = 255;
-                if (color.b < 255 - shift)
-                    color.b += shift;
-                else
-                    color.b = 255;
-
-                color.a = 255;
-                SetPixel(x, y, color);
-            }
-        } else {
-            for (x = 0; x < thisWidth; ++x) {
-                color = GetPixel(x, y);
-
-                if (color.r > shift)
-                    color.r -= shift;
-                else
-                    color.r = 0;
-                if (color.g > shift)
-                    color.g -= shift;
-                else
-                    color.g = 0;
-                if (color.b > shift)
-                    color.b -= shift;
-                else
-                    color.b = 0;
-
-                color.a = 255;
-                SetPixel(x, y, color);
-            }
-        }
+    for (; x < thisWidth; ++x) {
+        SetPixel(x, y, color);
     }
 }
 
@@ -212,12 +160,5 @@ void GuiImage::Draw() {
                      currScaleX, currScaleY, this->GetAlpha());
     }
 
-    if (stripe > 0) {
-        int thisHeight = this->GetHeight();
-        int thisWidth = this->GetWidth();
-        for (int y = 0; y < thisHeight; y += 6)
-            Menu_DrawRectangle(currLeft, thisTop + y, thisWidth, 3,
-                               (GXColor){0, 0, 0, (u8)stripe}, 1);
-    }
     this->UpdateEffects();
 }
