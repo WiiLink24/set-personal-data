@@ -429,6 +429,12 @@ static int MenuSettings() {
     while (menu == MENU_NONE) {
         usleep(THREAD_SLEEP);
 
+        if (firstNameBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_SETTINGS_FILE;
+        }
+        if (lastNameBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_SETTINGS_FILE;
+        }
         if (emailBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SETTINGS_FILE;
         }
