@@ -12,9 +12,8 @@
 #include <ogcsys.h>
 
 void InitGUIThreads();
-void MainMenu(int menuitem);
-void OnScreenKeyboard(char *var, u16 maxlen);
+void MainMenu (int menuitem);
 
-enum { MENU_EXIT = -1, MENU_NONE, MENU_SETTINGS, MENU_SETTINGS_FILE };
+enum { MENU_EXIT = -1, MENU_NONE, MENU_SETTINGS, MENU_SETTINGS_FILE, MENU_CREDITS };
 
 #endif
