@@ -520,15 +520,21 @@ void MainMenu(int menu) {
     bgImg->ColorStripe(75, (GXColor){0xff, 0xff, 0xff, 255});
     bgImg->ColorStripe(76, (GXColor){0xff, 0xff, 0xff, 255});
 
-    bgImg->ColorStripe(screenheight - 75, (GXColor){0xff, 0xff, 0xff, 255});
-    bgImg->ColorStripe(screenheight - 76, (GXColor){0xff, 0xff, 0xff, 255});
+    bgImg->ColorStripe(screenheight - 77, (GXColor){0xff, 0xff, 0xff, 255});
+    bgImg->ColorStripe(screenheight - 78, (GXColor){0xff, 0xff, 0xff, 255});
 
-    GuiImage *channelGradient =
-        new GuiImage(new GuiImageData(channel_gradient_png));
-    channelGradient->SetTile(screenwidth);
+    GuiImage *topChannelGradient =
+        new GuiImage(new GuiImageData(channel_gradient_top_png));
+    topChannelGradient->SetTile(screenwidth / 4);
+
+    GuiImage *bottomChannelGradient =
+        new GuiImage(new GuiImageData(channel_gradient_bottom_png));
+    bottomChannelGradient->SetTile(screenwidth / 4);
+    bottomChannelGradient->SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
 
     mainWindow->Append(bgImg);
-    mainWindow->Append(channelGradient);
+    mainWindow->Append(topChannelGradient);
+    mainWindow->Append(bottomChannelGradient);
 
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
