@@ -308,82 +308,67 @@ static int MenuSettings() {
     trigHome.SetButtonOnlyTrigger(
         -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
 
-    GuiText fileBtnTxt("File Browser", 22, (GXColor){0, 0, 0, 255});
-    fileBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage fileBtnImg(&btnLargeOutline);
-    GuiImage fileBtnImgOver(&btnLargeOutlineOver);
-    GuiButton fileBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-    fileBtn.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
-    fileBtn.SetPosition(50, 120);
-    fileBtn.SetLabel(&fileBtnTxt);
-    fileBtn.SetImage(&fileBtnImg);
-    fileBtn.SetImageOver(&fileBtnImgOver);
-    fileBtn.SetSoundOver(&btnSoundOver);
-    fileBtn.SetTrigger(&trigA);
-    fileBtn.SetEffectGrow();
 
-    GuiText videoBtnTxt("Video", 22, (GXColor){0, 0, 0, 255});
-    videoBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage videoBtnImg(&btnLargeOutline);
-    GuiImage videoBtnImgOver(&btnLargeOutlineOver);
-    GuiButton videoBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-    videoBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    videoBtn.SetPosition(0, 120);
-    videoBtn.SetLabel(&videoBtnTxt);
-    videoBtn.SetImage(&videoBtnImg);
-    videoBtn.SetImageOver(&videoBtnImgOver);
-    videoBtn.SetSoundOver(&btnSoundOver);
-    videoBtn.SetTrigger(&trigA);
-    videoBtn.SetEffectGrow();
+    GuiText firstNameBtnTxt("First Name", 22, (GXColor){0, 0, 0, 255});
+    firstNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage firstNameBtnImg(&btnLargeOutline);
+    GuiImage firstNameBtnImgOver(&btnLargeOutlineOver);
+    GuiButton firstNameBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    firstNameBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    firstNameBtn.SetPosition(-165, 120);
+    firstNameBtn.SetLabel(&firstNameBtnTxt);
+    firstNameBtn.SetImage(&firstNameBtnImg);
+    firstNameBtn.SetImageOver(&firstNameBtnImgOver);
+    firstNameBtn.SetSoundOver(&btnSoundOver);
+    firstNameBtn.SetTrigger(&trigA);
+    firstNameBtn.SetEffectGrow();
 
-    GuiText savingBtnTxt1("Saving", 22, (GXColor){0, 0, 0, 255});
-    GuiText savingBtnTxt2("&", 18, (GXColor){0, 0, 0, 255});
-    GuiText savingBtnTxt3("Loading", 22, (GXColor){0, 0, 0, 255});
-    savingBtnTxt1.SetPosition(0, -20);
-    savingBtnTxt3.SetPosition(0, +20);
-    GuiImage savingBtnImg(&btnLargeOutline);
-    GuiImage savingBtnImgOver(&btnLargeOutlineOver);
-    GuiButton savingBtn(btnLargeOutline.GetWidth(),
+    GuiText lastNameBtnTxt("Last Name", 22, (GXColor){0, 0, 0, 255});
+    lastNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage lastNameBtnImg(&btnLargeOutline);
+    GuiImage lastNameImgOver(&btnLargeOutlineOver);
+    GuiButton lastNameBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    lastNameBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    lastNameBtn.SetPosition(0, 120);
+    lastNameBtn.SetLabel(&lastNameBtnTxt);
+    lastNameBtn.SetImage(&lastNameBtnImg);
+    lastNameBtn.SetImageOver(&lastNameImgOver);
+    lastNameBtn.SetSoundOver(&btnSoundOver);
+    lastNameBtn.SetTrigger(&trigA);
+    lastNameBtn.SetEffectGrow();
+
+    GuiText emailBtnTxt1("Email", 22, (GXColor){0, 0, 0, 255});
+    GuiText emailBtnTxt2("Address", 22, (GXColor){0, 0, 0, 255});
+    emailBtnTxt1.SetPosition(0, -20);
+    emailBtnTxt2.SetPosition(0, +20);
+    GuiImage emailBtnImg(&btnLargeOutline);
+    GuiImage emailBtnImgOver(&btnLargeOutlineOver);
+    GuiButton emailBtn(btnLargeOutline.GetWidth(),
                         btnLargeOutline.GetHeight());
-    savingBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    savingBtn.SetPosition(-50, 120);
-    savingBtn.SetLabel(&savingBtnTxt1, 0);
-    savingBtn.SetLabel(&savingBtnTxt2, 1);
-    savingBtn.SetLabel(&savingBtnTxt3, 2);
-    savingBtn.SetImage(&savingBtnImg);
-    savingBtn.SetImageOver(&savingBtnImgOver);
-    savingBtn.SetSoundOver(&btnSoundOver);
-    savingBtn.SetTrigger(&trigA);
-    savingBtn.SetEffectGrow();
+    emailBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
+    emailBtn.SetPosition(-75, 120);
+    emailBtn.SetLabel(&emailBtnTxt1, 0);
+    emailBtn.SetLabel(&emailBtnTxt2, 1);
+    emailBtn.SetImage(&emailBtnImg);
+    emailBtn.SetImageOver(&emailBtnImgOver);
+    emailBtn.SetSoundOver(&btnSoundOver);
+    emailBtn.SetTrigger(&trigA);
+    emailBtn.SetEffectGrow();
 
-    GuiText menuBtnTxt("Menu", 22, (GXColor){0, 0, 0, 255});
-    menuBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage menuBtnImg(&btnLargeOutline);
-    GuiImage menuBtnImgOver(&btnLargeOutlineOver);
-    GuiButton menuBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-    menuBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    menuBtn.SetPosition(-125, 250);
-    menuBtn.SetLabel(&menuBtnTxt);
-    menuBtn.SetImage(&menuBtnImg);
-    menuBtn.SetImageOver(&menuBtnImgOver);
-    menuBtn.SetSoundOver(&btnSoundOver);
-    menuBtn.SetTrigger(&trigA);
-    menuBtn.SetEffectGrow();
+    GuiText saveBtnTxt("Save", 22, (GXColor){0, 0, 0, 255});
+    saveBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage saveBtnImg(&btnLargeOutline);
+    GuiImage saveBtnImgOver(&btnLargeOutlineOver);
+    GuiButton saveBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    saveBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    saveBtn.SetPosition(0, 250);
+    saveBtn.SetLabel(&saveBtnTxt);
+    saveBtn.SetImage(&saveBtnImg);
+    saveBtn.SetImageOver(&saveBtnImgOver);
+    saveBtn.SetSoundOver(&btnSoundOver);
+    saveBtn.SetTrigger(&trigA);
+    saveBtn.SetEffectGrow();
 
-    GuiText networkBtnTxt("Network", 22, (GXColor){0, 0, 0, 255});
-    networkBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage networkBtnImg(&btnLargeOutline);
-    GuiImage networkBtnImgOver(&btnLargeOutlineOver);
-    GuiButton networkBtn(btnLargeOutline.GetWidth(),
-                         btnLargeOutline.GetHeight());
-    networkBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    networkBtn.SetPosition(125, 250);
-    networkBtn.SetLabel(&networkBtnTxt);
-    networkBtn.SetImage(&networkBtnImg);
-    networkBtn.SetImageOver(&networkBtnImgOver);
-    networkBtn.SetSoundOver(&btnSoundOver);
-    networkBtn.SetTrigger(&trigA);
-    networkBtn.SetEffectGrow();
 
     GuiText exitBtnTxt("Exit", 22, (GXColor){0, 0, 0, 255});
     GuiImage exitBtnImg(&btnOutline);
@@ -415,14 +400,10 @@ static int MenuSettings() {
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
     w.Append(&titleTxt);
-    w.Append(&fileBtn);
-    w.Append(&videoBtn);
-    w.Append(&savingBtn);
-    w.Append(&menuBtn);
-
-#ifdef HW_RVL
-    w.Append(&networkBtn);
-#endif
+    w.Append(&firstNameBtn);
+    w.Append(&lastNameBtn);
+    w.Append(&emailBtn);
+    w.Append(&saveBtn);
 
     w.Append(&exitBtn);
     w.Append(&resetBtn);
@@ -434,13 +415,11 @@ static int MenuSettings() {
     while (menu == MENU_NONE) {
         usleep(THREAD_SLEEP);
 
-        if (videoBtn.GetState() == STATE_CLICKED) {
+        if (firstNameBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SETTINGS_FILE;
-        } else if (savingBtn.GetState() == STATE_CLICKED) {
+        } else if (lastNameBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SETTINGS_FILE;
-        } else if (menuBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_SETTINGS_FILE;
-        } else if (networkBtn.GetState() == STATE_CLICKED) {
+        } else if (emailBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SETTINGS_FILE;
         } else if (exitBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EXIT;
