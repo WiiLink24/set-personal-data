@@ -315,7 +315,7 @@ static int MenuSettings() {
     GuiButton firstNameBtn(btnLargeOutline.GetWidth(),
                            btnLargeOutline.GetHeight());
     firstNameBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    firstNameBtn.SetPosition(-165, 120);
+    firstNameBtn.SetPosition(-175, 120);
     firstNameBtn.SetLabel(&firstNameBtnTxt);
     firstNameBtn.SetImage(&firstNameBtnImg);
     firstNameBtn.SetImageOver(&firstNameBtnImgOver);
@@ -341,12 +341,12 @@ static int MenuSettings() {
     GuiText emailBtnTxt1("Email", 22, (GXColor){0, 0, 0, 255});
     GuiText emailBtnTxt2("Address", 22, (GXColor){0, 0, 0, 255});
     emailBtnTxt1.SetPosition(0, -20);
-    emailBtnTxt2.SetPosition(0, +20);
+    emailBtnTxt2.SetPosition(0, +10);
     GuiImage emailBtnImg(&btnLargeOutline);
     GuiImage emailBtnImgOver(&btnLargeOutlineOver);
     GuiButton emailBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
     emailBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    emailBtn.SetPosition(-75, 120);
+    emailBtn.SetPosition(-65, 120);
     emailBtn.SetLabel(&emailBtnTxt1, 0);
     emailBtn.SetLabel(&emailBtnTxt2, 1);
     emailBtn.SetImage(&emailBtnImg);
