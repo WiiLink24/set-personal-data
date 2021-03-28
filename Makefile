@@ -143,7 +143,7 @@ $(OUTPUT).elf: $(OFILES)
 	@echo $(notdir $<)
 	$(bin2o)
 
-%.ttf.o	:	%.ttf
+%.otf.o	:	%.otf
 	@echo $(notdir $<)
 	$(bin2o)
 

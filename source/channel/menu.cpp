@@ -302,13 +302,13 @@ static int MenuCredits() {
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
-    
-    GuiText titleTxt("Credits", 28, (GXColor) {255, 255, 255, 255});
+
+    GuiText titleTxt("Credits", 28, (GXColor){255, 255, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
-    GuiText nameTxt1("-Spotlight", 28, (GXColor) {255, 255, 255, 255});
-    GuiText nameTxt2("-SketchMaster2001", 28, (GXColor) {255, 255, 255, 255});
+    GuiText nameTxt1("-Spotlight", 28, (GXColor){255, 255, 255, 255});
+    GuiText nameTxt2("-SketchMaster2001", 28, (GXColor){255, 255, 255, 255});
     nameTxt1.SetPosition(0, 100);
     nameTxt2.SetPosition(0, 150);
     nameTxt1.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
@@ -327,9 +327,7 @@ static int MenuCredits() {
     exitBtn.SetTrigger(&trigA);
     exitBtn.SetEffectGrow();
 
-
-    GuiImage *logo =
-            new GuiImage(new GuiImageData(logo_png));
+    GuiImage *logo = new GuiImage(new GuiImageData(logo_png));
     logo->SetAlignment(ALIGN_CENTRE, ALIGN_BOTTOM);
     logo->SetPosition(0, -150);
 
@@ -343,7 +341,6 @@ static int MenuCredits() {
     w.Append(&nameTxt2);
     w.Append(&exitBtn);
     ResumeGui();
-
 
     while (menu == MENU_NONE) {
         usleep(THREAD_SLEEP);
@@ -384,7 +381,7 @@ static int MenuSettings() {
     trigHome.SetButtonOnlyTrigger(
         -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
 
-    wchar_t testingContent[22] = L"Standalone text field";
+    wchar_t testingContent[22] = L"仮仮仮仮仮仮仮仮";
     GuiTextField testingField(testingContent, 20);
     testingField.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     testingField.SetPosition(0, 75);
@@ -547,11 +544,9 @@ static int MenuSettings() {
 static int MenuSettingsFile() {
     int menu = MENU_NONE;
 
-
     GuiText titleTxt("Set Personal Data", 28, (GXColor){255, 255, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 10);
-
 
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
@@ -620,18 +615,18 @@ void MainMenu(int menu) {
 
     while (currentMenu != MENU_EXIT) {
         switch (currentMenu) {
-            case MENU_SETTINGS:
-                currentMenu = MenuSettings();
-                break;
-            case MENU_SETTINGS_FILE:
-                currentMenu = MenuSettingsFile();
-                break;
-            case MENU_CREDITS:
-                currentMenu = MenuCredits();
-                break;
-            default: // unrecognized menu
-                currentMenu = MenuSettings();
-                break;
+        case MENU_SETTINGS:
+            currentMenu = MenuSettings();
+            break;
+        case MENU_SETTINGS_FILE:
+            currentMenu = MenuSettingsFile();
+            break;
+        case MENU_CREDITS:
+            currentMenu = MenuCredits();
+            break;
+        default: // unrecognized menu
+            currentMenu = MenuSettings();
+            break;
         }
     }
 

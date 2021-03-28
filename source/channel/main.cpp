@@ -51,7 +51,7 @@ int main(void) {
     CONF_Init();
     SetupPads();
     InitAudio();
-    InitFreeType((u8 *)font_ttf, font_ttf_size);
+    InitFreeType((u8 *)noto_sans_jp_regular_otf, noto_sans_jp_regular_otf_size);
     InitGUIThreads();
 
     MainMenu(1);

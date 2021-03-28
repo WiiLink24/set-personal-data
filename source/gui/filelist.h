@@ -12,7 +12,7 @@
 #include <gccore.h>
 
 // Fonts
-#include "font_ttf.h"
+#include "noto_sans_jp_regular_otf.h"
 
 // Languages
 #include "en_lang.h"
