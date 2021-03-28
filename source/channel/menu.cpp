@@ -287,6 +287,81 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen) {
 }
 
 /****************************************************************************
+ * Credits
+ ***************************************************************************/
+static int MenuCredits() {
+
+    int menu = MENU_NONE;
+
+    GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+    GuiImageData btnOutline(button_png);
+    GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnLargeOutline(button_large_png);
+    GuiImageData btnLargeOutlineOver(button_large_over_png);
+
+    GuiTrigger trigA;
+    trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
+                           PAD_BUTTON_A);
+    
+    GuiText titleTxt("Credits", 28, (GXColor) {255, 255, 255, 255});
+    titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    titleTxt.SetPosition(0, 25);
+
+    GuiText nameTxt1("-Spotlight", 28, (GXColor) {255, 255, 255, 255});
+    GuiText nameTxt2("-SketchMaster2001", 28, (GXColor) {255, 255, 255, 255});
+    nameTxt1.SetPosition(0, 100);
+    nameTxt2.SetPosition(0, 150);
+    nameTxt1.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    nameTxt2.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+
+    GuiText exitBtnTxt("Back", 22, (GXColor){0, 0, 0, 255});
+    GuiImage exitBtnImg(&btnOutline);
+    GuiImage exitBtnImgOver(&btnOutlineOver);
+    GuiButton exitBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    exitBtn.SetAlignment(ALIGN_CENTRE, ALIGN_BOTTOM);
+    exitBtn.SetPosition(0, -15);
+    exitBtn.SetLabel(&exitBtnTxt);
+    exitBtn.SetImage(&exitBtnImg);
+    exitBtn.SetImageOver(&exitBtnImgOver);
+    exitBtn.SetSoundOver(&btnSoundOver);
+    exitBtn.SetTrigger(&trigA);
+    exitBtn.SetEffectGrow();
+
+
+    GuiImage *logo =
+            new GuiImage(new GuiImageData(logo_png));
+    logo->SetAlignment(ALIGN_CENTRE, ALIGN_BOTTOM);
+    logo->SetPosition(0, -150);
+
+    HaltGui();
+    GuiWindow w(screenwidth, screenheight);
+    mainWindow->Append(logo);
+    mainWindow->Append(&w);
+    mainWindow->Append(&titleTxt);
+
+    w.Append(&nameTxt1);
+    w.Append(&nameTxt2);
+    w.Append(&exitBtn);
+    ResumeGui();
+
+
+    while (menu == MENU_NONE) {
+        usleep(THREAD_SLEEP);
+
+        if (exitBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_SETTINGS;
+        }
+    }
+
+    HaltGui();
+
+    mainWindow->Remove(&w);
+    mainWindow->Remove(&titleTxt);
+    mainWindow->Remove(logo);
+    return menu;
+}
+
+/****************************************************************************
  * MenuSettings
  ***************************************************************************/
 static int MenuSettings() {
@@ -472,35 +547,14 @@ static int MenuSettings() {
 static int MenuSettingsFile() {
     int menu = MENU_NONE;
 
-    GuiText titleTxt("Settings - Saving & Loading", 28,
-                     (GXColor){255, 255, 255, 255});
-    titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
-    titleTxt.SetPosition(50, 50);
 
-    GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
-    GuiImageData btnOutline(button_png);
-    GuiImageData btnOutlineOver(button_over_png);
+    GuiText titleTxt("Set Personal Data", 28, (GXColor){255, 255, 255, 255});
+    titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    titleTxt.SetPosition(0, 10);
 
-    GuiTrigger trigA;
-    trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
-                           PAD_BUTTON_A);
-
-    GuiText backBtnTxt("Go Back", 22, (GXColor){0, 0, 0, 255});
-    GuiImage backBtnImg(&btnOutline);
-    GuiImage backBtnImgOver(&btnOutlineOver);
-    GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-    backBtn.SetPosition(100, -35);
-    backBtn.SetLabel(&backBtnTxt);
-    backBtn.SetImage(&backBtnImg);
-    backBtn.SetImageOver(&backBtnImgOver);
-    backBtn.SetSoundOver(&btnSoundOver);
-    backBtn.SetTrigger(&trigA);
-    backBtn.SetEffectGrow();
 
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
-    w.Append(&backBtn);
     mainWindow->Append(&w);
     mainWindow->Append(&titleTxt);
     ResumeGui();
@@ -566,15 +620,18 @@ void MainMenu(int menu) {
 
     while (currentMenu != MENU_EXIT) {
         switch (currentMenu) {
-        case MENU_SETTINGS:
-            currentMenu = MenuSettings();
-            break;
-        case MENU_SETTINGS_FILE:
-            currentMenu = MenuSettingsFile();
-            break;
-        default: // unrecognized menu
-            currentMenu = MenuSettings();
-            break;
+            case MENU_SETTINGS:
+                currentMenu = MenuSettings();
+                break;
+            case MENU_SETTINGS_FILE:
+                currentMenu = MenuSettingsFile();
+                break;
+            case MENU_CREDITS:
+                currentMenu = MenuCredits();
+                break;
+            default: // unrecognized menu
+                currentMenu = MenuSettings();
+                break;
         }
     }
 
