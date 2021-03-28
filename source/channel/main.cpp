@@ -19,14 +19,19 @@ extern "C" {
 #include <libpatcher/libpatcher.h>
 }
 
+static void power_cb() {
+    ShutoffRumble();
+    StopGX();
+    STM_ShutdownToIdle();
+}
+
 void ExitApp() {
     ShutoffRumble();
     StopGX();
-    exit(0);
+    WII_ReturnToMenu();
 }
 
-static void power_cb() { ExitApp(); }
-static void reset_cb(u32 level, void *unk) { STM_RebootSystem(); }
+static void reset_cb(u32 level, void *unk) { ExitApp(); }
 
 int main(void) {
     // Make hardware buttons functional.
@@ -88,7 +93,7 @@ stall:
         WPAD_ScanPads();
         u32 pressed = WPAD_ButtonsDown(0);
         if (pressed & WPAD_BUTTON_HOME)
-            exit(0);
+            ExitApp();
         VIDEO_WaitVSync();
     }
 
