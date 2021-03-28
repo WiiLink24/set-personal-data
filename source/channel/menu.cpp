@@ -361,13 +361,27 @@ static int MenuSettings() {
     GuiImage saveBtnImgOver(&btnLargeOutlineOver);
     GuiButton saveBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
     saveBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    saveBtn.SetPosition(0, 250);
+    saveBtn.SetPosition(-100, 250);
     saveBtn.SetLabel(&saveBtnTxt);
     saveBtn.SetImage(&saveBtnImg);
     saveBtn.SetImageOver(&saveBtnImgOver);
     saveBtn.SetSoundOver(&btnSoundOver);
     saveBtn.SetTrigger(&trigA);
     saveBtn.SetEffectGrow();
+
+    GuiText creditsBtnTxt("Credits", 22, (GXColor){0, 0, 0, 255});
+    saveBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage creditsBtnImg(&btnLargeOutline);
+    GuiImage creditsBtnImgOver(&btnLargeOutlineOver);
+    GuiButton creditsBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    creditsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    creditsBtn.SetPosition(100, 250);
+    creditsBtn.SetLabel(&creditsBtnTxt);
+    creditsBtn.SetImage(&creditsBtnImg);
+    creditsBtn.SetImageOver(&creditsBtnImgOver);
+    creditsBtn.SetSoundOver(&btnSoundOver);
+    creditsBtn.SetTrigger(&trigA);
+    creditsBtn.SetEffectGrow();
 
     GuiText exitBtnTxt("Exit", 22, (GXColor){0, 0, 0, 255});
     GuiImage exitBtnImg(&btnOutline);
@@ -403,6 +417,7 @@ static int MenuSettings() {
     w.Append(&lastNameBtn);
     w.Append(&emailBtn);
     w.Append(&saveBtn);
+    w.Append(&creditsBtn);
 
     w.Append(&exitBtn);
     w.Append(&resetBtn);
@@ -416,15 +431,21 @@ static int MenuSettings() {
 
         if (emailBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SETTINGS_FILE;
-        } else if (exitBtn.GetState() == STATE_CLICKED) {
+        }
+        else if (exitBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EXIT;
-        } else if (resetBtn.GetState() == STATE_CLICKED) {
+        }
+        else if(creditsBtn.GetState() == STATE_CLICKED)
+        {
+            menu = MENU_CREDITS;
+        }
+        else if (resetBtn.GetState() == STATE_CLICKED) {
             resetBtn.ResetState();
 
             int choice = WindowPrompt(
-                "Reset Settings",
-                "Are you sure that you want to reset your settings?", "Yes",
-                "No");
+                    "Reset Settings",
+                    "Are you sure that you want to reset your settings?", "Yes",
+                    "No");
             if (choice == 1) {
                 // reset settings
             }
