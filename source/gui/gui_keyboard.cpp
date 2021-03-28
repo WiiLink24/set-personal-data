@@ -10,25 +10,10 @@
 
 #include "gui.h"
 
-static char displayText[MAX_KEYBOARD_DISPLAY + 1];
-
-static char *GetDisplayText(char *fullStr) {
-    if (!fullStr)
-        return NULL;
-
-    strncpy(displayText, fullStr, MAX_KEYBOARD_DISPLAY);
-
-    // Null terminate full string
-    displayText[MAX_KEYBOARD_DISPLAY] = '\0';
-
-    return displayText;
-}
-
 /**
  * Constructor for the GuiKeyboard class.
  */
-
-GuiKeyboard::GuiKeyboard(char *t, u32 max) {
+GuiKeyboard::GuiKeyboard(wchar_t *t, u32 max) {
     width = 540;
     height = 400;
     shift = false;
@@ -37,7 +22,7 @@ GuiKeyboard::GuiKeyboard(char *t, u32 max) {
     focus = 0; // allow focus
     alignmentHor = ALIGN_CENTRE;
     alignmentVert = ALIGN_MIDDLE;
-    snprintf(kbtextstr, 255, "%s", t);
+    swprintf(kbtextstr, 255, L"%ls", t);
     kbtextmaxlen = max;
 
     Key thekeys[4][11] = {{{'1', '!'},
@@ -87,17 +72,8 @@ GuiKeyboard::GuiKeyboard(char *t, u32 max) {
                            {'\0', '\0'}}};
     memcpy(keys, thekeys, sizeof(thekeys));
 
-    keyTextbox = new GuiImageData(keyboard_textbox_png);
-    keyTextboxImg = new GuiImage(keyTextbox);
-    keyTextboxImg->SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    keyTextboxImg->SetPosition(0, 0);
-    this->Append(keyTextboxImg);
-
-    kbText =
-        new GuiText(GetDisplayText(kbtextstr), 20, (GXColor){0, 0, 0, 0xff});
-    kbText->SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    kbText->SetPosition(0, 13);
-    this->Append(kbText);
+    kbTextfield = new GuiTextField(kbtextstr, max);
+    this->Append(kbTextfield);
 
     key = new GuiImageData(keyboard_key_png);
     keyOver = new GuiImageData(keyboard_key_over_png);
@@ -180,7 +156,7 @@ GuiKeyboard::GuiKeyboard(char *t, u32 max) {
 
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 11; j++) {
-            if (keys[i][j].ch != '\0') {
+            if (keys[i][j].ch != L'\0') {
                 txt[0] = keys[i][j].ch;
                 keyImg[i][j] = new GuiImage(key);
                 keyImgOver[i][j] = new GuiImage(keyOver);
@@ -207,9 +183,7 @@ GuiKeyboard::GuiKeyboard(char *t, u32 max) {
  * Destructor for the GuiKeyboard class.
  */
 GuiKeyboard::~GuiKeyboard() {
-    delete kbText;
-    delete keyTextbox;
-    delete keyTextboxImg;
+    delete kbTextfield;
     delete keyCapsText;
     delete keyCapsImg;
     delete keyCapsOverImg;
@@ -238,7 +212,7 @@ GuiKeyboard::~GuiKeyboard() {
 
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 11; j++) {
-            if (keys[i][j].ch != '\0') {
+            if (keys[i][j].ch != L'\0') {
                 delete keyImg[i][j];
                 delete keyImgOver[i][j];
                 delete keyTxt[i][j];
@@ -262,15 +236,15 @@ void GuiKeyboard::Update(GuiTrigger *t) {
     bool update = false;
 
     if (keySpace->GetState() == STATE_CLICKED) {
-        if (strlen(kbtextstr) < kbtextmaxlen) {
-            kbtextstr[strlen(kbtextstr)] = ' ';
-            kbText->SetText(kbtextstr);
+        if (wcslen(kbtextstr) < kbtextmaxlen) {
+            kbtextstr[wcslen(kbtextstr)] = L' ';
+            kbTextfield->SetText(kbtextstr);
         }
         keySpace->SetState(STATE_SELECTED, t->chan);
     } else if (keyBack->GetState() == STATE_CLICKED) {
-        if (strlen(kbtextstr) > 0) {
-            kbtextstr[strlen(kbtextstr) - 1] = 0;
-            kbText->SetText(GetDisplayText(kbtextstr));
+        if (wcslen(kbtextstr) > 0) {
+            kbtextstr[wcslen(kbtextstr) - 1] = 0;
+            kbTextfield->SetText(kbtextstr);
         }
         keyBack->SetState(STATE_SELECTED, t->chan);
     } else if (keyShift->GetState() == STATE_CLICKED) {
@@ -289,7 +263,7 @@ startloop:
 
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 11; j++) {
-            if (keys[i][j].ch != '\0') {
+            if (keys[i][j].ch != L'\0') {
                 if (update) {
                     if (shift || caps)
                         txt[0] = keys[i][j].chShift;
@@ -300,7 +274,7 @@ startloop:
                 }
 
                 if (keyBtn[i][j]->GetState() == STATE_CLICKED) {
-                    size_t len = strlen(kbtextstr);
+                    size_t len = wcslen(kbtextstr);
 
                     if (len < kbtextmaxlen - 1) {
                         if (shift || caps) {
@@ -308,9 +282,10 @@ startloop:
                         } else {
                             kbtextstr[len] = keys[i][j].ch;
                         }
-                        kbtextstr[len + 1] = '\0';
+                        kbtextstr[len + 1] = L'\0';
                     }
-                    kbText->SetText(GetDisplayText(kbtextstr));
+
+                    kbTextfield->SetText(kbtextstr);
                     keyBtn[i][j]->SetState(STATE_SELECTED, t->chan);
 
                     if (shift) {

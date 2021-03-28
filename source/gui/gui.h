@@ -835,24 +835,41 @@ class GuiButton : public GuiElement {
 };
 
 typedef struct _keytype {
-    char ch, chShift;
+    wchar_t ch, chShift;
 } Key;
+
+//! Configurable textfield
+class GuiTextField : public GuiWindow {
+  public:
+    GuiTextField(wchar_t *content, u32 max);
+    ~GuiTextField();
+    void Update(GuiTrigger *t);
+    wchar_t *GetText();
+    void SetText(wchar_t *newText);
+    wchar_t value[256];
+
+  protected:
+    size_t max_len;
+
+    GuiText *kbText;
+    GuiImage *keyTextboxImg;
+    GuiImageData *keyTextbox;
+};
 
 //! On-screen keyboard
 class GuiKeyboard : public GuiWindow {
   public:
-    GuiKeyboard(char *t, u32 m);
+    GuiKeyboard(wchar_t *t, u32 m);
     ~GuiKeyboard();
     void Update(GuiTrigger *t);
-    char kbtextstr[256];
+    wchar_t kbtextstr[256];
 
   protected:
     size_t kbtextmaxlen;
     bool shift;
     bool caps;
 
-    GuiText *kbText;
-    GuiImage *keyTextboxImg;
+    GuiTextField *kbTextfield;
     GuiText *keyCapsText;
     GuiImage *keyCapsImg;
     GuiImage *keyCapsOverImg;
@@ -884,65 +901,6 @@ class GuiKeyboard : public GuiWindow {
     GuiTrigger *trigA;
     GuiTrigger *trig2;
     Key keys[4][11]; // two chars = less space than one pointer
-};
-
-typedef struct _optionlist {
-    int length;
-    char name[MAX_OPTIONS][50];
-    char value[MAX_OPTIONS][50];
-} OptionList;
-
-//! Display a list of menu options
-class GuiOptionBrowser : public GuiElement {
-  public:
-    GuiOptionBrowser(int w, int h, OptionList *l);
-    ~GuiOptionBrowser();
-    void SetCol1Position(int x);
-    void SetCol2Position(int x);
-    int FindMenuItem(int c, int d);
-    int GetClickedOption();
-    void ResetState();
-    void SetFocus(int f);
-    void Draw();
-    void TriggerUpdate();
-    void ResetText();
-    void Update(GuiTrigger *t);
-    GuiText *optionVal[PAGESIZE];
-
-  protected:
-    int optionIndex[PAGESIZE];
-    GuiButton *optionBtn[PAGESIZE];
-    GuiText *optionTxt[PAGESIZE];
-    GuiImage *optionBg[PAGESIZE];
-
-    int selectedItem;
-    int listOffset;
-    OptionList *options;
-
-    GuiButton *arrowUpBtn;
-    GuiButton *arrowDownBtn;
-
-    GuiImage *bgOptionsImg;
-    GuiImage *scrollbarImg;
-    GuiImage *arrowDownImg;
-    GuiImage *arrowDownOverImg;
-    GuiImage *arrowUpImg;
-    GuiImage *arrowUpOverImg;
-
-    GuiImageData *bgOptions;
-    GuiImageData *bgOptionsEntry;
-    GuiImageData *scrollbar;
-    GuiImageData *arrowDown;
-    GuiImageData *arrowDownOver;
-    GuiImageData *arrowUp;
-    GuiImageData *arrowUpOver;
-
-    GuiSound *btnSoundOver;
-    GuiSound *btnSoundClick;
-    GuiTrigger *trigA;
-    GuiTrigger *trig2;
-
-    bool listChanged;
 };
 
 #endif

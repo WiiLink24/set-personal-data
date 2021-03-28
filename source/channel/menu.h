@@ -12,8 +12,14 @@
 #include <ogcsys.h>
 
 void InitGUIThreads();
-void MainMenu (int menuitem);
+void MainMenu(int menuitem);
 
-enum { MENU_EXIT = -1, MENU_NONE, MENU_SETTINGS, MENU_SETTINGS_FILE, MENU_CREDITS };
+enum {
+    MENU_EXIT = -1,
+    MENU_NONE,
+    MENU_SETTINGS,
+    MENU_SETTINGS_FILE,
+    MENU_CREDITS
+};
 
 #endif

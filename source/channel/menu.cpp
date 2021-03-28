@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include <unistd.h>
 #include <wiiuse/wpad.h>
 
@@ -28,7 +29,7 @@ static lwp_t guithread = LWP_THREAD_NULL;
 static bool guiHalt = true;
 static bool ExitRequested = false;
 
-char testing[256] = "Testing input...";
+wchar_t testing[256] = L"Testing input...";
 
 /****************************************************************************
  * ResumeGui
@@ -217,7 +218,7 @@ void InitGUIThreads() {
  * Opens an on-screen keyboard window, with the data entered being stored
  * into the specified variable.
  ***************************************************************************/
-void OnScreenKeyboard(char *var, u16 maxlen) {
+void OnScreenKeyboard(wchar_t *var, u16 maxlen) {
     int save = -1;
 
     GuiKeyboard keyboard(var, maxlen);
@@ -276,7 +277,7 @@ void OnScreenKeyboard(char *var, u16 maxlen) {
     }
 
     if (save) {
-        snprintf(var, maxlen, "%s", keyboard.kbtextstr);
+        swprintf(var, maxlen, L"%ls", keyboard.kbtextstr);
     }
 
     HaltGui();
@@ -307,6 +308,11 @@ static int MenuSettings() {
     GuiTrigger trigHome;
     trigHome.SetButtonOnlyTrigger(
         -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
+
+    wchar_t testingContent[22] = L"Standalone text field";
+    GuiTextField testingField(testingContent, 20);
+    testingField.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    testingField.SetPosition(0, 75);
 
     GuiText firstNameBtnTxt("First Name", 22, (GXColor){0, 0, 0, 255});
     firstNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
@@ -373,7 +379,8 @@ static int MenuSettings() {
     saveBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage creditsBtnImg(&btnLargeOutline);
     GuiImage creditsBtnImgOver(&btnLargeOutlineOver);
-    GuiButton creditsBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    GuiButton creditsBtn(btnLargeOutline.GetWidth(),
+                         btnLargeOutline.GetHeight());
     creditsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     creditsBtn.SetPosition(100, 250);
     creditsBtn.SetLabel(&creditsBtnTxt);
@@ -412,6 +419,7 @@ static int MenuSettings() {
 
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
+    w.Append(&testingField);
     w.Append(&titleTxt);
     w.Append(&firstNameBtn);
     w.Append(&lastNameBtn);
@@ -431,27 +439,21 @@ static int MenuSettings() {
 
         if (firstNameBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SETTINGS_FILE;
-        }
-        if (lastNameBtn.GetState() == STATE_CLICKED) {
+        } else if (lastNameBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SETTINGS_FILE;
-        }
-        if (emailBtn.GetState() == STATE_CLICKED) {
+        } else if (emailBtn.GetState() == STATE_CLICKED) {
             menu = MENU_SETTINGS_FILE;
-        }
-        else if (exitBtn.GetState() == STATE_CLICKED) {
+        } else if (exitBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EXIT;
-        }
-        else if(creditsBtn.GetState() == STATE_CLICKED)
-        {
+        } else if (creditsBtn.GetState() == STATE_CLICKED) {
             menu = MENU_CREDITS;
-        }
-        else if (resetBtn.GetState() == STATE_CLICKED) {
+        } else if (resetBtn.GetState() == STATE_CLICKED) {
             resetBtn.ResetState();
 
             int choice = WindowPrompt(
-                    "Reset Settings",
-                    "Are you sure that you want to reset your settings?", "Yes",
-                    "No");
+                "Reset Settings",
+                "Are you sure that you want to reset your settings?", "Yes",
+                "No");
             if (choice == 1) {
                 // reset settings
             }
@@ -469,17 +471,6 @@ static int MenuSettings() {
 
 static int MenuSettingsFile() {
     int menu = MENU_NONE;
-    int i = 0;
-    OptionList options;
-
-    sprintf(options.name[i++], "Load Device");
-    sprintf(options.name[i++], "Save Device");
-    sprintf(options.name[i++], "Folder 1");
-    sprintf(options.name[i++], "Folder 2");
-    sprintf(options.name[i++], "Folder 3");
-    sprintf(options.name[i++], "Auto Load");
-    sprintf(options.name[i++], "Auto Save");
-    options.length = i;
 
     GuiText titleTxt("Settings - Saving & Loading", 28,
                      (GXColor){255, 255, 255, 255});
