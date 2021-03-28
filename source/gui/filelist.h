@@ -37,6 +37,7 @@
 #include "keyboard_mediumkey_over_png.h"
 #include "keyboard_mediumkey_png.h"
 #include "keyboard_textbox_png.h"
+#include "logo_png.h"
 #include "player1_grab_png.h"
 #include "player1_point_png.h"
 #include "player2_grab_png.h"
