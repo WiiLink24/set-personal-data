@@ -28,6 +28,8 @@ static lwp_t guithread = LWP_THREAD_NULL;
 static bool guiHalt = true;
 static bool ExitRequested = false;
 
+char testing[256] = "Testing input...";
+
 /****************************************************************************
  * ResumeGui
  *
@@ -289,9 +291,9 @@ void OnScreenKeyboard(char *var, u16 maxlen) {
 static int MenuSettings() {
     int menu = MENU_NONE;
 
-    GuiText titleTxt("Settings", 28, (GXColor){255, 255, 255, 255});
-    titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
-    titleTxt.SetPosition(50, 50);
+    GuiText titleTxt("Set Personal Data", 28, (GXColor){255, 255, 255, 255});
+    titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    titleTxt.SetPosition(0, 25);
 
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
@@ -514,9 +516,8 @@ static int MenuSettingsFile() {
     while (menu == MENU_NONE) {
         usleep(THREAD_SLEEP);
 
-        if (backBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_SETTINGS;
-        }
+        OnScreenKeyboard(testing, 255);
+        menu = MENU_SETTINGS;
     }
 
     HaltGui();
