@@ -7,7 +7,7 @@
 #include <wiiuse/wpad.h>
 
 // GUI
-#include "font_ttf.h"
+#include "noto_sans_jp_regular_otf.h"
 #include "gui/gui.h"
 #include "menu.h"
 
