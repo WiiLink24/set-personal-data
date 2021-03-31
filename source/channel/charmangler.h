@@ -1,1 +1,1 @@
-char *u16_to_char(uint16_t *input);
+const char *u16_to_char(uint16_t *input);
