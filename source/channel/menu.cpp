@@ -20,6 +20,9 @@
 #include "menu.h"
 
 #define THREAD_SLEEP 100
+// 48 KiB was chosen after many days of testing.
+// It horrifies the author.
+#define GUI_STACK_SIZE 48 * 1024
 
 static GuiImageData *pointer[4];
 static GuiImage *bgImg = NULL;
@@ -208,8 +211,10 @@ static void *UpdateGUI(void *arg) {
  *
  * Startup GUI threads
  ***************************************************************************/
+static u8 *_gui_stack[GUI_STACK_SIZE] ATTRIBUTE_ALIGN(8);
 void InitGUIThreads() {
-    LWP_CreateThread(&guithread, UpdateGUI, NULL, NULL, 0, 70);
+    LWP_CreateThread(&guithread, UpdateGUI, NULL, _gui_stack, GUI_STACK_SIZE,
+                     70);
 }
 
 /****************************************************************************
