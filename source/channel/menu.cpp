@@ -10,7 +10,6 @@
 #include <ogcsys.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <string>
 #include <unistd.h>
 #include <wiiuse/wpad.h>
@@ -32,7 +31,7 @@ static lwp_t guithread = LWP_THREAD_NULL;
 static bool guiHalt = true;
 static bool ExitRequested = false;
 
-wchar_t testing[256] = L"Testing input...";
+std::wstring testing(L"Testing input...");
 
 /****************************************************************************
  * ResumeGui
@@ -68,8 +67,8 @@ static void HaltGui() {
  * Displays a prompt window to user, with information, an error message, or
  * presenting a user with a choice
  ***************************************************************************/
-int WindowPrompt(const char *title, const char *msg, const char *btn1Label,
-                 const char *btn2Label) {
+int WindowPrompt(std::wstring title, std::wstring msg, std::wstring btn1Label,
+                 std::wstring *btn2Label) {
     int choice = -1;
 
     GuiWindow promptWindow(448, 288);
@@ -114,7 +113,7 @@ int WindowPrompt(const char *title, const char *msg, const char *btn1Label,
     btn1.SetState(STATE_SELECTED);
     btn1.SetEffectGrow();
 
-    GuiText btn2Txt(btn2Label, 22, (GXColor){0, 0, 0, 255});
+    GuiText btn2Txt(*btn2Label, 22, (GXColor){0, 0, 0, 255});
     GuiImage btn2Img(&btnOutline);
     GuiImage btn2ImgOver(&btnOutlineOver);
     GuiButton btn2(btnOutline.GetWidth(), btnOutline.GetHeight());
@@ -223,7 +222,7 @@ void InitGUIThreads() {
  * Opens an on-screen keyboard window, with the data entered being stored
  * into the specified variable.
  ***************************************************************************/
-void OnScreenKeyboard(wchar_t *var, u16 maxlen) {
+void OnScreenKeyboard(std::wstring var, u16 maxlen) {
     int save = -1;
 
     GuiKeyboard keyboard(var, maxlen);
@@ -235,7 +234,7 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen) {
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
 
-    GuiText okBtnTxt("OK", 22, (GXColor){0, 0, 0, 255});
+    GuiText okBtnTxt(L"OK", 22, (GXColor){0, 0, 0, 255});
     GuiImage okBtnImg(&btnOutline);
     GuiImage okBtnImgOver(&btnOutlineOver);
     GuiButton okBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
@@ -250,7 +249,7 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen) {
     okBtn.SetTrigger(&trigA);
     okBtn.SetEffectGrow();
 
-    GuiText cancelBtnTxt("Cancel", 22, (GXColor){0, 0, 0, 255});
+    GuiText cancelBtnTxt(L"Cancel", 22, (GXColor){0, 0, 0, 255});
     GuiImage cancelBtnImg(&btnOutline);
     GuiImage cancelBtnImgOver(&btnOutlineOver);
     GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
@@ -282,7 +281,7 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen) {
     }
 
     if (save) {
-        swprintf(var, maxlen, L"%ls", keyboard.kbtextstr);
+        var = keyboard.kbtextstr.substr(0, maxlen);
     }
 
     HaltGui();
@@ -308,18 +307,18 @@ static int MenuCredits() {
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
 
-    GuiText titleTxt("Credits", 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(L"Credits", 28, (GXColor){255, 255, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
-    GuiText nameTxt1("-Spotlight", 28, (GXColor){255, 255, 255, 255});
-    GuiText nameTxt2("-SketchMaster2001", 28, (GXColor){255, 255, 255, 255});
+    GuiText nameTxt1(L"-Spotlight", 28, (GXColor){255, 255, 255, 255});
+    GuiText nameTxt2(L"-SketchMaster2001", 28, (GXColor){255, 255, 255, 255});
     nameTxt1.SetPosition(0, 100);
     nameTxt2.SetPosition(0, 150);
     nameTxt1.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     nameTxt2.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
 
-    GuiText exitBtnTxt("Back", 22, (GXColor){0, 0, 0, 255});
+    GuiText exitBtnTxt(L"Back", 22, (GXColor){0, 0, 0, 255});
     GuiImage exitBtnImg(&btnOutline);
     GuiImage exitBtnImgOver(&btnOutlineOver);
     GuiButton exitBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
@@ -369,7 +368,7 @@ static int MenuCredits() {
 static int MenuSettings() {
     int menu = MENU_NONE;
 
-    GuiText titleTxt("Set Personal Data", 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(L"Set Personal Data", 28, (GXColor){255, 255, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
@@ -386,12 +385,12 @@ static int MenuSettings() {
     trigHome.SetButtonOnlyTrigger(
         -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
 
-    wchar_t testingContent[22] = L"仮仮仮仮仮仮仮仮";
+    std::wstring testingContent(L"仮仮仮仮仮仮仮仮");
     GuiTextField testingField(testingContent, 20);
     testingField.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     testingField.SetPosition(0, 75);
 
-    GuiText firstNameBtnTxt("First Name", 22, (GXColor){0, 0, 0, 255});
+    GuiText firstNameBtnTxt(L"First Name", 22, (GXColor){0, 0, 0, 255});
     firstNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage firstNameBtnImg(&btnLargeOutline);
     GuiImage firstNameBtnImgOver(&btnLargeOutlineOver);
@@ -406,7 +405,7 @@ static int MenuSettings() {
     firstNameBtn.SetTrigger(&trigA);
     firstNameBtn.SetEffectGrow();
 
-    GuiText lastNameBtnTxt("Last Name", 22, (GXColor){0, 0, 0, 255});
+    GuiText lastNameBtnTxt(L"Last Name", 22, (GXColor){0, 0, 0, 255});
     lastNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage lastNameBtnImg(&btnLargeOutline);
     GuiImage lastNameImgOver(&btnLargeOutlineOver);
@@ -421,8 +420,8 @@ static int MenuSettings() {
     lastNameBtn.SetTrigger(&trigA);
     lastNameBtn.SetEffectGrow();
 
-    GuiText emailBtnTxt1("Email", 22, (GXColor){0, 0, 0, 255});
-    GuiText emailBtnTxt2("Address", 22, (GXColor){0, 0, 0, 255});
+    GuiText emailBtnTxt1(L"Email", 22, (GXColor){0, 0, 0, 255});
+    GuiText emailBtnTxt2(L"Address", 22, (GXColor){0, 0, 0, 255});
     emailBtnTxt1.SetPosition(0, -20);
     emailBtnTxt2.SetPosition(0, +10);
     GuiImage emailBtnImg(&btnLargeOutline);
@@ -438,7 +437,7 @@ static int MenuSettings() {
     emailBtn.SetTrigger(&trigA);
     emailBtn.SetEffectGrow();
 
-    GuiText saveBtnTxt("Save", 22, (GXColor){0, 0, 0, 255});
+    GuiText saveBtnTxt(L"Save", 22, (GXColor){0, 0, 0, 255});
     saveBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage saveBtnImg(&btnLargeOutline);
     GuiImage saveBtnImgOver(&btnLargeOutlineOver);
@@ -452,7 +451,7 @@ static int MenuSettings() {
     saveBtn.SetTrigger(&trigA);
     saveBtn.SetEffectGrow();
 
-    GuiText creditsBtnTxt("Credits", 22, (GXColor){0, 0, 0, 255});
+    GuiText creditsBtnTxt(L"Credits", 22, (GXColor){0, 0, 0, 255});
     saveBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage creditsBtnImg(&btnLargeOutline);
     GuiImage creditsBtnImgOver(&btnLargeOutlineOver);
@@ -467,7 +466,7 @@ static int MenuSettings() {
     creditsBtn.SetTrigger(&trigA);
     creditsBtn.SetEffectGrow();
 
-    GuiText exitBtnTxt("Exit", 22, (GXColor){0, 0, 0, 255});
+    GuiText exitBtnTxt(L"Exit", 22, (GXColor){0, 0, 0, 255});
     GuiImage exitBtnImg(&btnOutline);
     GuiImage exitBtnImgOver(&btnOutlineOver);
     GuiButton exitBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
@@ -481,7 +480,7 @@ static int MenuSettings() {
     exitBtn.SetTrigger(&trigHome);
     exitBtn.SetEffectGrow();
 
-    GuiText resetBtnTxt("Reset Settings", 22, (GXColor){0, 0, 0, 255});
+    GuiText resetBtnTxt(L"Reset Settings", 22, (GXColor){0, 0, 0, 255});
     GuiImage resetBtnImg(&btnOutline);
     GuiImage resetBtnImgOver(&btnOutlineOver);
     GuiButton resetBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
@@ -528,9 +527,9 @@ static int MenuSettings() {
             resetBtn.ResetState();
 
             int choice = WindowPrompt(
-                "Reset Settings",
-                "Are you sure that you want to reset your settings?", "Yes",
-                "No");
+                L"Reset Settings",
+                L"Are you sure that you want to reset your settings?", L"Yes",
+                new std::wstring(L"No"));
             if (choice == 1) {
                 // reset settings
             }
@@ -549,7 +548,7 @@ static int MenuSettings() {
 static int MenuSettingsFile() {
     int menu = MENU_NONE;
 
-    GuiText titleTxt("Set Personal Data", 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(L"Set Personal Data", 28, (GXColor){255, 255, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 10);
 

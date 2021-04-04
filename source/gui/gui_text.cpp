@@ -25,9 +25,8 @@ static u16 presetStyle = 0;
 /**
  * Constructor for the GuiText class.
  */
-GuiText::GuiText(const char *t, int s, GXColor c) {
-    origText = NULL;
-    text = NULL;
+GuiText::GuiText(std::wstring t, int s, GXColor c) {
+    text = new std::wstring(t);
     size = s;
     color = c;
     alpha = c.a;
@@ -43,11 +42,6 @@ GuiText::GuiText(const char *t, int s, GXColor c) {
     alignmentHor = ALIGN_CENTRE;
     alignmentVert = ALIGN_MIDDLE;
 
-    if (t) {
-        origText = strdup(t);
-        text = charToWideChar(gettext(t));
-    }
-
     for (int i = 0; i < 20; i++)
         textDyn[i] = NULL;
 }
@@ -55,9 +49,8 @@ GuiText::GuiText(const char *t, int s, GXColor c) {
 /**
  * Constructor for the GuiText class, uses presets
  */
-GuiText::GuiText(const char *t) {
-    origText = NULL;
-    text = NULL;
+GuiText::GuiText(std::wstring t) {
+    text = new std::wstring(t);
     size = presetSize;
     color = presetColor;
     alpha = presetColor.a;
@@ -73,11 +66,6 @@ GuiText::GuiText(const char *t) {
     alignmentHor = presetAlignmentHor;
     alignmentVert = presetAlignmentVert;
 
-    if (t) {
-        origText = strdup(t);
-        text = charToWideChar(gettext(t));
-    }
-
     for (int i = 0; i < 20; i++)
         textDyn[i] = NULL;
 }
@@ -86,10 +74,8 @@ GuiText::GuiText(const char *t) {
  * Destructor for the GuiText class.
  */
 GuiText::~GuiText() {
-    if (origText)
-        free(origText);
     if (text)
-        delete[] text;
+        delete text;
 
     if (textDynNum > 0) {
         for (int i = 0; i < textDynNum; i++)
@@ -98,11 +84,9 @@ GuiText::~GuiText() {
     }
 }
 
-void GuiText::SetText(const char *t) {
-    if (origText)
-        free(origText);
+void GuiText::SetText(std::wstring t) {
     if (text)
-        delete[] text;
+        delete text;
 
     if (textDynNum > 0) {
         for (int i = 0; i < textDynNum; i++)
@@ -110,45 +94,17 @@ void GuiText::SetText(const char *t) {
                 delete[] textDyn[i];
     }
 
-    origText = NULL;
-    text = NULL;
+    text = new std::wstring(t);
     textDynNum = 0;
     textScrollPos = 0;
     textScrollInitialDelay = TEXT_SCROLL_INITIAL_DELAY;
-
-    if (t) {
-        origText = strdup(t);
-        text = charToWideChar(gettext(t));
-    }
-}
-
-void GuiText::SetWText(wchar_t *t) {
-    if (origText)
-        free(origText);
-    if (text)
-        delete[] text;
-
-    if (textDynNum > 0) {
-        for (int i = 0; i < textDynNum; i++)
-            if (textDyn[i])
-                delete[] textDyn[i];
-    }
-
-    origText = NULL;
-    text = NULL;
-    textDynNum = 0;
-    textScrollPos = 0;
-    textScrollInitialDelay = TEXT_SCROLL_INITIAL_DELAY;
-
-    if (t)
-        text = wcsdup(t);
 }
 
 int GuiText::GetLength() {
     if (!text)
         return 0;
 
-    return wcslen(text);
+    return text->size();
 }
 
 void GuiText::SetPresets(int sz, GXColor c, int w, u16 s, int h, int v) {
@@ -261,12 +217,8 @@ void GuiText::SetAlignment(int hor, int vert) {
 }
 
 void GuiText::ResetText() {
-    if (!origText)
-        return;
     if (text)
-        delete[] text;
-
-    text = charToWideChar(gettext(origText));
+        delete text;
 
     for (int i = 0; i < textDynNum; i++) {
         if (textDyn[i]) {
@@ -311,7 +263,11 @@ void GuiText::Draw() {
         return;
     }
 
-    u32 textlen = wcslen(text);
+    // We convert from std::wstring to wchar_t
+    // due to the complicated nature of the beneath code.
+    // TODO: Find a way not to do this
+    wchar_t *textCstr = (wchar_t*)text->c_str();
+    u32 textlen = wcslen(textCstr);
 
     if (wrap) {
         if (textDynNum == 0) {
@@ -324,17 +280,19 @@ void GuiText::Draw() {
                 if (n == 0)
                     textDyn[linenum] = new wchar_t[textlen + 1];
 
-                textDyn[linenum][n] = text[ch];
+                textDyn[linenum][n] = textCstr[ch];
                 textDyn[linenum][n + 1] = 0;
 
-                if (text[ch] == ' ' || ch == textlen - 1) {
+                if (textCstr[ch] == ' ' || ch == textlen - 1) {
                     if (fontSystem[currentSize]->getWidth(textDyn[linenum]) >
                         maxWidth) {
                         if (lastSpace >= 0) {
-                            textDyn[linenum][lastSpaceIndex] =
-                                0; // discard space, and everything after
-                            ch = lastSpace; // go backwards to the last space
-                            lastSpace = -1; // we have used this space
+                            // discard space, and everything after
+                            textDyn[linenum][lastSpaceIndex] = '\0';
+                            // go backwards to the last space
+                            ch = lastSpace;
+                            // we have used this space
+                            lastSpace = -1;
                             lastSpaceIndex = -1;
                         }
                         ++linenum;
@@ -343,7 +301,7 @@ void GuiText::Draw() {
                         ++linenum;
                     }
                 }
-                if (text[ch] == ' ' && n >= 0) {
+                if (textCstr[ch] == ' ' && n >= 0) {
                     lastSpace = ch;
                     lastSpaceIndex = n;
                 }
@@ -368,7 +326,7 @@ void GuiText::Draw() {
     } else {
         if (textDynNum == 0) {
             textDynNum = 1;
-            textDyn[0] = wcsdup(text);
+            textDyn[0] = wcsdup(textCstr);
             int len = wcslen(textDyn[0]);
 
             while (fontSystem[currentSize]->getWidth(textDyn[0]) > maxWidth)
@@ -387,7 +345,7 @@ void GuiText::Draw() {
                         textScrollInitialDelay = TEXT_SCROLL_INITIAL_DELAY;
                     }
 
-                    wcscpy(textDyn[0], &text[textScrollPos]);
+                    wcscpy(textDyn[0], &textCstr[textScrollPos]);
                     u32 dynlen = wcslen(textDyn[0]);
 
                     if (dynlen + 2 < textlen) {
@@ -408,7 +366,7 @@ void GuiText::Draw() {
                         while (fontSystem[currentSize]->getWidth(textDyn[0]) <
                                    maxWidth &&
                                dynlen + 1 < textlen) {
-                            textDyn[0][dynlen] = text[i++];
+                            textDyn[0][dynlen] = textCstr[i++];
                             textDyn[0][++dynlen] = 0;
                         }
 

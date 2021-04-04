@@ -14,14 +14,13 @@
  * Constructor for the GuiTextField class.
  */
 
-GuiTextField::GuiTextField(wchar_t *content, u32 max) {
+GuiTextField::GuiTextField(std::wstring content, u32 max) {
     width = 540;
     height = 400;
     selectable = true;
     focus = 0; // allow focus
     alignmentHor = ALIGN_CENTRE;
     alignmentVert = ALIGN_MIDDLE;
-    swprintf(value, 255, L"%ls", content);
     max_len = max;
 
     keyTextbox = new GuiImageData(keyboard_textbox_png);
@@ -30,8 +29,7 @@ GuiTextField::GuiTextField(wchar_t *content, u32 max) {
     keyTextboxImg->SetPosition(0, 0);
     this->Append(keyTextboxImg);
 
-    kbText = new GuiText("", 20, (GXColor){0, 0, 0, 0xff});
-    kbText->SetWText(value);
+    kbText = new GuiText(content, 20, (GXColor){0, 0, 0, 0xff});
     kbText->SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     kbText->SetPosition(0, 13);
     this->Append(kbText);
@@ -45,22 +43,7 @@ GuiTextField::~GuiTextField() {
     delete keyTextbox;
 }
 
-wchar_t *GuiTextField::GetText() {
-    if (!value) {
-        return NULL;
-    }
-
-    return wcsdup(value);
-}
-
-void GuiTextField::SetText(wchar_t *newText) {
-    if (!newText) {
-        return;
-    }
-
-    swprintf(value, 255, L"%ls", newText);
-    kbText->SetWText(value);
-}
+void GuiTextField::SetText(std::wstring newText) { kbText->SetText(newText); }
 
 void GuiTextField::Update(GuiTrigger *t) {
     if (_elements.size() == 0 || (state == STATE_DISABLED && parentElement))

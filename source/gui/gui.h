@@ -37,7 +37,7 @@
 #include <malloc.h>
 #include <math.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
 #include <vector>
 #include <wchar.h>
 #include <wiiuse/wpad.h>
@@ -648,26 +648,27 @@ class GuiText : public GuiElement {
     //!\param t Text
     //!\param s Font size
     //!\param c Font color
-    GuiText(const char *t, int s, GXColor c);
+    GuiText(std::wstring t, int s, GXColor c);
     //!\overload
     //! Assumes SetPresets() has been called to setup preferred text attributes
     //!\param t Text
-    GuiText(const char *t);
+    GuiText(std::wstring t);
     //! Destructor
     virtual ~GuiText();
     //! Sets the text of the GuiText element
     //!\param t Text
-    void SetText(const char *t);
-    //! Sets the text of the GuiText element
-    //!\param t UTF-8 Text
-    void SetWText(wchar_t *t);
+    void SetText(std::wstring t);
     //! Gets the translated text length of the GuiText element
     int GetLength();
     //! Sets up preset values to be used by GuiText(t)
     //! Useful when printing multiple text elements, all with the same
-    //! attributes set \param sz Font size \param c Font color \param w Maximum
-    //! width of texture image (for text wrapping) \param s Font size \param h
-    //! Text alignment (horizontal) \param v Text alignment (vertical)
+    //! attributes set
+    //!\param sz Font size
+    //!\param c Font color
+    //!\param w Maximum width of texture image (for text wrapping)
+    //!\param s Font size
+    //!\param h Text alignment (horizontal)
+    //!\param v Text alignment (vertical)
     void SetPresets(int sz, GXColor c, int w, u16 s, int h, int v);
     //! Sets the font size
     //!\param s Font size
@@ -701,11 +702,10 @@ class GuiText : public GuiElement {
 
   protected:
     GXColor color;        //!< Font color
-    wchar_t *text;        //!< Translated Unicode text value
-    wchar_t *textDyn[20]; //!< Text value, if max width, scrolling, or wrapping
-                          //!< enabled
+    std::wstring *text;   //!< Translated Unicode text value
+    wchar_t *textDyn[20]; //!< Text value, if max width, scrolling, or
+                          //!< wrapping enabled
     int textDynNum;       //!< Number of text lines
-    char *origText;       //!< Original text data (English)
     int size;             //!< Font size
     int maxWidth;      //!< Maximum width of the generated text object (for text
                        //!< wrapping)
@@ -841,12 +841,10 @@ typedef struct _keytype {
 //! Configurable textfield
 class GuiTextField : public GuiWindow {
   public:
-    GuiTextField(wchar_t *content, u32 max);
+    GuiTextField(std::wstring content, u32 max);
     ~GuiTextField();
     void Update(GuiTrigger *t);
-    wchar_t *GetText();
-    void SetText(wchar_t *newText);
-    wchar_t value[256];
+    void SetText(std::wstring newText);
 
   protected:
     size_t max_len;
@@ -859,10 +857,10 @@ class GuiTextField : public GuiWindow {
 //! On-screen keyboard
 class GuiKeyboard : public GuiWindow {
   public:
-    GuiKeyboard(wchar_t *t, u32 m);
+    GuiKeyboard(std::wstring t, u32 m);
     ~GuiKeyboard();
     void Update(GuiTrigger *t);
-    wchar_t kbtextstr[256];
+    std::wstring kbtextstr;
 
   protected:
     size_t kbtextmaxlen;

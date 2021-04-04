@@ -463,6 +463,14 @@ uint16_t FreeTypeGX::drawText(int16_t x, int16_t y, wchar_t const *text,
     return this->drawText(x, y, (wchar_t *)text, color, textStyle);
 }
 
+/**
+ * \overload
+ */
+uint16_t FreeTypeGX::drawText(int16_t x, int16_t y, std::wstring *text,
+                              GXColor color, uint16_t textStyle) {
+    return this->drawText(x, y, text->c_str(), color, textStyle);
+}
+
 void FreeTypeGX::drawTextFeature(int16_t x, int16_t y, uint16_t width,
                                  ftgxDataOffset *offsetData, uint16_t format,
                                  GXColor color) {
@@ -525,6 +533,14 @@ uint16_t FreeTypeGX::getWidth(wchar_t const *text) {
 }
 
 /**
+ *
+ * \overload
+ */
+uint16_t FreeTypeGX::getWidth(std::wstring *text) {
+    return this->getWidth(text->c_str());
+}
+
+/**
  * Processes the supplied string and return the height of the string in pixels.
  *
  * This routine processes each character of the supplied text string and
@@ -547,6 +563,14 @@ uint16_t FreeTypeGX::getHeight(wchar_t *text) {
  */
 uint16_t FreeTypeGX::getHeight(wchar_t const *text) {
     return this->getHeight((wchar_t *)text);
+}
+
+/**
+ *
+ * \overload
+ */
+uint16_t FreeTypeGX::getHeight(std::wstring *text) {
+    return this->getHeight(text->c_str());
 }
 
 /**

@@ -31,6 +31,7 @@
 #include <malloc.h>
 #include <map>
 #include <string.h>
+#include <string>
 #include <wchar.h>
 
 #define MAX_FONT_SIZE 100
@@ -180,11 +181,16 @@ class FreeTypeGX {
     uint16_t drawText(int16_t x, int16_t y, wchar_t const *text,
                       GXColor color = ftgxWhite,
                       uint16_t textStyling = FTGX_NULL);
+    uint16_t drawText(int16_t x, int16_t y, std::wstring *text,
+                      GXColor color = ftgxWhite,
+                      uint16_t textStyling = FTGX_NULL);
 
     uint16_t getWidth(wchar_t *text);
     uint16_t getWidth(wchar_t const *text);
+    uint16_t getWidth(std::wstring *text);
     uint16_t getHeight(wchar_t *text);
     uint16_t getHeight(wchar_t const *text);
+    uint16_t getHeight(std::wstring *text);
     void getOffset(wchar_t *text, ftgxDataOffset *offset);
     void getOffset(wchar_t const *text, ftgxDataOffset *offset);
 };
