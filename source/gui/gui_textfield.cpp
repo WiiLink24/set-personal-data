@@ -33,7 +33,7 @@ GuiTextField::GuiTextField(wchar_t *content, u32 max) {
     kbText = new GuiText("", 20, (GXColor){0, 0, 0, 0xff});
     kbText->SetWText(value);
     kbText->SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    kbText->SetPosition(0, 13);
+    kbText->SetPosition(0, 10);
     this->Append(kbText);
 }
 

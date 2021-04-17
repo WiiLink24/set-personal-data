@@ -321,18 +321,18 @@ static int MenuCredits() {
     nameTxt1.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     nameTxt2.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
 
-    GuiText exitBtnTxt("Back", 22, (GXColor){0, 0, 0, 255});
-    GuiImage exitBtnImg(&btnOutline);
-    GuiImage exitBtnImgOver(&btnOutlineOver);
-    GuiButton exitBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    exitBtn.SetAlignment(ALIGN_CENTRE, ALIGN_BOTTOM);
-    exitBtn.SetPosition(0, -15);
-    exitBtn.SetLabel(&exitBtnTxt);
-    exitBtn.SetImage(&exitBtnImg);
-    exitBtn.SetImageOver(&exitBtnImgOver);
-    exitBtn.SetSoundOver(&btnSoundOver);
-    exitBtn.SetTrigger(&trigA);
-    exitBtn.SetEffectGrow();
+    GuiText saveBtnTxt("Back", 22, (GXColor){0, 0, 0, 255});
+    GuiImage saveBtnImg(&btnOutline);
+    GuiImage saveBtnImgOver(&btnOutlineOver);
+    GuiButton saveBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    saveBtn.SetAlignment(ALIGN_CENTRE, ALIGN_BOTTOM);
+    saveBtn.SetPosition(0, -15);
+    saveBtn.SetLabel(&saveBtnTxt);
+    saveBtn.SetImage(&saveBtnImg);
+    saveBtn.SetImageOver(&saveBtnImgOver);
+    saveBtn.SetSoundOver(&btnSoundOver);
+    saveBtn.SetTrigger(&trigA);
+    saveBtn.SetEffectGrow();
 
     GuiImage *logo = new GuiImage(new GuiImageData(logo_png));
     logo->SetAlignment(ALIGN_CENTRE, ALIGN_BOTTOM);
@@ -346,13 +346,13 @@ static int MenuCredits() {
 
     w.Append(&nameTxt1);
     w.Append(&nameTxt2);
-    w.Append(&exitBtn);
+    w.Append(&saveBtn);
     ResumeGui();
 
     while (menu == MENU_NONE) {
         usleep(THREAD_SLEEP);
 
-        if (exitBtn.GetState() == STATE_CLICKED) {
+        if (saveBtn.GetState() == STATE_CLICKED) {
             menu = MENU_PRIMARY;
         }
     }
@@ -387,11 +387,6 @@ static int MenuSettings() {
     GuiTrigger trigHome;
     trigHome.SetButtonOnlyTrigger(
         -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
-
-    wchar_t testingContent[22] = L"仮仮仮仮仮仮仮仮";
-    GuiTextField testingField(testingContent, 20);
-    testingField.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    testingField.SetPosition(0, 75);
 
     GuiText firstNameBtnTxt("First Name", 22, (GXColor){0, 0, 0, 255});
     firstNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
@@ -440,28 +435,13 @@ static int MenuSettings() {
     emailBtn.SetTrigger(&trigA);
     emailBtn.SetEffectGrow();
 
-    GuiText saveBtnTxt("Save", 22, (GXColor){0, 0, 0, 255});
-    saveBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage saveBtnImg(&btnLargeOutline);
-    GuiImage saveBtnImgOver(&btnLargeOutlineOver);
-    GuiButton saveBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-    saveBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    saveBtn.SetPosition(-100, 250);
-    saveBtn.SetLabel(&saveBtnTxt);
-    saveBtn.SetImage(&saveBtnImg);
-    saveBtn.SetImageOver(&saveBtnImgOver);
-    saveBtn.SetSoundOver(&btnSoundOver);
-    saveBtn.SetTrigger(&trigA);
-    saveBtn.SetEffectGrow();
-
     GuiText creditsBtnTxt("Credits", 22, (GXColor){0, 0, 0, 255});
-    saveBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage creditsBtnImg(&btnLargeOutline);
     GuiImage creditsBtnImgOver(&btnLargeOutlineOver);
     GuiButton creditsBtn(btnLargeOutline.GetWidth(),
                          btnLargeOutline.GetHeight());
     creditsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    creditsBtn.SetPosition(100, 250);
+    creditsBtn.SetPosition(0, 250);
     creditsBtn.SetLabel(&creditsBtnTxt);
     creditsBtn.SetImage(&creditsBtnImg);
     creditsBtn.SetImageOver(&creditsBtnImgOver);
@@ -469,23 +449,35 @@ static int MenuSettings() {
     creditsBtn.SetTrigger(&trigA);
     creditsBtn.SetEffectGrow();
 
-    GuiText exitBtnTxt("Exit", 22, (GXColor){0, 0, 0, 255});
-    GuiImage exitBtnImg(&btnOutline);
-    GuiImage exitBtnImgOver(&btnOutlineOver);
-    GuiButton exitBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    exitBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-    exitBtn.SetPosition(100, -15);
-    exitBtn.SetLabel(&exitBtnTxt);
-    exitBtn.SetImage(&exitBtnImg);
-    exitBtn.SetImageOver(&exitBtnImgOver);
-    exitBtn.SetSoundOver(&btnSoundOver);
-    exitBtn.SetTrigger(&trigA);
-    exitBtn.SetTrigger(&trigHome);
-    exitBtn.SetEffectGrow();
+    GuiText saveBtnTxt("OK", 22, (GXColor){0, 0, 0, 255});
+    GuiImage saveBtnImg(&btnOutline);
+    GuiImage saveBtnImgOver(&btnOutlineOver);
+    GuiButton saveBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    saveBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    saveBtn.SetPosition(100, -15);
+    saveBtn.SetLabel(&saveBtnTxt);
+    saveBtn.SetImage(&saveBtnImg);
+    saveBtn.SetImageOver(&saveBtnImgOver);
+    saveBtn.SetSoundOver(&btnSoundOver);
+    saveBtn.SetTrigger(&trigA);
+    saveBtn.SetTrigger(&trigHome);
+    saveBtn.SetEffectGrow();
+
+    GuiText cancelBtnTxt("Cancel", 22, (GXColor){0, 0, 0, 255});
+    GuiImage cancelBtnImg(&btnOutline);
+    GuiImage cancelBtnImgOver(&btnOutlineOver);
+    GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    cancelBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
+    cancelBtn.SetPosition(-100, -15);
+    cancelBtn.SetLabel(&cancelBtnTxt);
+    cancelBtn.SetImage(&cancelBtnImg);
+    cancelBtn.SetImageOver(&cancelBtnImgOver);
+    cancelBtn.SetSoundOver(&btnSoundOver);
+    cancelBtn.SetTrigger(&trigA);
+    cancelBtn.SetEffectGrow();
 
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
-    w.Append(&testingField);
     w.Append(&titleTxt);
     w.Append(&firstNameBtn);
     w.Append(&lastNameBtn);
@@ -493,7 +485,8 @@ static int MenuSettings() {
     w.Append(&saveBtn);
     w.Append(&creditsBtn);
 
-    w.Append(&exitBtn);
+    w.Append(&saveBtn);
+    w.Append(&cancelBtn);
 
     mainWindow->Append(&w);
 
@@ -508,7 +501,7 @@ static int MenuSettings() {
             menu = MENU_EDIT_LAST_NAME;
         } else if (emailBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EDIT_EMAIL;
-        } else if (exitBtn.GetState() == STATE_CLICKED) {
+        } else if (saveBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EXIT;
         } else if (creditsBtn.GetState() == STATE_CLICKED) {
             menu = MENU_CREDITS;
