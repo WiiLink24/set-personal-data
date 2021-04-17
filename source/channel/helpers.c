@@ -30,13 +30,6 @@ s32 CreateParentDirs(char *path) {
         offset = occurrence - path;
         strncpy(currentDir, path, offset);
 
-        // printf("%s\n", currentDir);
-        // if (strcmp("/title", currentDir) == 0) {
-        //   // We're assured this exists.
-        //   offset++;
-        //   continue;
-        // }
-
         // We're okay with the directory already existing.
         s32 status = ISFS_CreateDir(currentDir, 0, 3, 3, 3);
         if (status < 0 && status != ISFS_EEXIST) {

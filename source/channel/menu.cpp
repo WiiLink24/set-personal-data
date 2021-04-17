@@ -32,7 +32,9 @@ static lwp_t guithread = LWP_THREAD_NULL;
 static bool guiHalt = true;
 static bool ExitRequested = false;
 
-wchar_t testing[256] = L"Testing input...";
+wchar_t user_first_name[32] = L"First name";
+wchar_t user_last_name[32] = L"Last name";
+wchar_t user_email[127] = L"Email";
 
 /****************************************************************************
  * ResumeGui
@@ -481,19 +483,6 @@ static int MenuSettings() {
     exitBtn.SetTrigger(&trigHome);
     exitBtn.SetEffectGrow();
 
-    GuiText resetBtnTxt("Reset Settings", 22, (GXColor){0, 0, 0, 255});
-    GuiImage resetBtnImg(&btnOutline);
-    GuiImage resetBtnImgOver(&btnOutlineOver);
-    GuiButton resetBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    resetBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
-    resetBtn.SetPosition(-100, -15);
-    resetBtn.SetLabel(&resetBtnTxt);
-    resetBtn.SetImage(&resetBtnImg);
-    resetBtn.SetImageOver(&resetBtnImgOver);
-    resetBtn.SetSoundOver(&btnSoundOver);
-    resetBtn.SetTrigger(&trigA);
-    resetBtn.SetEffectGrow();
-
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
     w.Append(&testingField);
@@ -505,7 +494,6 @@ static int MenuSettings() {
     w.Append(&creditsBtn);
 
     w.Append(&exitBtn);
-    w.Append(&resetBtn);
 
     mainWindow->Append(&w);
 
@@ -515,25 +503,15 @@ static int MenuSettings() {
         usleep(THREAD_SLEEP);
 
         if (firstNameBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_SETTINGS_FILE;
+            menu = MENU_EDIT_FIRST_NAME;
         } else if (lastNameBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_SETTINGS_FILE;
+            menu = MENU_EDIT_LAST_NAME;
         } else if (emailBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_SETTINGS_FILE;
+            menu = MENU_EDIT_EMAIL;
         } else if (exitBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EXIT;
         } else if (creditsBtn.GetState() == STATE_CLICKED) {
             menu = MENU_CREDITS;
-        } else if (resetBtn.GetState() == STATE_CLICKED) {
-            resetBtn.ResetState();
-
-            int choice = WindowPrompt(
-                "Reset Settings",
-                "Are you sure that you want to reset your settings?", "Yes",
-                "No");
-            if (choice == 1) {
-                // reset settings
-            }
         }
     }
 
@@ -543,33 +521,27 @@ static int MenuSettings() {
 }
 
 /****************************************************************************
- * MenuSettingsFile
+ * KeyboardDataEntry
  ***************************************************************************/
 
-static int MenuSettingsFile() {
+static int KeyboardDataEntry(wchar_t *input) {
     int menu = MENU_NONE;
-
-    GuiText titleTxt("Set Personal Data", 28, (GXColor){255, 255, 255, 255});
-    titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    titleTxt.SetPosition(0, 10);
 
     HaltGui();
     GuiWindow w(screenwidth, screenheight);
     mainWindow->Append(&w);
-    mainWindow->Append(&titleTxt);
     ResumeGui();
 
     while (menu == MENU_NONE) {
         usleep(THREAD_SLEEP);
 
-        OnScreenKeyboard(testing, 255);
+        OnScreenKeyboard(input, 255);
         menu = MENU_SETTINGS;
     }
 
     HaltGui();
 
     mainWindow->Remove(&w);
-    mainWindow->Remove(&titleTxt);
     return menu;
 }
 
@@ -623,13 +595,19 @@ void MainMenu(int menu) {
         case MENU_SETTINGS:
             currentMenu = MenuSettings();
             break;
-        case MENU_SETTINGS_FILE:
-            currentMenu = MenuSettingsFile();
+        case MENU_EDIT_FIRST_NAME:
+            currentMenu = KeyboardDataEntry(user_first_name);
+            break;
+        case MENU_EDIT_LAST_NAME:
+            currentMenu = KeyboardDataEntry(user_last_name);
+            break;
+        case MENU_EDIT_EMAIL:
+            currentMenu = KeyboardDataEntry(user_email);
             break;
         case MENU_CREDITS:
             currentMenu = MenuCredits();
             break;
-        default: // unrecognized menu
+        default:
             currentMenu = MenuSettings();
             break;
         }
