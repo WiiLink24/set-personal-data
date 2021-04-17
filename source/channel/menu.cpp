@@ -449,12 +449,12 @@ static int MenuSettings() {
     creditsBtn.SetTrigger(&trigA);
     creditsBtn.SetEffectGrow();
 
-    GuiText saveBtnTxt("OK", 22, (GXColor){0, 0, 0, 255});
+    GuiText saveBtnTxt("Done", 22, (GXColor){0, 0, 0, 255});
     GuiImage saveBtnImg(&btnOutline);
     GuiImage saveBtnImgOver(&btnOutlineOver);
     GuiButton saveBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    saveBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-    saveBtn.SetPosition(100, -15);
+    saveBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
+    saveBtn.SetPosition(-100, -15);
     saveBtn.SetLabel(&saveBtnTxt);
     saveBtn.SetImage(&saveBtnImg);
     saveBtn.SetImageOver(&saveBtnImgOver);
@@ -467,8 +467,8 @@ static int MenuSettings() {
     GuiImage cancelBtnImg(&btnOutline);
     GuiImage cancelBtnImgOver(&btnOutlineOver);
     GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    cancelBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
-    cancelBtn.SetPosition(-100, -15);
+    cancelBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    cancelBtn.SetPosition(100, -15);
     cancelBtn.SetLabel(&cancelBtnTxt);
     cancelBtn.SetImage(&cancelBtnImg);
     cancelBtn.SetImageOver(&cancelBtnImgOver);
