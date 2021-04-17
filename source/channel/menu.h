@@ -17,7 +17,7 @@ void MainMenu(int menuitem);
 enum {
     MENU_EXIT = -1,
     MENU_NONE,
-    MENU_SETTINGS,
+    MENU_PRIMARY,
     MENU_EDIT_FIRST_NAME,
     MENU_EDIT_LAST_NAME,
     MENU_EDIT_EMAIL,

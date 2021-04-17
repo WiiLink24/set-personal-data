@@ -353,7 +353,7 @@ static int MenuCredits() {
         usleep(THREAD_SLEEP);
 
         if (exitBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_SETTINGS;
+            menu = MENU_PRIMARY;
         }
     }
 
@@ -536,7 +536,7 @@ static int KeyboardDataEntry(wchar_t *input) {
         usleep(THREAD_SLEEP);
 
         OnScreenKeyboard(input, 255);
-        menu = MENU_SETTINGS;
+        menu = MENU_PRIMARY;
     }
 
     HaltGui();
@@ -592,7 +592,7 @@ void MainMenu(int menu) {
 
     while (currentMenu != MENU_EXIT) {
         switch (currentMenu) {
-        case MENU_SETTINGS:
+        case MENU_PRIMARY:
             currentMenu = MenuSettings();
             break;
         case MENU_EDIT_FIRST_NAME:
