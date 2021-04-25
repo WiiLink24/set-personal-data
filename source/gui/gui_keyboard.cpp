@@ -56,7 +56,7 @@ GuiKeyboard::GuiKeyboard(wchar_t *t, u32 max) {
                            {'j', 'J'},
                            {'k', 'K'},
                            {'l', 'L'},
-                           {';', ':'},
+                           {'@', ':'},
                            {'\'', '"'}},
 
                           {{'z', 'Z'},
