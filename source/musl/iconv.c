@@ -19,14 +19,7 @@
 #define UTF_16 0312
 #define UTF_32 0313
 #define UCS2 0314
-#define EUC_JP 0320
 #define SHIFT_JIS 0321
-#define ISO2022_JP 0322
-#define GB18030 0330
-#define GBK 0331
-#define GB2312 0332
-#define BIG5 0340
-#define EUC_KR 0350
 
 int iconv_error = 0;
 
@@ -41,11 +34,7 @@ int iconv_error = 0;
 /* Table of characters that appear in legacy 8-bit codepages,
  * limited to 1024 slots (10 bit indices). The first 256 entries
  * are elided since those characters are obviously all included. */
-#include "locale/big5.h"
-#include "locale/gb18030.h"
-#include "locale/hkscs.h"
 #include "locale/jis0208.h"
-#include "locale/ksc.h"
 #include "locale/legacychars.h"
 #include "locale/revjis.h"
 
@@ -108,7 +97,6 @@ iconv_t iconv_open(const char *to, const char *from) {
     case UTF_16:
     case UTF_32:
     case UCS2:
-    case ISO2022_JP:
         scd = malloc(sizeof *scd);
         if (!scd)
             return (iconv_t)-1;
@@ -319,239 +307,6 @@ size_t iconv(iconv_t cd, char **restrict in, size_t *restrict inb,
             if (!c)
                 goto ilseq;
             break;
-        case EUC_JP:
-            if (c < 128)
-                break;
-            l = 2;
-            if (*inb < 2)
-                goto starved;
-            d = *((unsigned char *)*in + 1);
-            if (c == 0x8e) {
-                c = d;
-                if (c - 0xa1 > 0xdf - 0xa1)
-                    goto ilseq;
-                c += 0xff61 - 0xa1;
-                break;
-            }
-            c -= 0xa1;
-            d -= 0xa1;
-            if (c >= 84 || d >= 94)
-                goto ilseq;
-            c = jis0208[c][d];
-            if (!c)
-                goto ilseq;
-            break;
-        case ISO2022_JP:
-            if (c >= 128)
-                goto ilseq;
-            if (c == '\033') {
-                l = 3;
-                if (*inb < 3)
-                    goto starved;
-                c = *((unsigned char *)*in + 1);
-                d = *((unsigned char *)*in + 2);
-                if (c != '(' && c != '$')
-                    goto ilseq;
-                switch (128 * (c == '$') + d) {
-                case 'B':
-                    scd->state = 0;
-                    continue;
-                case 'J':
-                    scd->state = 1;
-                    continue;
-                case 'I':
-                    scd->state = 4;
-                    continue;
-                case 128 + '@':
-                    scd->state = 2;
-                    continue;
-                case 128 + 'B':
-                    scd->state = 3;
-                    continue;
-                }
-                goto ilseq;
-            }
-            switch (scd->state) {
-            case 1:
-                if (c == '\\')
-                    c = 0xa5;
-                if (c == '~')
-                    c = 0x203e;
-                break;
-            case 2:
-            case 3:
-                l = 2;
-                if (*inb < 2)
-                    goto starved;
-                d = *((unsigned char *)*in + 1);
-                c -= 0x21;
-                d -= 0x21;
-                if (c >= 84 || d >= 94)
-                    goto ilseq;
-                c = jis0208[c][d];
-                if (!c)
-                    goto ilseq;
-                break;
-            case 4:
-                if (c - 0x60 < 0x1f)
-                    goto ilseq;
-                if (c - 0x21 < 0x5e)
-                    c += 0xff61 - 0x21;
-                break;
-            }
-            break;
-        case GB2312:
-            if (c < 128)
-                break;
-            if (c < 0xa1)
-                goto ilseq;
-        case GBK:
-        case GB18030:
-            if (c < 128)
-                break;
-            c -= 0x81;
-            if (c >= 126)
-                goto ilseq;
-            l = 2;
-            if (*inb < 2)
-                goto starved;
-            d = *((unsigned char *)*in + 1);
-            if (d < 0xa1 && type == GB2312)
-                goto ilseq;
-            if (d - 0x40 >= 191 || d == 127) {
-                if (d - '0' > 9 || type != GB18030)
-                    goto ilseq;
-                l = 4;
-                if (*inb < 4)
-                    goto starved;
-                c = (10 * c + d - '0') * 1260;
-                d = *((unsigned char *)*in + 2);
-                if (d - 0x81 > 126)
-                    goto ilseq;
-                c += 10 * (d - 0x81);
-                d = *((unsigned char *)*in + 3);
-                if (d - '0' > 9)
-                    goto ilseq;
-                c += d - '0';
-                c += 128;
-                for (d = 0; d <= c;) {
-                    k = 0;
-                    for (int i = 0; i < 126; i++)
-                        for (int j = 0; j < 190; j++)
-                            if (gb18030[i][j] - d <= c - d)
-                                k++;
-                    d = c + 1;
-                    c += k;
-                }
-                break;
-            }
-            d -= 0x40;
-            if (d > 63)
-                d--;
-            c = gb18030[c][d];
-            break;
-        case BIG5:
-            if (c < 128)
-                break;
-            l = 2;
-            if (*inb < 2)
-                goto starved;
-            d = *((unsigned char *)*in + 1);
-            if (d - 0x40 >= 0xff - 0x40 || d - 0x7f < 0xa1 - 0x7f)
-                goto ilseq;
-            d -= 0x40;
-            if (d > 0x3e)
-                d -= 0x22;
-            if (c - 0xa1 >= 0xfa - 0xa1) {
-                if (c - 0x87 >= 0xff - 0x87)
-                    goto ilseq;
-                if (c < 0xa1)
-                    c -= 0x87;
-                else
-                    c -= 0x87 + (0xfa - 0xa1);
-                c = (hkscs[4867 + (c * 157 + d) / 16] >> (c * 157 + d) % 16) % 2
-                        << 17 |
-                    hkscs[c * 157 + d];
-                /* A few HKSCS characters map to pairs of UCS
-                 * characters. These are mapped to surrogate
-                 * range in the hkscs table then hard-coded
-                 * here. Ugly, yes. */
-                if (c / 256 == 0xdc) {
-                    union {
-                        char c[8];
-                        wchar_t wc[2];
-                    } tmp;
-                    char *ptmp = tmp.c;
-                    size_t tmpx =
-                        iconv(combine_to_from(to, find_charmap("utf8")),
-                              &(char *){"\303\212\314\204"
-                                        "\303\212\314\214"
-                                        "\303\252\314\204"
-                                        "\303\252\314\214" +
-                                        c % 256},
-                              &(size_t){4}, &ptmp, &(size_t){sizeof tmp});
-                    size_t tmplen = ptmp - tmp.c;
-                    if (tmplen > *outb)
-                        goto toobig;
-                    if (tmpx)
-                        x++;
-                    memcpy(*out, &tmp, tmplen);
-                    *out += tmplen;
-                    *outb -= tmplen;
-                    continue;
-                }
-                if (!c)
-                    goto ilseq;
-                break;
-            }
-            c -= 0xa1;
-            c = big5[c][d] |
-                (c == 0x27 && (d == 0x3a || d == 0x3c || d == 0x42)) << 17;
-            if (!c)
-                goto ilseq;
-            break;
-        case EUC_KR:
-            if (c < 128)
-                break;
-            l = 2;
-            if (*inb < 2)
-                goto starved;
-            d = *((unsigned char *)*in + 1);
-            c -= 0xa1;
-            d -= 0xa1;
-            if (c >= 93 || d >= 94) {
-                c += (0xa1 - 0x81);
-                d += 0xa1;
-                if (c >= 93 || (c >= 0xc6 - 0x81 && d > 0x52))
-                    goto ilseq;
-                if (d - 'A' < 26)
-                    d = d - 'A';
-                else if (d - 'a' < 26)
-                    d = d - 'a' + 26;
-                else if (d - 0x81 < 0xff - 0x81)
-                    d = d - 0x81 + 52;
-                else
-                    goto ilseq;
-                if (c < 0x20)
-                    c = 178 * c + d;
-                else
-                    c = 178 * 0x20 + 84 * (c - 0x20) + d;
-                c += 0xac00;
-                for (d = 0xac00; d <= c;) {
-                    k = 0;
-                    for (int i = 0; i < 93; i++)
-                        for (int j = 0; j < 94; j++)
-                            if (ksc[i][j] - d <= c - d)
-                                k++;
-                    d = c + 1;
-                    c += k;
-                }
-                break;
-            }
-            c = ksc[c][d];
-            if (!c)
-                goto ilseq;
-            break;
         default:
             if (!c)
                 break;
@@ -629,61 +384,6 @@ size_t iconv(iconv_t cd, char **restrict in, size_t *restrict inb,
             *(*out)++ = (c + 1) / 2 + (c < 95 ? 112 : 176);
             *(*out)++ = c % 2 ? d + 31 + d / 96 : d + 126;
             *outb -= 2;
-            break;
-        case EUC_JP:
-            if (c < 128)
-                goto revout;
-            if (c - 0xff61 <= 0xdf - 0xa1) {
-                c += 0x0e00 + 0x21 - 0xff61;
-            } else {
-                c = uni_to_jis(c);
-            }
-            if (!c)
-                goto subst;
-            if (*outb < 2)
-                goto toobig;
-            *(*out)++ = c / 256 + 0x80;
-            *(*out)++ = c % 256 + 0x80;
-            *outb -= 2;
-            break;
-        case ISO2022_JP:
-            if (c < 128)
-                goto revout;
-            if (c - 0xff61 <= 0xdf - 0xa1 || c == 0xa5 || c == 0x203e) {
-                if (*outb < 7)
-                    goto toobig;
-                *(*out)++ = '\033';
-                *(*out)++ = '(';
-                if (c == 0xa5) {
-                    *(*out)++ = 'J';
-                    *(*out)++ = '\\';
-                } else if (c == 0x203e) {
-                    *(*out)++ = 'J';
-                    *(*out)++ = '~';
-                } else {
-                    *(*out)++ = 'I';
-                    *(*out)++ = c - 0xff61 + 0x21;
-                }
-                *(*out)++ = '\033';
-                *(*out)++ = '(';
-                *(*out)++ = 'B';
-                *outb -= 7;
-                break;
-            }
-            c = uni_to_jis(c);
-            if (!c)
-                goto subst;
-            if (*outb < 8)
-                goto toobig;
-            *(*out)++ = '\033';
-            *(*out)++ = '$';
-            *(*out)++ = 'B';
-            *(*out)++ = c / 256;
-            *(*out)++ = c % 256;
-            *(*out)++ = '\033';
-            *(*out)++ = '(';
-            *(*out)++ = 'B';
-            *outb -= 8;
             break;
         case UCS2:
             totype = UCS2BE;

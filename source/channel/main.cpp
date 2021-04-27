@@ -20,7 +20,6 @@
 
 extern "C" {
 // Patcher
-#include "charmangler.h"
 #include "pd_data.h"
 #include "pd_info.h"
 #include "region.h"
@@ -88,17 +87,17 @@ int main(void) {
         std::cout << e.what() << std::endl;
     }
 
-        // printf("%s\n", u16_to_char(infoBlock->emailAddress));
-        // u16_to_char(infoBlock->firstname);
-        // u16_to_char(infoBlock->surname);
-        // u16_to_char(infoBlock->zipCode);
-        // u16_to_char(infoBlock->city);
-        // u16_to_char(infoBlock->address);
-        // u16_to_char(infoBlock->apartmentNumber);
-        // u16_to_char(infoBlock->phoneNumber);
+    // printf("%s\n", u16_to_char(infoBlock->emailAddress));
+    // u16_to_char(infoBlock->firstname);
+    // u16_to_char(infoBlock->surname);
+    // u16_to_char(infoBlock->zipCode);
+    // u16_to_char(infoBlock->city);
+    // u16_to_char(infoBlock->address);
+    // u16_to_char(infoBlock->apartmentNumber);
+    // u16_to_char(infoBlock->phoneNumber);
 
-        // MainMenu(1);
-        sleep(110000);
+    // MainMenu(1);
+    sleep(110000);
 
-        return 0;
-    }
+    return 0;
+}
