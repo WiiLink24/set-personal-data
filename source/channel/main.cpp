@@ -83,7 +83,7 @@ int main(void) {
         is.write((const char *)pdLocation, 0x4000);
         kaitai::kstream ks(&is);
         pd_t data(&ks);
-        pd_t::info_block_t* infoBlock = data.info();
+        pd_t::info_block_t *infoBlock = data.info();
         std::cout << infoBlock->email_address() << std::endl;
     } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;

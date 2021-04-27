@@ -68,14 +68,9 @@ bool PD_EncryptFile() {
     return true;
 }
 
-bool PD_DecryptFile() {
+bool PD_DecryptFile(void *fileBuffer) {
     struct KeyInfo *keyInfo = PD_GetKeyData();
     if (keyInfo == NULL) {
-        return false;
-    }
-
-    void *fileBuffer = PD_GetFileContents();
-    if (fileBuffer == NULL) {
         return false;
     }
 
@@ -161,9 +156,17 @@ void *PD_LoadFileContents() {
     // Attempt to read what may already exist.
     void *fileBuffer = PD_ReadFromNAND();
     if (fileBuffer != NULL) {
-        return fileBuffer;
+        // Decrypt file.
+        bool result = PD_DecryptFile(fileBuffer);
+        if (result == false) {
+            // Decryption, for whatever reason, failed.
+            return NULL;
+        } else {
+            // Decryption was successful!
+            return fileBuffer;
+        }
     } else {
-        // Default to using our template data.
+        // Default to using our decrypted template data.
         return PD_GetTemplateData();
     }
 }
@@ -176,13 +179,7 @@ void *PD_GetFileContents() {
         return PDFilePointer;
     }
 
+    // Load a new copy.
     PDFilePointer = PD_LoadFileContents();
-    bool result = PD_DecryptFile();
-    if (result == false) {
-        // Decryption, for whatever reason, failed.
-        PDFilePointer = NULL;
-        return NULL;
-    }
-
     return PDFilePointer;
 }
