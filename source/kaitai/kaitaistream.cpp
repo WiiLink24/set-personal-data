@@ -637,12 +637,16 @@ uint8_t kaitai::kstream::byte_array_max(const std::string val) {
 #include <iconv.h>
 #include <stdexcept>
 
+// As defined within our custom musl iconv.
+// Again, the author apologizes, but we lack errno.
+extern int iconv_error;
+
 std::string kaitai::kstream::bytes_to_str(std::string src,
                                           std::string src_enc) {
     iconv_t cd = iconv_open(KS_STR_DEFAULT_ENCODING, src_enc.c_str());
 
     if (cd == (iconv_t)-1) {
-        if (errno == EINVAL) {
+        if (iconv_error == EINVAL) {
             throw std::runtime_error(
                 "bytes_to_str: invalid encoding pair conversion requested");
         } else {
@@ -665,7 +669,7 @@ std::string kaitai::kstream::bytes_to_str(std::string src,
         size_t res = iconv(cd, &src_ptr, &src_left, &dst_ptr, &dst_left);
 
         if (res == (size_t)-1) {
-            if (errno == E2BIG) {
+            if (iconv_error == E2BIG) {
                 // dst buffer is not enough to accomodate whole string
                 // enlarge the buffer and try again
                 size_t dst_used = dst_len - dst_left;
