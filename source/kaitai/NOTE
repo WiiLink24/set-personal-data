@@ -1,0 +1,5 @@
+Taken from https://github.com/kaitai-io/kaitai_struct_cpp_stl_runtime, commit a86f4f59336e51313ca450f1fd56bffdb7ab3461.
+
+This source has been modified to work as-is on the Wii with a proper development
+environment configured to compile. It removes the need for CMake, as devkitPro
+does not provide sufficient enough definitions for usage.
