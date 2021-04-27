@@ -84,7 +84,7 @@ class pd_t : public kaitai::kstruct {
         std::string m_first_name;
         std::string m_surname;
         std::string m_postal_code;
-        uint16_t m_unknown_one;
+        uint16_t m_padding_null;
         std::string m_state_or_prefecture;
         std::string m_city;
         std::string m_address;
@@ -122,11 +122,13 @@ class pd_t : public kaitai::kstruct {
          */
         std::string surname() const { return m_surname; }
         std::string postal_code() const { return m_postal_code; }
+        uint16_t padding_null() const { return m_padding_null; }
 
         /**
-         * Observed to only be 0x19e.
+         * <| The first two bytes of this string (overlapping with padding_null
+         * above) are hardcoded to 0x019e. However, the 0x9e is used within the
+         * prefecture's name.
          */
-        uint16_t unknown_one() const { return m_unknown_one; }
         std::string state_or_prefecture() const {
             return m_state_or_prefecture;
         }

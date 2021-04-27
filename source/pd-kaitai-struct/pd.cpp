@@ -89,27 +89,27 @@ void pd_t::info_block_t::_read() {
             std::string("/types/info_block/seq/3"));
     }
     m_first_timestamp = m__io->read_u8be();
-    m_profile_name = kaitai::kstream::bytes_to_str(m__io->read_bytes(57),
+    m_profile_name = kaitai::kstream::bytes_to_str(m__io->read_bytes(56),
                                                    std::string("UTF-16BE"));
     m_first_name = kaitai::kstream::bytes_to_str(m__io->read_bytes(64),
-                                                 std::string("UTF-16LE"));
+                                                 std::string("UTF-16BE"));
     m_surname = kaitai::kstream::bytes_to_str(m__io->read_bytes(64),
-                                              std::string("UTF-16LE"));
+                                              std::string("UTF-16BE"));
     m_postal_code = kaitai::kstream::bytes_to_str(m__io->read_bytes(34),
-                                                  std::string("UTF-16LE"));
-    m_unknown_one = m__io->read_u2be();
+                                                  std::string("UTF-16BE"));
+    m_padding_null = m__io->read_u2be();
     m_state_or_prefecture = kaitai::kstream::bytes_to_str(
-        m__io->read_bytes(64), std::string("UTF-16LE"));
+        m__io->read_bytes(64), std::string("UTF-16BE"));
     m_city = kaitai::kstream::bytes_to_str(m__io->read_bytes(64),
-                                           std::string("UTF-16LE"));
+                                           std::string("UTF-16BE"));
     m_address = kaitai::kstream::bytes_to_str(m__io->read_bytes(256),
-                                              std::string("UTF-16LE"));
+                                              std::string("UTF-16BE"));
     m_apartment_number = kaitai::kstream::bytes_to_str(m__io->read_bytes(256),
-                                                       std::string("UTF-16LE"));
+                                                       std::string("UTF-16BE"));
     m_phone_number = kaitai::kstream::bytes_to_str(m__io->read_bytes(64),
-                                                   std::string("UTF-16LE"));
-    m_email_address = kaitai::kstream::bytes_to_str(m__io->read_bytes(252),
-                                                    std::string("UTF-16LE"));
+                                                   std::string("UTF-16BE"));
+    m_email_address = kaitai::kstream::bytes_to_str(m__io->read_bytes(254),
+                                                    std::string("UTF-16BE"));
     m_padding = m__io->read_bytes(3);
     if (!(padding() == std::string("\x00\x00\x00", 3))) {
         throw kaitai::validation_not_equal_error<std::string>(
@@ -146,9 +146,9 @@ void pd_t::kana_block_t::_read() {
             std::string("/types/kana_block/seq/2"));
     }
     m_first_name = kaitai::kstream::bytes_to_str(m__io->read_bytes(64),
-                                                 std::string("UTF-16LE"));
+                                                 std::string("UTF-16BE"));
     m_surname = kaitai::kstream::bytes_to_str(m__io->read_bytes(64),
-                                              std::string("UTF-16LE"));
+                                              std::string("UTF-16BE"));
 }
 
 pd_t::kana_block_t::~kana_block_t() { _clean_up(); }

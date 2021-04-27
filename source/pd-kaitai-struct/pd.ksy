@@ -31,56 +31,60 @@ types:
       - id: intentionally_null
         type: u4
       - id: preset_values
-        contents: [0x01, 0x08, 0x00]
+        contents: [0x01, 0x08, 0x0]
         doc: These do not appear to be read yet are set if uninitialized.
       - id: first_timestamp
         type: u8
       - id: profile_name
         type: str
-        size: 57
+        size: 56
         encoding: UTF-16BE
         doc: This is used within additional profiles. We do not support it.
       - id: first_name
         type: str
         size: 64
-        encoding: UTF-16LE
+        encoding: UTF-16BE
         doc: Tyically written with Romaji.
       - id: surname
         type: str
         size: 64
-        encoding: UTF-16LE
+        encoding: UTF-16BE
         doc: Tyically written with Romaji.
       - id: postal_code
         type: str
         size: 34
-        encoding: UTF-16LE
-      - id: unknown_one
+        encoding: UTF-16BE
+      - id: padding_null
         type: u2
-        doc: Observed to only be 0x19e.
       - id: state_or_prefecture
         type: str
         size: 64
-        encoding: UTF-16LE
+        encoding: UTF-16BE
+        doc: <|
+            The first two bytes of this string (overlapping with padding_null above)
+            are hardcoded to 0x019e.
+            However, the 0x9e is used within the prefecture's name.
+
       - id: city
         type: str
         size: 64
-        encoding: UTF-16LE
+        encoding: UTF-16BE
       - id: address
         type: str
         size: 256
-        encoding: UTF-16LE
+        encoding: UTF-16BE
       - id: apartment_number
         type: str
         size: 256
-        encoding: UTF-16LE
+        encoding: UTF-16BE
       - id: phone_number
         type: str
         size: 64
-        encoding: UTF-16LE
+        encoding: UTF-16BE
       - id: email_address
         type: str
-        size: 252
-        encoding: UTF-16LE
+        size: 254
+        encoding: UTF-16BE
       - id: padding
         contents: [0, 0, 0]
       - id: second_timestamp
@@ -101,8 +105,8 @@ types:
       - id: first_name
         type: str
         size: 64
-        encoding: UTF-16LE
+        encoding: UTF-16BE
       - id: surname
         type: str
         size: 64
-        encoding: UTF-16LE
+        encoding: UTF-16BE
