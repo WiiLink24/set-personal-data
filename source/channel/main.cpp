@@ -56,38 +56,31 @@ int main(void) {
     InitFreeType((u8 *)noto_sans_jp_regular_otf, noto_sans_jp_regular_otf_size);
     InitGUIThreads();
 
-    char *filepath = PD_GetDataPath();
-
-    s32 fd = ISFS_Open(filepath, ISFS_OPEN_WRITE);
-    if (fd < 0)
-    {
-        // Decrypt file
-        void *pdLocation = PD_GetFileContents();
-        if (pdLocation == NULL) {
-            // It appears something went awry down the line.
-            // TODO: please do proper error handling!
-            printf("An error occurred reading.\n");
-            ExitApp();
-        }
-
-        // Print on screen because we have no other operation for the moment.
-        struct PDInfoBlock *infoBlock = PD_ParseInfoBlock();
-        if (infoBlock == NULL) {
-            printf("Failed to obtain INFO block.\n");
-            ExitApp();
-        }
-
-        u16_to_char(infoBlock->emailAddress);
-        u16_to_char(infoBlock->firstname);
-        u16_to_char(infoBlock->surname);
-        u16_to_char(infoBlock->zipCode);
-        u16_to_char(infoBlock->city);
-        u16_to_char(infoBlock->address);
-        u16_to_char(infoBlock->apartmentNumber);
-        u16_to_char(infoBlock->phoneNumber);
+    // Decrypt file
+    void *pdLocation = PD_GetFileContents();
+    if (pdLocation == NULL) {
+        // It appears something went awry down the line.
+        // TODO: please do proper error handling!
+        printf("An error occurred reading.\n");
+        ExitApp();
     }
 
     MainMenu(1);
+    // Print on screen because we have no other operation for the moment.
+    struct PDInfoBlock *infoBlock = PD_ParseInfoBlock();
+    if (infoBlock == NULL) {
+        printf("Failed to obtain INFO block.\n");
+        ExitApp();
+    }
+
+    printf("%s\n", u16_to_char(infoBlock->emailAddress));
+    u16_to_char(infoBlock->firstname);
+    u16_to_char(infoBlock->surname);
+    u16_to_char(infoBlock->zipCode);
+    u16_to_char(infoBlock->city);
+    u16_to_char(infoBlock->address);
+    u16_to_char(infoBlock->apartmentNumber);
+    u16_to_char(infoBlock->phoneNumber);
 
 
     return 0;
