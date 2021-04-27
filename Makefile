@@ -17,7 +17,7 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES	:=	source/musl source/aes source/gui source/channel
+SOURCES		:=	source/musl source/aes source/gui source/channel
 DATA		:=	data/title data/fonts data/i10n data/gui
 INCLUDES	:=
 
@@ -73,9 +73,11 @@ else
 	export LD	:=	$(CXX)
 endif
 
-export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
-					$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
-					$(sFILES:.s=.o) $(SFILES:.S=.o)
+export OFILES_BIN	:=	$(addsuffix .o,$(BINFILES))
+export OFILES_SOURCES := $(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(sFILES:.s=.o) $(SFILES:.S=.o)
+export OFILES := $(OFILES_BIN) $(OFILES_SOURCES)
+
+export HFILES := $(addsuffix .h,$(subst .,_,$(BINFILES)))
 
 #---------------------------------------------------------------------------------
 # build a list of include paths
@@ -83,15 +85,14 @@ export OFILES	:=	$(addsuffix .o,$(BINFILES)) \
 export INCLUDE	:=	$(foreach dir,$(INCLUDES), -iquote $(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
 					-I$(CURDIR)/$(BUILD) \
-					-I$(LIBOGC_INC) \
 					-I$(PORTLIBS_PATH)/ppc/include/freetype2 \
-					-I$(CURDIR)/source
+					-I$(CURDIR)/source \
+					-I$(LIBOGC_INC)
 
 #---------------------------------------------------------------------------------
 # build a list of library paths
 #---------------------------------------------------------------------------------
-export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
-					-L$(LIBOGC_LIB)
+export LIBPATHS	:= -L$(LIBOGC_LIB) $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
 .PHONY: $(BUILD) clean
@@ -123,31 +124,32 @@ DEPENDS	:=	$(OFILES:.o=.d)
 $(OUTPUT).dol: $(OUTPUT).elf
 $(OUTPUT).elf: $(OFILES)
 
+$(OFILES_SOURCES) : $(HFILES)
+
 #---------------------------------------------------------------------------------
 # These rules link in binary data
 #---------------------------------------------------------------------------------
-%.dat.o	:	%.dat
-#---------------------------------------------------------------------------------
+%.dat.o	%_dat.h :	%.dat
 	@echo $(notdir $<)
 	$(bin2o)
 
-%.template.o	:	%.template
+%.template.o	%_template.h :	%.template
 	@echo $(notdir $<)
 	$(bin2o)
 
-%.png.o	:	%.png
+%.png.o	%_png.h :	%.png
 	@echo $(notdir $<)
 	$(bin2o)
 
-%.pcm.o	:	%.pcm
+%.pcm.o	%_pcm.h :	%.pcm
 	@echo $(notdir $<)
 	$(bin2o)
 
-%.otf.o	:	%.otf
+%.otf.o	%_otf.h :	%.otf
 	@echo $(notdir $<)
 	$(bin2o)
 
-%.lang.o	:	%.lang
+%.lang.o	%_lang.h :	%.lang
 	@echo $(notdir $<)
 	$(bin2o)
 
