@@ -682,6 +682,7 @@ std::string kaitai::kstream::bytes_to_str(std::string src,
                 // invalid; re-point it using "dst_used".
                 dst_ptr = &dst[dst_used];
             } else {
+                std::cout << iconv_error << std::endl;
                 throw std::runtime_error("bytes_to_str: iconv error");
             }
         } else {

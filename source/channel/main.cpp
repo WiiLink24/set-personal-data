@@ -6,6 +6,13 @@
 #include <unistr.h>
 #include <wiiuse/wpad.h>
 
+#include <fstream>
+#include <kaitai/kaitaistream.h>
+#include <pd-kaitai-struct/pd.h>
+#include <sstream>
+
+#include <iostream>
+
 // GUI
 #include "gui/gui.h"
 #include "menu.h"
@@ -65,23 +72,33 @@ int main(void) {
         ExitApp();
     }
 
-    MainMenu(1);
-    // Print on screen because we have no other operation for the moment.
-    struct PDInfoBlock *infoBlock = PD_ParseInfoBlock();
-    if (infoBlock == NULL) {
-        printf("Failed to obtain INFO block.\n");
-        ExitApp();
+    // // Print on screen because we have no other operation for the moment.
+    // struct PDInfoBlock *infoBlock = PD_ParseInfoBlock();
+    // if (infoBlock == NULL) {
+    //     printf("Failed to obtain INFO block.\n");
+    //     ExitApp();
+    // }
+
+    try {
+        std::stringstream is;
+        is.write((const char *)pdLocation, 0x4000);
+        kaitai::kstream ks(&is);
+        pd_t data(&ks);
+    } catch (const std::exception &e) {
+        std::cout << e.what() << std::endl;
     }
 
-    printf("%s\n", u16_to_char(infoBlock->emailAddress));
-    u16_to_char(infoBlock->firstname);
-    u16_to_char(infoBlock->surname);
-    u16_to_char(infoBlock->zipCode);
-    u16_to_char(infoBlock->city);
-    u16_to_char(infoBlock->address);
-    u16_to_char(infoBlock->apartmentNumber);
-    u16_to_char(infoBlock->phoneNumber);
+        // printf("%s\n", u16_to_char(infoBlock->emailAddress));
+        // u16_to_char(infoBlock->firstname);
+        // u16_to_char(infoBlock->surname);
+        // u16_to_char(infoBlock->zipCode);
+        // u16_to_char(infoBlock->city);
+        // u16_to_char(infoBlock->address);
+        // u16_to_char(infoBlock->apartmentNumber);
+        // u16_to_char(infoBlock->phoneNumber);
 
+        // MainMenu(1);
+        sleep(110000);
 
-    return 0;
-}
+        return 0;
+    }

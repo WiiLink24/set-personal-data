@@ -17,7 +17,11 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source/kaitai source/musl source/aes source/gui source/channel
+SOURCES		:=	source/kaitai \
+							source/pd-kaitai-struct \
+							source/musl source/aes \
+							source/gui \
+							source/channel
 DATA		:=	data/title data/fonts data/i10n data/gui
 INCLUDES	:=
 
