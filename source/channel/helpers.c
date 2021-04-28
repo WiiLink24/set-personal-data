@@ -5,6 +5,7 @@
 
 static fstats stats ATTRIBUTE_ALIGN(32);
 #define ISFS_EEXIST -105
+#define ISFS_ENOENT -105
 
 // CreateParentDirs iterates through every instance of "/"
 // in order to create parent directories recursively.
@@ -88,6 +89,8 @@ void *ISFS_GetFile(const char *path, u32 *size) {
                     printf("ISFS_GetFile: only able to read %d out of "
                            "%d bytes!\n",
                            tmp_size, length);
+                } else if (tmp_size == ISFS_ENOENT) {
+                    // We ignore logging errors about files that do not exist.
                 } else {
                     printf("ISFS_GetFile: ISFS_Open failed! (error %d)\n",
                            tmp_size);

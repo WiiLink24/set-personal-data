@@ -47,78 +47,50 @@ struct KeyInfo *PD_GetKeyData() {
     return info;
 }
 
-bool PD_EncryptFile() {
+void *PD_EncryptFile(void *fileBuffer) {
     struct KeyInfo *keyInfo = PD_GetKeyData();
     if (keyInfo == NULL) {
-        return false;
+        return NULL;
     }
 
-    void *fileBuffer = PD_GetFileContents();
+    void *encryptBuffer = malloc(PD_FILE_LENGTH);
     if (fileBuffer == NULL) {
-        return false;
+        printf("malloc() for encryptBuffer failed.\n");
+        return NULL;
     }
+    memcpy(encryptBuffer, fileBuffer, PD_FILE_LENGTH);
 
     struct AES_ctx ctx;
     AES_init_ctx_iv(&ctx, keyInfo->key, keyInfo->iv);
 
     // Encrypt file.
-    AES_CBC_encrypt_buffer(&ctx, fileBuffer, PD_FILE_LENGTH);
+    AES_CBC_encrypt_buffer(&ctx, (uint8_t *)encryptBuffer, PD_FILE_LENGTH);
 
     free(keyInfo);
-    return true;
+    return encryptBuffer;
 }
 
-bool PD_DecryptFile(void *fileBuffer) {
+void *PD_DecryptFile(void *fileBuffer) {
     struct KeyInfo *keyInfo = PD_GetKeyData();
     if (keyInfo == NULL) {
-        return false;
+        return NULL;
     }
+
+    void *decryptBuffer = malloc(PD_FILE_LENGTH);
+    if (fileBuffer == NULL) {
+        printf("malloc() for decryptBuffer failed.\n");
+        return NULL;
+    }
+    memcpy(decryptBuffer, fileBuffer, PD_FILE_LENGTH);
 
     struct AES_ctx ctx;
     AES_init_ctx_iv(&ctx, keyInfo->key, keyInfo->iv);
 
-    // Encrypt file.
-    AES_CBC_decrypt_buffer(&ctx, fileBuffer, PD_FILE_LENGTH);
+    // Decrypt file.
+    AES_CBC_decrypt_buffer(&ctx, (uint8_t *)decryptBuffer, PD_FILE_LENGTH);
 
     free(keyInfo);
-    return true;
-}
-
-// TODO: Write
-void *PD_WriteToNAND() {
-    // char *filepath = PD_GetDataPath();
-    // if (filepath == NULL) {
-    //     printf("This console's region is not supported!\n");
-    //     return NULL;
-    // }
-    //
-    // // Write encrypted file.
-    // ISFS_Delete(filepath);
-    //
-    // s32 ret = ISFS_CreateFile(filepath, 0, 3, 3, 3);
-    // if (ret < 0) {
-    //     printf("ISFS_CreateFile failed (%d)\n", ret);
-    //     return NULL;
-    // }
-    //
-    // s32 fd = ISFS_Open(filepath, ISFS_OPEN_WRITE);
-    // if (fd < 0) {
-    //     printf("Error opening file at %s\n", filepath);
-    //     return NULL;
-    // }
-    //
-    // ret = ISFS_Write(fd, fileBuffer, PD_FILE_LENGTH);
-    // if (ret < 0) {
-    //     printf("Error writing file at %s\n", filepath);
-    //     return NULL;
-    // }
-    //
-    // ret = ISFS_Close(fd);
-    // if (ret < 0) {
-    //     printf("Error closing file at %s\n", filepath);
-    //     return NULL;
-    // }
-    return NULL;
+    return decryptBuffer;
 }
 
 void *PD_GetTemplateData() {
@@ -151,20 +123,55 @@ void *PD_ReadFromNAND() {
     return fileBuffer;
 }
 
+bool PD_WriteToNAND(void *fileBuffer) {
+    char *filepath = PD_GetDataPath();
+    if (filepath == NULL) {
+        printf("This console's region is not supported!\n");
+        return false;
+    }
+
+    // Write encrypted file.
+    ISFS_Delete(filepath);
+
+    s32 ret = ISFS_CreateFile(filepath, 0, 3, 3, 3);
+    if (ret < 0) {
+        printf("ISFS_CreateFile failed (%d)\n", ret);
+        return false;
+    }
+
+    s32 fd = ISFS_Open(filepath, ISFS_OPEN_WRITE);
+    if (fd < 0) {
+        printf("Error opening file at %s\n", filepath);
+        return false;
+    }
+
+    ret = ISFS_Write(fd, fileBuffer, PD_FILE_LENGTH);
+    if (ret < 0) {
+        printf("Error writing file at %s\n", filepath);
+        return false;
+    }
+
+    ret = ISFS_Close(fd);
+    if (ret < 0) {
+        printf("Error closing file at %s\n", filepath);
+        return false;
+    }
+
+    return true;
+}
+
 // PD_LoadFileContents is guaranteed
 void *PD_LoadFileContents() {
     // Attempt to read what may already exist.
     void *fileBuffer = PD_ReadFromNAND();
     if (fileBuffer != NULL) {
         // Decrypt file.
-        bool result = PD_DecryptFile(fileBuffer);
-        if (result == false) {
-            // Decryption, for whatever reason, failed.
-            return NULL;
-        } else {
-            // Decryption was successful!
-            return fileBuffer;
-        }
+        void *result = PD_DecryptFile(fileBuffer);
+
+        // Free original.
+        free(fileBuffer);
+
+        return result;
     } else {
         // Default to using our decrypted template data.
         return PD_GetTemplateData();
@@ -182,4 +189,16 @@ void *PD_GetFileContents() {
     // Load a new copy.
     PDFilePointer = PD_LoadFileContents();
     return PDFilePointer;
+}
+
+// PD_SaveFileContents encrypts and writes the current PDFilePointer to NAND.
+bool PD_SaveFileContents() {
+    // Ensure we have a pd.dat loaded to work with.
+    if (PDFilePointer == NULL) {
+        return NULL;
+    }
+
+    void *fileBuffer = PD_EncryptFile(PDFilePointer);
+    bool success = PD_WriteToNAND(fileBuffer);
+    return success;
 }

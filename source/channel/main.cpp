@@ -20,11 +20,11 @@
 
 extern "C" {
 // Patcher
+#include <libpatcher/libpatcher.h>
+
 #include "pd_data.h"
 #include "pd_info.h"
 #include "region.h"
-
-#include <libpatcher/libpatcher.h>
 }
 
 static void power_cb() {
@@ -84,19 +84,29 @@ int main(void) {
         kaitai::kstream ks(&is);
         pd_t data(&ks);
         pd_t::info_block_t *infoBlock = data.info();
-        std::cout << infoBlock->email_address() << std::endl;
+
+        std::cout << "First name: " << infoBlock->first_name().c_str()
+                  << std::endl;
+        std::cout << "Surname: " << infoBlock->surname().c_str() << std::endl;
+        std::cout << "Postal code: " << infoBlock->postal_code().c_str()
+                  << std::endl;
+        std::cout << "State/Prefecture: "
+                  << infoBlock->state_or_prefecture().c_str() << std::endl;
+        std::cout << "City: " << infoBlock->city().c_str() << std::endl;
+        std::cout << "Address: " << infoBlock->address().c_str() << std::endl;
+        std::cout << "Apartment Number: "
+                  << infoBlock->apartment_number().c_str() << std::endl;
+        std::cout << "Phone number: " << infoBlock->phone_number().c_str()
+                  << std::endl;
+        std::cout << "Email address: " << infoBlock->email_address().c_str()
+                  << std::endl;
     } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
     }
 
-    // printf("%s\n", u16_to_char(infoBlock->emailAddress));
-    // u16_to_char(infoBlock->firstname);
-    // u16_to_char(infoBlock->surname);
-    // u16_to_char(infoBlock->zipCode);
-    // u16_to_char(infoBlock->city);
-    // u16_to_char(infoBlock->address);
-    // u16_to_char(infoBlock->apartmentNumber);
-    // u16_to_char(infoBlock->phoneNumber);
+    bool result = PD_SaveFileContents();
+    std::cout << "Was " << (result ? "able" : "not able") << " to save pd.dat."
+              << std::endl;
 
     // MainMenu(1);
     sleep(110000);

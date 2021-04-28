@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #define PD_FILE_LENGTH 0x4000
 
 // Replace every ending null byte in a set of 8 with a byte
@@ -28,3 +29,4 @@ struct KeyInfo {
 };
 
 void *PD_GetFileContents();
+bool PD_SaveFileContents();
