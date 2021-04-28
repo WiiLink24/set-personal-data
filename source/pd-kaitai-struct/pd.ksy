@@ -40,12 +40,12 @@ types:
         size: 56
         encoding: UTF-16BE
         doc: This is used within additional profiles. We do not support it.
-      - id: first_name
+      - id: surname
         type: str
         size: 64
         encoding: UTF-16BE
         doc: Tyically written with Romaji.
-      - id: surname
+      - id: first_name
         type: str
         size: 64
         encoding: UTF-16BE
@@ -83,10 +83,10 @@ types:
         encoding: UTF-16BE
       - id: email_address
         type: str
-        size: 254
+        size: 256
         encoding: UTF-16BE
       - id: padding
-        contents: [0, 0, 0]
+        contents: [0]
       - id: second_timestamp
         type: u8
 
@@ -102,11 +102,11 @@ types:
           The literal 0x1 is additionally written over 1 byte via memcpy.
           As this area has been memset to 0 prior to run and never modified,
           we assume the next few bytes are null as well.
-      - id: first_name
+      - id: surname
         type: str
         size: 64
         encoding: UTF-16BE
-      - id: surname
+      - id: first_name
         type: str
         size: 64
         encoding: UTF-16BE

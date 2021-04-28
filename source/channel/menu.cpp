@@ -18,6 +18,7 @@
 #include "gui/gui.h"
 #include "main.h"
 #include "menu.h"
+#include "pd_info.h"
 
 #define THREAD_SLEEP 100
 // 48 KiB was chosen after many days of testing.
@@ -32,9 +33,8 @@ static lwp_t guithread = LWP_THREAD_NULL;
 static bool guiHalt = true;
 static bool ExitRequested = false;
 
-wchar_t user_first_name[32] = L"First name";
-wchar_t user_last_name[32] = L"Last name";
-wchar_t user_email[127] = L"Email";
+// From pd_info.cpp
+extern struct PDInfoData currentData;
 
 /****************************************************************************
  * ResumeGui
@@ -589,13 +589,13 @@ void MainMenu(int menu) {
             currentMenu = MenuSettings();
             break;
         case MENU_EDIT_FIRST_NAME:
-            currentMenu = KeyboardDataEntry(user_first_name);
+            currentMenu = KeyboardDataEntry(currentData.user_first_name);
             break;
         case MENU_EDIT_LAST_NAME:
-            currentMenu = KeyboardDataEntry(user_last_name);
+            currentMenu = KeyboardDataEntry(currentData.user_last_name);
             break;
         case MENU_EDIT_EMAIL:
-            currentMenu = KeyboardDataEntry(user_email);
+            currentMenu = KeyboardDataEntry(currentData.user_email);
             break;
         case MENU_CREDITS:
             currentMenu = MenuCredits();

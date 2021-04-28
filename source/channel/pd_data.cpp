@@ -1,19 +1,23 @@
-#include <aes/aes.h>
 #include <gccore.h>
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "helpers.h"
 #include "pd_data.h"
 #include "pd_decrypted_dat.h"
+
+extern "C" {
+#include <aes/aes.h>
+
+#include "helpers.h"
 #include "region.h"
+}
 
 // Keep two static variables in order to retain state.
 static void *PDFilePointer = NULL;
 
 struct KeyInfo *PD_GetKeyData() {
-    struct KeyInfo *info = malloc(sizeof(struct KeyInfo));
+    struct KeyInfo *info = new KeyInfo();
 
     u32 deviceId;
     s32 ret = ES_GetDeviceID(&deviceId);
@@ -160,7 +164,7 @@ bool PD_WriteToNAND(void *fileBuffer) {
     return true;
 }
 
-// PD_LoadFileContents is guaranteed
+// PD_LoadFileContents is guaranteed to
 void *PD_LoadFileContents() {
     // Attempt to read what may already exist.
     void *fileBuffer = PD_ReadFromNAND();

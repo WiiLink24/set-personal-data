@@ -81,8 +81,8 @@ class pd_t : public kaitai::kstruct {
         std::string m_preset_values;
         uint64_t m_first_timestamp;
         std::string m_profile_name;
-        std::string m_first_name;
         std::string m_surname;
+        std::string m_first_name;
         std::string m_postal_code;
         uint16_t m_padding_null;
         std::string m_state_or_prefecture;
@@ -115,12 +115,12 @@ class pd_t : public kaitai::kstruct {
         /**
          * Tyically written with Romaji.
          */
-        std::string first_name() const { return m_first_name; }
+        std::string surname() const { return m_surname; }
 
         /**
          * Tyically written with Romaji.
          */
-        std::string surname() const { return m_surname; }
+        std::string first_name() const { return m_first_name; }
         std::string postal_code() const { return m_postal_code; }
         uint16_t padding_null() const { return m_padding_null; }
 
@@ -160,8 +160,8 @@ class pd_t : public kaitai::kstruct {
         std::string m_magic;
         uint32_t m_block_size;
         std::string m_preset_value;
-        std::string m_first_name;
         std::string m_surname;
+        std::string m_first_name;
         pd_t *m__root;
         pd_t *m__parent;
 
@@ -175,8 +175,8 @@ class pd_t : public kaitai::kstruct {
          * assume the next few bytes are null as well.
          */
         std::string preset_value() const { return m_preset_value; }
-        std::string first_name() const { return m_first_name; }
         std::string surname() const { return m_surname; }
+        std::string first_name() const { return m_first_name; }
         pd_t *_root() const { return m__root; }
         pd_t *_parent() const { return m__parent; }
     };
