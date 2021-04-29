@@ -7,3 +7,4 @@ struct PDInfoData {
 };
 
 bool PD_PopulateData();
+bool PD_WriteData();

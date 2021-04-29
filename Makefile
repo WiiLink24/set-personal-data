@@ -29,8 +29,8 @@ INCLUDES	:=
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS	= -g -O3 -Wall -Werror $(MACHDEP) $(INCLUDE)
-CXXFLAGS	=	$(CFLAGS)
+CFLAGS	= -g -O3 -Wall -Werror $(MACHDEP) $(INCLUDE) -Wno-error=pointer-arith -Wno-pointer-arith
+CXXFLAGS	=	$(CFLAGS) -std=c++11
 
 LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 

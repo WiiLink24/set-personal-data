@@ -5,6 +5,8 @@
 #include <kaitai/kaitaistream.h>
 #include <ogc/lwp_watchdog.h>
 #include <pd-kaitai-struct/pd.h>
+#include <stdio.h>
+#include <string.h>
 #include <string>
 
 extern "C" {
@@ -15,19 +17,27 @@ extern "C" {
 #include "pd_info.h"
 
 struct PDInfoData currentData = {};
-std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> convert;
 
-std::string WcharToStringPipeline(const wchar_t *convertee) {
-    // wchar_t -> string
-    return convert.to_bytes(convertee);
+std::string *WcharToStringPipeline(const wchar_t *convertee, size_t expected) {
+    std::wstring_convert<std::codecvt_utf16<wchar_t>, wchar_t> convert;
+
+    // wchar_t* -> std::string*
+    std::string *intermediate = new std::string(convert.to_bytes(convertee));
+
+    // Resize to full
+    intermediate->resize(expected);
+
+    return intermediate;
 }
 
 const wchar_t *StringToWcharPipeline(std::string convertee) {
-    // string -> wstring*
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
+
+    // std::string -> std::wstring
     std::wstring *intermediate =
         new std::wstring(convert.from_bytes(convertee));
 
-    // wstring* -> wchar_t
+    // std::wstring -> wchar_t*
     return intermediate->c_str();
 }
 
@@ -48,21 +58,67 @@ bool PD_PopulateData() {
         pd_t data(&ks);
         pd_t::info_block_t *infoBlock = data.info();
 
-        // Populate current data
+        // Convert current data from pd.dat
         const wchar_t *first_name =
             StringToWcharPipeline(infoBlock->first_name());
         const wchar_t *last_name = StringToWcharPipeline(infoBlock->surname());
         const wchar_t *email_address =
             StringToWcharPipeline(infoBlock->email_address());
 
-        wcscpy(currentData.user_first_name, first_name);
-        wcscpy(currentData.user_last_name, last_name);
-        wcscpy(currentData.user_email, email_address);
+        // Populate data
+        wcsncpy(currentData.user_first_name, first_name, 32);
+        wcsncpy(currentData.user_last_name, last_name, 32);
+        wcsncpy(currentData.user_email, email_address, 128);
     } catch (const std::exception &e) {
         std::cout << "A C++ exception occurred." << std::endl;
         std::cout << e.what() << std::endl;
         return false;
     }
 
+    return true;
+}
+
+bool PD_WriteData() {
+    void *pdLocation = PD_GetFileContents();
+    if (pdLocation == NULL) {
+        std::cout << "Unable to read pd.dat!" << std::endl;
+        return false;
+    }
+
+    try {
+        // All string lengths must be twice such due to being UTF-16 BE.
+        std::string *first_name =
+            WcharToStringPipeline(currentData.user_first_name, 32 * 2);
+        std::string *last_name =
+            WcharToStringPipeline(currentData.user_last_name, 32 * 2);
+        std::string *email_address =
+            WcharToStringPipeline(currentData.user_email, 128 * 2);
+
+        // We specify specific offsets within the file.
+        // TODO: Replace with Kaitai serialization?
+        void *filePointer = PD_GetFileContents();
+
+        // Update first name
+        // INFO block
+        memcpy(filePointer + 207, last_name->c_str(), last_name->length());
+        // KANA block
+        memcpy(filePointer + 9723, last_name->c_str(), last_name->length());
+
+        // Update last name
+        // INFO block
+        memcpy(filePointer + 271, first_name->c_str(), first_name->length());
+        // KANA block
+        memcpy(filePointer + 9787, first_name->c_str(), first_name->length());
+
+        // Update email
+        memcpy(filePointer + 1075, email_address->c_str(),
+               email_address->length());
+
+        return PD_SaveFileContents();
+    } catch (const std::exception &e) {
+        std::cout << "A C++ exception occurred." << std::endl;
+        std::cout << e.what() << std::endl;
+        return false;
+    }
     return true;
 }

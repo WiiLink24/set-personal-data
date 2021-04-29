@@ -501,8 +501,28 @@ static int MenuSettings() {
             menu = MENU_EDIT_LAST_NAME;
         } else if (emailBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EDIT_EMAIL;
-        } else if (saveBtn.GetState() == STATE_CLICKED) {
+        } else if (cancelBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EXIT;
+        } else if (saveBtn.GetState() == STATE_CLICKED) {
+            // Attempt to save the current configuration.
+            bool success = PD_WriteData();
+            if (success) {
+                menu = MENU_EXIT;
+            } else {
+                int result = WindowPrompt(
+                    "Error saving",
+                    "An error occurred while attempting to save your "
+                    "information. Would you like to retry?",
+                    "Cancel", "Retry");
+                if (result == 1) {
+                    // The user selected to cancel.
+                    menu = MENU_EXIT;
+                } else {
+                    // The user selected to retry. We will do nothing
+                    // as this while loop will repeat.
+                    saveBtn.SetState(STATE_CLICKED);
+                }
+            }
         } else if (creditsBtn.GetState() == STATE_CLICKED) {
             menu = MENU_CREDITS;
         }
