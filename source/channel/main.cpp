@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <unistr.h>
 #include <wiiuse/wpad.h>
 
 // IOS patches
