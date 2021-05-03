@@ -24,6 +24,7 @@
 // 48 KiB was chosen after many days of testing.
 // It horrifies the author.
 #define GUI_STACK_SIZE 48 * 1024
+#define TITLE_ID(x,y)		(((u64)(x) << 32) | (y))
 
 static GuiImageData *pointer[4];
 static GuiImage *bgImg = NULL;
@@ -217,6 +218,57 @@ static u8 *_gui_stack[GUI_STACK_SIZE] ATTRIBUTE_ALIGN(8);
 void InitGUIThreads() {
     LWP_CreateThread(&guithread, UpdateGUI, NULL, _gui_stack, GUI_STACK_SIZE,
                      70);
+}
+
+// Opens a popup screen to choose which channel you would like to load 
+void Selection() {
+    s32 digicam = ISFS_Open("/title/00010001/4843444a/content/title.tmd", ISFS_OPEN_WRITE);
+
+    s32 demae = ISFS_Open("/title/00010001/4843484a/content/title.tmd", ISFS_OPEN_WRITE);
+
+    if (digicam < 0 && demae < 0) {
+        ExitApp();
+    }
+
+    if (digicam > 0 && demae < 0) {
+        int result = WindowPrompt(
+            "Choose Channel",
+            "Please choose which channel you would like to load.",
+            "Wii Menu", "Digicam");
+        if (result == 1) {
+            ExitApp();
+        } else {
+            WII_LaunchTitle(TITLE_ID(0x00010001,0x4843444a));
+        }
+    }
+
+
+    if (digicam < 0 && demae > 0) {
+        int result = WindowPrompt(
+            "Choose Channel",
+            "Please choose which channel you would like to load.",
+            "Wii Menu", "Demae");
+        if (result == 1) {
+            ExitApp();
+        } else {
+            WII_LaunchTitle(TITLE_ID(0x00010001,0x4843484a));
+        }
+    }
+
+    if (digicam > 0 && demae > 0) {
+        int result = WindowPrompt(
+            "Choose Channel",
+            "Please choose which channel you would like to load.",
+            "Digicam", "Demae");
+        if (result == 1) {
+            WII_LaunchTitle(TITLE_ID(0x00010001,0x4843444a));
+        } else {
+            WII_LaunchTitle(TITLE_ID(0x00010001,0x4843484a));
+        }
+    }
+
+    ISFS_Close(digicam);
+    ISFS_Close(demae);
 }
 
 /****************************************************************************
@@ -507,7 +559,7 @@ static int MenuSettings() {
             // Attempt to save the current configuration.
             bool success = PD_WriteData();
             if (success) {
-                menu = MENU_EXIT;
+                Selection();
             } else {
                 int result = WindowPrompt(
                     "Error saving",
