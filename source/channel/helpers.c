@@ -32,6 +32,14 @@ s32 CreateParentDirs(char *path) {
         offset = occurrence - path;
         strncpy(currentDir, path, offset);
 
+        // We're assured /title exists. Attempting to create it
+        // within a launched title in Dolphin breaks things,
+        // so we will simply skip it universally.
+        if (strcmp(currentDir, "/title") == 0) {
+            offset++;
+            continue;
+        }
+
         // We're okay with the directory already existing.
         s32 status = ISFS_CreateDir(currentDir, 0, 3, 3, 3);
         if (status < 0 && status != ISFS_EEXIST) {
