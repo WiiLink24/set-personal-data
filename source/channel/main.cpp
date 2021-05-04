@@ -18,6 +18,8 @@ extern "C" {
 // PD related
 #include "pd_info.h"
 
+#define TITLE_ID(x,y)		(((u64)(x) << 32) | (y))
+
 static void power_cb() {
     ShutoffRumble();
     StopGX();
@@ -29,6 +31,19 @@ void ExitApp() {
     StopGX();
     WII_ReturnToMenu();
 }
+
+void Exit_to_Digicam() {
+    ShutoffRumble();
+    StopGX();
+    WII_LaunchTitle(TITLE_ID(0x00010001,0x4843444a));
+}
+
+void Exit_to_Demae() {
+    ShutoffRumble();
+    StopGX();
+    WII_LaunchTitle(TITLE_ID(0x00010001,0x4843484a));
+}
+
 
 static void reset_cb(u32 level, void *unk) { ExitApp(); }
 

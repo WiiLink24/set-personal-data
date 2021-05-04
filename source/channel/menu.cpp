@@ -24,7 +24,6 @@
 // 48 KiB was chosen after many days of testing.
 // It horrifies the author.
 #define GUI_STACK_SIZE 48 * 1024
-#define TITLE_ID(x,y)		(((u64)(x) << 32) | (y))
 
 static GuiImageData *pointer[4];
 static GuiImage *bgImg = NULL;
@@ -238,7 +237,7 @@ void Selection() {
         if (result == 1) {
             ExitApp();
         } else {
-            WII_LaunchTitle(TITLE_ID(0x00010001,0x4843444a));
+            Exit_to_Digicam();
         }
     }
 
@@ -251,7 +250,7 @@ void Selection() {
         if (result == 1) {
             ExitApp();
         } else {
-            WII_LaunchTitle(TITLE_ID(0x00010001,0x4843484a));
+            Exit_to_Demae();
         }
     }
 
@@ -261,9 +260,9 @@ void Selection() {
             "Please choose which channel you would like to load.",
             "Digicam", "Demae");
         if (result == 1) {
-            WII_LaunchTitle(TITLE_ID(0x00010001,0x4843444a));
+            Exit_to_Digicam();
         } else {
-            WII_LaunchTitle(TITLE_ID(0x00010001,0x4843484a));
+            Exit_to_Demae();
         }
     }
 
