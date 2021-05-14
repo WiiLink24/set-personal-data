@@ -221,9 +221,9 @@ void InitGUIThreads() {
 
 // Opens a popup screen to choose which channel you would like to load 
 void Selection() {
-    s32 digicam = ISFS_Open("/title/00010001/4843444a/content/title.tmd", ISFS_OPEN_WRITE);
+    s32 digicam = ISFS_Open("/title/00010001/4843444a/content/00000019.app", ISFS_OPEN_WRITE);
 
-    s32 demae = ISFS_Open("/title/00010001/4843484a/content/title.tmd", ISFS_OPEN_WRITE);
+    s32 demae = ISFS_Open("/title/00010001/4843484a/content/00000001.app", ISFS_OPEN_WRITE);
 
     if (digicam < 0 && demae < 0) {
         ExitApp();
@@ -276,10 +276,11 @@ void Selection() {
  * Opens an on-screen keyboard window, with the data entered being stored
  * into the specified variable.
  ***************************************************************************/
-void OnScreenKeyboard(wchar_t *var, u16 maxlen) {
+void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char* name) {
     int save = -1;
 
     GuiKeyboard keyboard(var, maxlen);
+
 
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
@@ -288,13 +289,17 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen) {
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
 
+    GuiText titleTxt(name, 28, (GXColor){255, 255, 255, 255});
+    titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    titleTxt.SetPosition(0, 25);
+
     GuiText okBtnTxt("OK", 22, (GXColor){0, 0, 0, 255});
     GuiImage okBtnImg(&btnOutline);
     GuiImage okBtnImgOver(&btnOutlineOver);
     GuiButton okBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
 
-    okBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-    okBtn.SetPosition(25, -25);
+    okBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
+    okBtn.SetPosition(-50, 25);
 
     okBtn.SetLabel(&okBtnTxt);
     okBtn.SetImage(&okBtnImg);
@@ -307,8 +312,8 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen) {
     GuiImage cancelBtnImg(&btnOutline);
     GuiImage cancelBtnImgOver(&btnOutlineOver);
     GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    cancelBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
-    cancelBtn.SetPosition(-25, -25);
+    cancelBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    cancelBtn.SetPosition(50, 25);
     cancelBtn.SetLabel(&cancelBtnTxt);
     cancelBtn.SetImage(&cancelBtnImg);
     cancelBtn.SetImageOver(&cancelBtnImgOver);
@@ -322,6 +327,7 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen) {
     HaltGui();
     mainWindow->SetState(STATE_DISABLED);
     mainWindow->Append(&keyboard);
+    mainWindow->Append(&titleTxt);
     mainWindow->ChangeFocus(&keyboard);
     ResumeGui();
 
@@ -340,6 +346,7 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen) {
 
     HaltGui();
     mainWindow->Remove(&keyboard);
+    mainWindow->Remove(&titleTxt);
     mainWindow->SetState(STATE_DEFAULT);
     ResumeGui();
 }
@@ -588,7 +595,7 @@ static int MenuSettings() {
  * KeyboardDataEntry
  ***************************************************************************/
 
-static int KeyboardDataEntry(wchar_t *input) {
+static int KeyboardDataEntry(wchar_t *input, const char* name) {
     int menu = MENU_NONE;
 
     HaltGui();
@@ -599,7 +606,7 @@ static int KeyboardDataEntry(wchar_t *input) {
     while (menu == MENU_NONE) {
         usleep(THREAD_SLEEP);
 
-        OnScreenKeyboard(input, 255);
+        OnScreenKeyboard(input, 255, name);
         menu = MENU_PRIMARY;
     }
 
@@ -660,13 +667,13 @@ void MainMenu(int menu) {
             currentMenu = MenuSettings();
             break;
         case MENU_EDIT_FIRST_NAME:
-            currentMenu = KeyboardDataEntry(currentData.user_first_name);
+            currentMenu = KeyboardDataEntry(currentData.user_first_name, "First Name");
             break;
         case MENU_EDIT_LAST_NAME:
-            currentMenu = KeyboardDataEntry(currentData.user_last_name);
+            currentMenu = KeyboardDataEntry(currentData.user_last_name, "Last Name");
             break;
         case MENU_EDIT_EMAIL:
-            currentMenu = KeyboardDataEntry(currentData.user_email);
+            currentMenu = KeyboardDataEntry(currentData.user_email, "Email Address");
             break;
         case MENU_CREDITS:
             currentMenu = MenuCredits();

@@ -104,7 +104,7 @@ GuiKeyboard::GuiKeyboard(wchar_t *t, u32 max) {
     keyBack->SetSoundClick(keySoundClick);
     keyBack->SetTrigger(trigA);
     keyBack->SetTrigger(trig2);
-    keyBack->SetPosition(10 * 42 + 40, 0 * 42 + 80);
+    keyBack->SetPosition(10 * 42 + 40, 0 * 42 + 120);
     keyBack->SetEffectGrow();
     this->Append(keyBack);
 
@@ -119,7 +119,7 @@ GuiKeyboard::GuiKeyboard(wchar_t *t, u32 max) {
     keyCaps->SetSoundClick(keySoundClick);
     keyCaps->SetTrigger(trigA);
     keyCaps->SetTrigger(trig2);
-    keyCaps->SetPosition(0, 2 * 42 + 80);
+    keyCaps->SetPosition(0, 2 * 42 + 120);
     keyCaps->SetEffectGrow();
     this->Append(keyCaps);
 
@@ -134,7 +134,7 @@ GuiKeyboard::GuiKeyboard(wchar_t *t, u32 max) {
     keyShift->SetSoundClick(keySoundClick);
     keyShift->SetTrigger(trigA);
     keyShift->SetTrigger(trig2);
-    keyShift->SetPosition(21, 3 * 42 + 80);
+    keyShift->SetPosition(21, 3 * 42 + 120);
     keyShift->SetEffectGrow();
     this->Append(keyShift);
 
@@ -147,7 +147,7 @@ GuiKeyboard::GuiKeyboard(wchar_t *t, u32 max) {
     keySpace->SetSoundClick(keySoundClick);
     keySpace->SetTrigger(trigA);
     keySpace->SetTrigger(trig2);
-    keySpace->SetPosition(0, 4 * 42 + 80);
+    keySpace->SetPosition(0, 4 * 42 + 120);
     keySpace->SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     keySpace->SetEffectGrow();
     this->Append(keySpace);
@@ -171,7 +171,7 @@ GuiKeyboard::GuiKeyboard(wchar_t *t, u32 max) {
                 keyBtn[i][j]->SetTrigger(trigA);
                 keyBtn[i][j]->SetTrigger(trig2);
                 keyBtn[i][j]->SetLabel(keyTxt[i][j]);
-                keyBtn[i][j]->SetPosition(j * 42 + 21 * i + 40, i * 42 + 80);
+                keyBtn[i][j]->SetPosition(j * 42 + 21 * i + 40, i * 42 + 120);
                 keyBtn[i][j]->SetEffectGrow();
                 this->Append(keyBtn[i][j]);
             }

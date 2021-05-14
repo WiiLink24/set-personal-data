@@ -27,13 +27,13 @@ GuiTextField::GuiTextField(wchar_t *content, u32 max) {
     keyTextbox = new GuiImageData(keyboard_textbox_png);
     keyTextboxImg = new GuiImage(keyTextbox);
     keyTextboxImg->SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    keyTextboxImg->SetPosition(0, 0);
+    keyTextboxImg->SetPosition(0, 50);
     this->Append(keyTextboxImg);
 
     kbText = new GuiText("", 20, (GXColor){0, 0, 0, 0xff});
     kbText->SetWText(value);
     kbText->SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    kbText->SetPosition(0, 10);
+    kbText->SetPosition(0, 60);
     this->Append(kbText);
 }
 
