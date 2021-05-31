@@ -5,6 +5,7 @@ struct PDInfoData {
     wchar_t user_last_name[32];
     wchar_t user_email[128];
     wchar_t user_address[128];
+    wchar_t user_city[32];
 };
 
 bool PD_PopulateData();

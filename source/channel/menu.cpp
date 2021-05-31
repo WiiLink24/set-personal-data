@@ -484,7 +484,7 @@ static int MenuSettings() {
     GuiImage emailBtnImgOver(&btnLargeOutlineOver);
     GuiButton emailBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
     emailBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    emailBtn.SetPosition(-65, 120);
+    emailBtn.SetPosition(-65, 250);
     emailBtn.SetLabel(&emailBtnTxt1, 0);
     emailBtn.SetLabel(&emailBtnTxt2, 1);
     emailBtn.SetImage(&emailBtnImg);
@@ -502,7 +502,7 @@ static int MenuSettings() {
     GuiButton addressBtn(btnLargeOutline.GetWidth(),
                          btnLargeOutline.GetHeight());
     addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    addressBtn.SetPosition(-90, 250);
+    addressBtn.SetPosition(-175, 250);
     addressBtn.SetLabel(&addressBtnTxt1, 0);
     addressBtn.SetLabel(&addressBtnTxt2, 1);
     addressBtn.SetImage(&addressBtnImg);
@@ -517,13 +517,27 @@ static int MenuSettings() {
     GuiButton creditsBtn(btnLargeOutline.GetWidth(),
                          btnLargeOutline.GetHeight());
     creditsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    creditsBtn.SetPosition(90, 250);
+    creditsBtn.SetPosition(0, 250);
     creditsBtn.SetLabel(&creditsBtnTxt);
     creditsBtn.SetImage(&creditsBtnImg);
     creditsBtn.SetImageOver(&creditsBtnImgOver);
     creditsBtn.SetSoundOver(&btnSoundOver);
     creditsBtn.SetTrigger(&trigA);
     creditsBtn.SetEffectGrow();
+
+    GuiText cityBtnTxt("City", 22, (GXColor){0, 0, 0, 255});
+    GuiImage cityBtnImg(&btnLargeOutline);
+    GuiImage cityBtnImgOver(&btnLargeOutlineOver);
+    GuiButton cityBtn(btnLargeOutline.GetWidth(),
+                         btnLargeOutline.GetHeight());
+    cityBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    cityBtn.SetPosition(175, 120);
+    cityBtn.SetLabel(&cityBtnTxt);
+    cityBtn.SetImage(&cityBtnImg);
+    cityBtn.SetImageOver(&cityBtnImgOver);
+    cityBtn.SetSoundOver(&btnSoundOver);
+    cityBtn.SetTrigger(&trigA);
+    cityBtn.SetEffectGrow();
 
     GuiText saveBtnTxt("Done", 22, (GXColor){0, 0, 0, 255});
     GuiImage saveBtnImg(&btnOutline);
@@ -560,6 +574,7 @@ static int MenuSettings() {
     w.Append(&emailBtn);
     w.Append(&saveBtn);
     w.Append(&addressBtn);
+    w.Append(&cityBtn);
     w.Append(&creditsBtn);
 
     w.Append(&saveBtn);
@@ -582,6 +597,8 @@ static int MenuSettings() {
             menu = MENU_EXIT;
         } else if (addressBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EDIT_ADDRESS;
+        } else if (cityBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_EDIT_CITY;
         } else if (saveBtn.GetState() == STATE_CLICKED) {
             // Attempt to save the current configuration.
             bool success = PD_WriteData();
@@ -698,6 +715,9 @@ void MainMenu(int menu) {
             break;
         case MENU_EDIT_ADDRESS:
             currentMenu = KeyboardDataEntry(currentData.user_address, "Home Address");
+            break;
+        case MENU_EDIT_CITY:
+            currentMenu = KeyboardDataEntry(currentData.user_city, "City");
             break;
         case MENU_CREDITS:
             currentMenu = MenuCredits();
