@@ -64,11 +64,13 @@ bool PD_PopulateData() {
         const wchar_t *last_name = StringToWcharPipeline(infoBlock->surname());
         const wchar_t *email_address =
             StringToWcharPipeline(infoBlock->email_address());
+        const wchar_t *home_address = StringToWcharPipeline(infoBlock->address());
 
         // Populate data
         wcsncpy(currentData.user_first_name, first_name, 32);
         wcsncpy(currentData.user_last_name, last_name, 32);
         wcsncpy(currentData.user_email, email_address, 128);
+        wcsncpy(currentData.user_address, home_address, 128);
     } catch (const std::exception &e) {
         std::cout << "A C++ exception occurred." << std::endl;
         std::cout << e.what() << std::endl;
@@ -93,6 +95,8 @@ bool PD_WriteData() {
             WcharToStringPipeline(currentData.user_last_name, 32 * 2);
         std::string *email_address =
             WcharToStringPipeline(currentData.user_email, 128 * 2);
+        std::string *home_address =
+            WcharToStringPipeline(currentData.user_address, 128 * 2);
 
         // We specify specific offsets within the file.
         // TODO: Replace with Kaitai serialization?
@@ -113,6 +117,10 @@ bool PD_WriteData() {
         // Update email
         memcpy(filePointer + 1075, email_address->c_str(),
                email_address->length());
+
+        // Update home address
+        memcpy(filePointer + 499, home_address->c_str(),
+               home_address->length());
 
         return PD_SaveFileContents();
     } catch (const std::exception &e) {

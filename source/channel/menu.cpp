@@ -493,13 +493,31 @@ static int MenuSettings() {
     emailBtn.SetTrigger(&trigA);
     emailBtn.SetEffectGrow();
 
+    GuiText addressBtnTxt1("Home", 22, (GXColor){0, 0, 0, 255});
+    GuiText addressBtnTxt2("Address", 22, (GXColor){0, 0, 0, 255});
+    addressBtnTxt1.SetPosition(0, -20);
+    addressBtnTxt2.SetPosition(0, +10);
+    GuiImage addressBtnImg(&btnLargeOutline);
+    GuiImage addressBtnImgOver(&btnLargeOutlineOver);
+    GuiButton addressBtn(btnLargeOutline.GetWidth(),
+                         btnLargeOutline.GetHeight());
+    addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    addressBtn.SetPosition(-90, 250);
+    addressBtn.SetLabel(&addressBtnTxt1, 0);
+    addressBtn.SetLabel(&addressBtnTxt2, 1);
+    addressBtn.SetImage(&addressBtnImg);
+    addressBtn.SetImageOver(&addressBtnImgOver);
+    addressBtn.SetSoundOver(&btnSoundOver);
+    addressBtn.SetTrigger(&trigA);
+    addressBtn.SetEffectGrow();
+
     GuiText creditsBtnTxt("Credits", 22, (GXColor){0, 0, 0, 255});
     GuiImage creditsBtnImg(&btnLargeOutline);
     GuiImage creditsBtnImgOver(&btnLargeOutlineOver);
     GuiButton creditsBtn(btnLargeOutline.GetWidth(),
                          btnLargeOutline.GetHeight());
     creditsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    creditsBtn.SetPosition(0, 250);
+    creditsBtn.SetPosition(90, 250);
     creditsBtn.SetLabel(&creditsBtnTxt);
     creditsBtn.SetImage(&creditsBtnImg);
     creditsBtn.SetImageOver(&creditsBtnImgOver);
@@ -541,6 +559,7 @@ static int MenuSettings() {
     w.Append(&lastNameBtn);
     w.Append(&emailBtn);
     w.Append(&saveBtn);
+    w.Append(&addressBtn);
     w.Append(&creditsBtn);
 
     w.Append(&saveBtn);
@@ -561,6 +580,8 @@ static int MenuSettings() {
             menu = MENU_EDIT_EMAIL;
         } else if (cancelBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EXIT;
+        } else if (addressBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_EDIT_ADDRESS;
         } else if (saveBtn.GetState() == STATE_CLICKED) {
             // Attempt to save the current configuration.
             bool success = PD_WriteData();
@@ -674,6 +695,9 @@ void MainMenu(int menu) {
             break;
         case MENU_EDIT_EMAIL:
             currentMenu = KeyboardDataEntry(currentData.user_email, "Email Address");
+            break;
+        case MENU_EDIT_ADDRESS:
+            currentMenu = KeyboardDataEntry(currentData.user_address, "Home Address");
             break;
         case MENU_CREDITS:
             currentMenu = MenuCredits();
