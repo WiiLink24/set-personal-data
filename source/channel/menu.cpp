@@ -333,7 +333,21 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char* name) {
             save = 0;
     }
 
-    if (save) {
+    if (wcslen(keyboard.kbtextstr) == 0) {
+        int result = WindowPrompt(
+            "Error",
+            "You cannot have an empty field. Either try again or return to the main menu.",
+            "Retry", "Main Menu");
+        if (result == 1) {
+            HaltGui();
+            mainWindow->Remove(&keyboard);
+            mainWindow->Remove(&titleTxt);
+            mainWindow->SetState(STATE_DEFAULT);
+            OnScreenKeyboard(var, maxlen, name);
+        } else {
+            save = 0;
+        }
+    } else if (save) {
         swprintf(var, maxlen, L"%ls", keyboard.kbtextstr);
     }
 
