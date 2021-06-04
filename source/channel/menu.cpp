@@ -333,6 +333,22 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char* name) {
             save = 0;
     }
 
+    if (var == currentData.user_email) {
+        if(wcsstr(keyboard.kbtextstr, L"@") == 0) {
+            int result = WindowPrompt(
+                "Error",
+                "You have entered an invalid email address. Please enter a valid one.",
+                "Retry", "Main Menu");
+            if (result == 1) {
+                HaltGui();
+                mainWindow->Remove(&keyboard);
+                mainWindow->Remove(&titleTxt);
+                mainWindow->SetState(STATE_DEFAULT);
+                OnScreenKeyboard(var, maxlen, name);
+            }
+        }
+    }
+
     if (wcslen(keyboard.kbtextstr) == 0) {
         int result = WindowPrompt(
             "Error",
