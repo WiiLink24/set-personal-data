@@ -69,7 +69,7 @@ types:
         type: str
         size: 64
         encoding: UTF-16BE
-      - id: address
+      - id: home_address
         type: str
         size: 256
         encoding: UTF-16BE

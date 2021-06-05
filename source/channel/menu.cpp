@@ -332,7 +332,7 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char* name) {
             save = 0;
     }
 
-    if (var == currentData.user_email) {
+    if (var == currentData.user_email_address) {
         if(wcsstr(keyboard.kbtextstr, L"@") == 0) {
             int result = WindowPrompt(
                 "Error",
@@ -498,40 +498,40 @@ static int MenuSettings() {
     lastNameBtn.SetTrigger(&trigA);
     lastNameBtn.SetEffectGrow();
 
-    GuiText emailBtnTxt1("Email", 22, (GXColor){0, 0, 0, 255});
-    GuiText emailBtnTxt2("Address", 22, (GXColor){0, 0, 0, 255});
-    emailBtnTxt1.SetPosition(0, -20);
-    emailBtnTxt2.SetPosition(0, +10);
-    GuiImage emailBtnImg(&btnLargeOutline);
-    GuiImage emailBtnImgOver(&btnLargeOutlineOver);
-    GuiButton emailBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-    emailBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    emailBtn.SetPosition(-65, 250);
-    emailBtn.SetLabel(&emailBtnTxt1, 0);
-    emailBtn.SetLabel(&emailBtnTxt2, 1);
-    emailBtn.SetImage(&emailBtnImg);
-    emailBtn.SetImageOver(&emailBtnImgOver);
-    emailBtn.SetSoundOver(&btnSoundOver);
-    emailBtn.SetTrigger(&trigA);
-    emailBtn.SetEffectGrow();
+    GuiText email_addressBtnTxt1("Email", 22, (GXColor){0, 0, 0, 255});
+    GuiText email_addressBtnTxt2("Address", 22, (GXColor){0, 0, 0, 255});
+    email_addressBtnTxt1.SetPosition(0, -20);
+    email_addressBtnTxt2.SetPosition(0, +10);
+    GuiImage email_addressBtnImg(&btnLargeOutline);
+    GuiImage email_addressBtnImgOver(&btnLargeOutlineOver);
+    GuiButton email_addressBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    email_addressBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
+    email_addressBtn.SetPosition(-65, 250);
+    email_addressBtn.SetLabel(&email_addressBtnTxt1, 0);
+    email_addressBtn.SetLabel(&email_addressBtnTxt2, 1);
+    email_addressBtn.SetImage(&email_addressBtnImg);
+    email_addressBtn.SetImageOver(&email_addressBtnImgOver);
+    email_addressBtn.SetSoundOver(&btnSoundOver);
+    email_addressBtn.SetTrigger(&trigA);
+    email_addressBtn.SetEffectGrow();
 
-    GuiText addressBtnTxt1("Home", 22, (GXColor){0, 0, 0, 255});
-    GuiText addressBtnTxt2("Address", 22, (GXColor){0, 0, 0, 255});
-    addressBtnTxt1.SetPosition(0, -20);
-    addressBtnTxt2.SetPosition(0, +10);
-    GuiImage addressBtnImg(&btnLargeOutline);
-    GuiImage addressBtnImgOver(&btnLargeOutlineOver);
-    GuiButton addressBtn(btnLargeOutline.GetWidth(),
+    GuiText home_addressBtnTxt1("Home", 22, (GXColor){0, 0, 0, 255});
+    GuiText home_addressBtnTxt2("Address", 22, (GXColor){0, 0, 0, 255});
+    home_addressBtnTxt1.SetPosition(0, -20);
+    home_addressBtnTxt2.SetPosition(0, +10);
+    GuiImage home_addressBtnImg(&btnLargeOutline);
+    GuiImage home_addressBtnImgOver(&btnLargeOutlineOver);
+    GuiButton home_addressBtn(btnLargeOutline.GetWidth(),
                          btnLargeOutline.GetHeight());
-    addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    addressBtn.SetPosition(-175, 250);
-    addressBtn.SetLabel(&addressBtnTxt1, 0);
-    addressBtn.SetLabel(&addressBtnTxt2, 1);
-    addressBtn.SetImage(&addressBtnImg);
-    addressBtn.SetImageOver(&addressBtnImgOver);
-    addressBtn.SetSoundOver(&btnSoundOver);
-    addressBtn.SetTrigger(&trigA);
-    addressBtn.SetEffectGrow();
+    home_addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    home_addressBtn.SetPosition(-175, 250);
+    home_addressBtn.SetLabel(&home_addressBtnTxt1, 0);
+    home_addressBtn.SetLabel(&home_addressBtnTxt2, 1);
+    home_addressBtn.SetImage(&home_addressBtnImg);
+    home_addressBtn.SetImageOver(&home_addressBtnImgOver);
+    home_addressBtn.SetSoundOver(&btnSoundOver);
+    home_addressBtn.SetTrigger(&trigA);
+    home_addressBtn.SetEffectGrow();
 
     GuiText creditsBtnTxt("Credits", 22, (GXColor){0, 0, 0, 255});
     GuiImage creditsBtnImg(&btnLargeOutline);
@@ -593,9 +593,9 @@ static int MenuSettings() {
     w.Append(&titleTxt);
     w.Append(&firstNameBtn);
     w.Append(&lastNameBtn);
-    w.Append(&emailBtn);
+    w.Append(&email_addressBtn);
     w.Append(&saveBtn);
-    w.Append(&addressBtn);
+    w.Append(&home_addressBtn);
     w.Append(&cityBtn);
     w.Append(&creditsBtn);
 
@@ -613,12 +613,12 @@ static int MenuSettings() {
             menu = MENU_EDIT_FIRST_NAME;
         } else if (lastNameBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EDIT_LAST_NAME;
-        } else if (emailBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_EDIT_EMAIL;
+        } else if (email_addressBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_EDIT_EMAIL_ADDRESS;
         } else if (cancelBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EXIT;
-        } else if (addressBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_EDIT_ADDRESS;
+        } else if (home_addressBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_EDIT_HOME_ADDRESS;
         } else if (cityBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EDIT_CITY;
         } else if (saveBtn.GetState() == STATE_CLICKED) {
@@ -732,11 +732,11 @@ void MainMenu(int menu) {
         case MENU_EDIT_LAST_NAME:
             currentMenu = KeyboardDataEntry(currentData.user_last_name, "Last Name");
             break;
-        case MENU_EDIT_EMAIL:
-            currentMenu = KeyboardDataEntry(currentData.user_email, "Email Address");
+        case MENU_EDIT_EMAIL_ADDRESS:
+            currentMenu = KeyboardDataEntry(currentData.user_email_address, "Email Address");
             break;
-        case MENU_EDIT_ADDRESS:
-            currentMenu = KeyboardDataEntry(currentData.user_address, "Home Address");
+        case MENU_EDIT_HOME_ADDRESS:
+            currentMenu = KeyboardDataEntry(currentData.user_home_address, "Home Address");
             break;
         case MENU_EDIT_CITY:
             currentMenu = KeyboardDataEntry(currentData.user_city, "City");

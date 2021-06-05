@@ -64,14 +64,14 @@ bool PD_PopulateData() {
         const wchar_t *last_name = StringToWcharPipeline(infoBlock->surname());
         const wchar_t *email_address =
             StringToWcharPipeline(infoBlock->email_address());
-        const wchar_t *home_address = StringToWcharPipeline(infoBlock->address());
+        const wchar_t *home_address = StringToWcharPipeline(infoBlock->home_address());
         const wchar_t *city = StringToWcharPipeline(infoBlock->city());
 
         // Populate data
         wcsncpy(currentData.user_first_name, first_name, 32);
         wcsncpy(currentData.user_last_name, last_name, 32);
-        wcsncpy(currentData.user_email, email_address, 128);
-        wcsncpy(currentData.user_address, home_address, 128);
+        wcsncpy(currentData.user_email_address, email_address, 128);
+        wcsncpy(currentData.user_home_address, home_address, 128);
         wcsncpy(currentData.user_city, city, 32);
     } catch (const std::exception &e) {
         std::cout << "A C++ exception occurred." << std::endl;
@@ -96,9 +96,9 @@ bool PD_WriteData() {
         std::string *last_name =
             WcharToStringPipeline(currentData.user_last_name, 32 * 2);
         std::string *email_address =
-            WcharToStringPipeline(currentData.user_email, 128 * 2);
+            WcharToStringPipeline(currentData.user_email_address, 128 * 2);
         std::string *home_address =
-            WcharToStringPipeline(currentData.user_address, 128 * 2);
+            WcharToStringPipeline(currentData.user_home_address, 128 * 2);
         std::string *city =
             WcharToStringPipeline(currentData.user_city, 32 * 2);
 
