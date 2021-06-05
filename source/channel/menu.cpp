@@ -179,7 +179,6 @@ static void *UpdateGUI(void *arg) {
                                  userInput[i].wpad->ir.y - 48, 96, 96,
                                  pointer[i]->GetImage(),
                                  userInput[i].wpad->ir.angle, 1, 1, 255);
-                DoRumble(i);
             }
 
             Menu_Render();
