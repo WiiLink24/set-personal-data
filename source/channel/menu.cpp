@@ -211,21 +211,23 @@ void InitGUIThreads() {
                      70);
 }
 
-// Opens a popup screen to choose which channel you would like to load 
+// Opens a popup screen to choose which channel you would like to load
 void Selection() {
-    s32 digicam = ISFS_Open("/title/00010001/4843444a/content/00000019.app", ISFS_OPEN_WRITE);
+    s32 digicam = ISFS_Open("/title/00010001/4843444a/content/00000019.app",
+                            ISFS_OPEN_WRITE);
 
-    s32 demae = ISFS_Open("/title/00010001/4843484a/content/00000001.app", ISFS_OPEN_WRITE);
+    s32 demae = ISFS_Open("/title/00010001/4843484a/content/00000001.app",
+                          ISFS_OPEN_WRITE);
 
     if (digicam < 0 && demae < 0) {
         ExitApp();
     }
 
     if (digicam > 0 && demae < 0) {
-        int result = WindowPrompt(
-            "Choose Channel",
-            "Please choose which channel you would like to load.",
-            "Wii Menu", "Digicam");
+        int result =
+            WindowPrompt("Choose Channel",
+                         "Please choose which channel you would like to load.",
+                         "Wii Menu", "Digicam");
         if (result == 1) {
             ExitApp();
         } else {
@@ -233,12 +235,11 @@ void Selection() {
         }
     }
 
-
     if (digicam < 0 && demae > 0) {
-        int result = WindowPrompt(
-            "Choose Channel",
-            "Please choose which channel you would like to load.",
-            "Wii Menu", "Demae");
+        int result =
+            WindowPrompt("Choose Channel",
+                         "Please choose which channel you would like to load.",
+                         "Wii Menu", "Demae");
         if (result == 1) {
             ExitApp();
         } else {
@@ -247,10 +248,10 @@ void Selection() {
     }
 
     if (digicam > 0 && demae > 0) {
-        int result = WindowPrompt(
-            "Choose Channel",
-            "Please choose which channel you would like to load.",
-            "Digicam", "Demae");
+        int result =
+            WindowPrompt("Choose Channel",
+                         "Please choose which channel you would like to load.",
+                         "Digicam", "Demae");
         if (result == 1) {
             Exit_to_Digicam();
         } else {
@@ -268,11 +269,10 @@ void Selection() {
  * Opens an on-screen keyboard window, with the data entered being stored
  * into the specified variable.
  ***************************************************************************/
-void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char* name) {
+void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
     int save = -1;
 
     GuiKeyboard keyboard(var, maxlen);
-
 
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
@@ -333,11 +333,11 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char* name) {
     }
 
     if (var == currentData.user_email_address) {
-        if(wcsstr(keyboard.kbtextstr, L"@") == 0) {
-            int result = WindowPrompt(
-                "Error",
-                "You have entered an invalid email address. Please enter a valid one.",
-                "Retry", "Main Menu");
+        if (wcsstr(keyboard.kbtextstr, L"@") == 0) {
+            int result = WindowPrompt("Error",
+                                      "You have entered an invalid email "
+                                      "address. Please enter a valid one.",
+                                      "Retry", "Main Menu");
             if (result == 1) {
                 HaltGui();
                 mainWindow->Remove(&keyboard);
@@ -349,10 +349,10 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char* name) {
     }
 
     if (wcslen(keyboard.kbtextstr) == 0) {
-        int result = WindowPrompt(
-            "Error",
-            "You cannot have an empty field. Either try again or return to the main menu.",
-            "Retry", "Main Menu");
+        int result = WindowPrompt("Error",
+                                  "You cannot have an empty field. Either try "
+                                  "again or return to the main menu.",
+                                  "Retry", "Main Menu");
         if (result == 1) {
             HaltGui();
             mainWindow->Remove(&keyboard);
@@ -504,7 +504,8 @@ static int MenuSettings() {
     email_addressBtnTxt2.SetPosition(0, +10);
     GuiImage email_addressBtnImg(&btnLargeOutline);
     GuiImage email_addressBtnImgOver(&btnLargeOutlineOver);
-    GuiButton email_addressBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    GuiButton email_addressBtn(btnLargeOutline.GetWidth(),
+                               btnLargeOutline.GetHeight());
     email_addressBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
     email_addressBtn.SetPosition(-65, 250);
     email_addressBtn.SetLabel(&email_addressBtnTxt1, 0);
@@ -522,7 +523,7 @@ static int MenuSettings() {
     GuiImage home_addressBtnImg(&btnLargeOutline);
     GuiImage home_addressBtnImgOver(&btnLargeOutlineOver);
     GuiButton home_addressBtn(btnLargeOutline.GetWidth(),
-                         btnLargeOutline.GetHeight());
+                              btnLargeOutline.GetHeight());
     home_addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     home_addressBtn.SetPosition(-175, 250);
     home_addressBtn.SetLabel(&home_addressBtnTxt1, 0);
@@ -550,8 +551,7 @@ static int MenuSettings() {
     GuiText cityBtnTxt("City", 22, (GXColor){0, 0, 0, 255});
     GuiImage cityBtnImg(&btnLargeOutline);
     GuiImage cityBtnImgOver(&btnLargeOutlineOver);
-    GuiButton cityBtn(btnLargeOutline.GetWidth(),
-                         btnLargeOutline.GetHeight());
+    GuiButton cityBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
     cityBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     cityBtn.SetPosition(175, 120);
     cityBtn.SetLabel(&cityBtnTxt);
@@ -655,7 +655,7 @@ static int MenuSettings() {
  * KeyboardDataEntry
  ***************************************************************************/
 
-static int KeyboardDataEntry(wchar_t *input, const char* name) {
+static int KeyboardDataEntry(wchar_t *input, const char *name) {
     int menu = MENU_NONE;
 
     HaltGui();
@@ -727,16 +727,20 @@ void MainMenu(int menu) {
             currentMenu = MenuSettings();
             break;
         case MENU_EDIT_FIRST_NAME:
-            currentMenu = KeyboardDataEntry(currentData.user_first_name, "First Name");
+            currentMenu =
+                KeyboardDataEntry(currentData.user_first_name, "First Name");
             break;
         case MENU_EDIT_LAST_NAME:
-            currentMenu = KeyboardDataEntry(currentData.user_last_name, "Last Name");
+            currentMenu =
+                KeyboardDataEntry(currentData.user_last_name, "Last Name");
             break;
         case MENU_EDIT_EMAIL_ADDRESS:
-            currentMenu = KeyboardDataEntry(currentData.user_email_address, "Email Address");
+            currentMenu = KeyboardDataEntry(currentData.user_email_address,
+                                            "Email Address");
             break;
         case MENU_EDIT_HOME_ADDRESS:
-            currentMenu = KeyboardDataEntry(currentData.user_home_address, "Home Address");
+            currentMenu = KeyboardDataEntry(currentData.user_home_address,
+                                            "Home Address");
             break;
         case MENU_EDIT_CITY:
             currentMenu = KeyboardDataEntry(currentData.user_city, "City");

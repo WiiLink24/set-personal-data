@@ -64,7 +64,8 @@ bool PD_PopulateData() {
         const wchar_t *last_name = StringToWcharPipeline(infoBlock->surname());
         const wchar_t *email_address =
             StringToWcharPipeline(infoBlock->email_address());
-        const wchar_t *home_address = StringToWcharPipeline(infoBlock->home_address());
+        const wchar_t *home_address =
+            StringToWcharPipeline(infoBlock->home_address());
         const wchar_t *city = StringToWcharPipeline(infoBlock->city());
 
         // Populate data
@@ -127,8 +128,7 @@ bool PD_WriteData() {
                home_address->length());
 
         // Update city
-        memcpy(filePointer + 435, city->c_str(),
-               city->length());
+        memcpy(filePointer + 435, city->c_str(), city->length());
 
         return PD_SaveFileContents();
     } catch (const std::exception &e) {

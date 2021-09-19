@@ -4,13 +4,9 @@
 
 #include "helpers.h"
 
-char *GetTicketPath() {
-    return "/title/00010008/4843434a/content/title.tmd";
-}
+char *GetTicketPath() { return "/title/00010008/4843434a/content/title.tmd"; }
 
-char *GetTMDPath() {
-    return "/ticket/00010008/4843434a.tik";
-}
+char *GetTMDPath() { return "/ticket/00010008/4843434a.tik"; }
 
 char *PD_InstallTemplates() { return NULL; }
 
