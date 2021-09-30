@@ -64,7 +64,7 @@ int main(void) {
     InitGUIThreads();
 
     bool result = PD_PopulateData();
-    if (result == false) {
+    if (!result) {
         printf("Failed to read pd.dat!\n");
         sleep(5);
         ExitApp();
