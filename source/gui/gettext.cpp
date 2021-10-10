@@ -1,4 +1,5 @@
 #include <gctypes.h>
+#include <gccore.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,6 +16,27 @@ typedef struct _MSG {
 static MSG *baseMSG = 0;
 
 #define HASHWORDBITS 32
+
+// Gets the Wii's language and loads the corresponding lang file
+bool text_language() {
+    switch (CONF_GetLanguage()) {
+    case CONF_LANG_ENGLISH:
+        return LoadLanguage((char *)en_lang, en_lang_size);
+    case CONF_LANG_FRENCH:
+        return LoadLanguage((char *)fr_lang, fr_lang_size);
+    case CONF_LANG_SPANISH:
+        return LoadLanguage((char *)es_lang, es_lang_size);
+    case CONF_LANG_ITALIAN:
+        return LoadLanguage((char *)it_lang, it_lang_size);
+    case CONF_LANG_GERMAN:
+        return LoadLanguage((char *)de_lang, de_lang_size);
+    case CONF_LANG_DUTCH:
+        return LoadLanguage((char *)nl_lang, nl_lang_size);
+    default:
+        // Default to English
+        return LoadLanguage((char *)en_lang, en_lang_size);
+    }
+}
 
 /* Defines the so called `hashpjw' function by P.J. Weinberger
  [see Aho/Sethi/Ullman, COMPILERS: Principles, Techniques and Tools,
@@ -180,14 +202,14 @@ static char *memfgets(char *dst, int maxlen, char *src) {
     return ++newline;
 }
 
-bool LoadLanguage() {
+bool LoadLanguage(char *language, size_t lang_size) {
     char line[200];
     char *lastID = NULL;
 
     char *file, *eof;
 
-    file = (char *)en_lang;
-    eof = file + en_lang_size;
+    file = language;
+    eof = file + lang_size;
 
     gettextCleanUp();
 

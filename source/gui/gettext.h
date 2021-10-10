@@ -1,7 +1,10 @@
 #ifndef _GETTEXT_H_
 #define _GETTEXT_H_
 
-bool LoadLanguage();
+#include <stdio.h>
+
+bool LoadLanguage(char *language, size_t lang_size);
+bool text_language();
 
 /*
  * input msg = a text in ASCII

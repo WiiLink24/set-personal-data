@@ -16,6 +16,11 @@
 
 // Languages
 #include "en_lang.h"
+#include "fr_lang.h"
+#include "es_lang.h"
+#include "it_lang.h"
+#include "de_lang.h"
+#include "nl_lang.h"
 
 // Sounds
 // #include "bg_music_ogg.h"

@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "gui/gui.h"
+#include "gui/gettext.h"
 #include "main.h"
 #include "menu.h"
 #include "pd_info.h"
@@ -17,6 +18,7 @@
 // 48 KiB was chosen after many days of testing.
 // It horrifies the author.
 #define GUI_STACK_SIZE 48 * 1024
+#define _(string) gettext (string)
 
 static GuiImageData *pointer[4];
 static GuiImage *bgImg = NULL;
@@ -225,9 +227,9 @@ void Selection() {
 
     if (digicam > 0 && demae < 0) {
         int result =
-            WindowPrompt("Choose Channel",
-                         "Please choose which channel you would like to load.",
-                         "Wii Menu", "Digicam");
+            WindowPrompt(_("Choose Channel"),
+                         _("Please choose which channel you would like to load."),
+                         _("Wii Menu"), "Digicam");
         if (result == 1) {
             ExitApp();
         } else {
@@ -237,9 +239,9 @@ void Selection() {
 
     if (digicam < 0 && demae > 0) {
         int result =
-            WindowPrompt("Choose Channel",
-                         "Please choose which channel you would like to load.",
-                         "Wii Menu", "Demae");
+            WindowPrompt(_("Choose Channel"),
+                         _("Please choose which channel you would like to load."),
+                         _("Wii Menu"), "Demae");
         if (result == 1) {
             ExitApp();
         } else {
@@ -249,8 +251,8 @@ void Selection() {
 
     if (digicam > 0 && demae > 0) {
         int result =
-            WindowPrompt("Choose Channel",
-                         "Please choose which channel you would like to load.",
+            WindowPrompt(_("Choose Channel"),
+                         _("Please choose which channel you would like to load."),
                          "Digicam", "Demae");
         if (result == 1) {
             Exit_to_Digicam();
@@ -300,7 +302,7 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
     okBtn.SetTrigger(&trigA);
     okBtn.SetEffectGrow();
 
-    GuiText cancelBtnTxt("Cancel", 22, (GXColor){0, 0, 0, 255});
+    GuiText cancelBtnTxt(_("Cancel"), 22, (GXColor){0, 0, 0, 255});
     GuiImage cancelBtnImg(&btnOutline);
     GuiImage cancelBtnImgOver(&btnOutlineOver);
     GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
@@ -334,10 +336,9 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
 
     if (var == currentData.user_email_address) {
         if (wcsstr(keyboard.kbtextstr, L"@") == 0) {
-            int result = WindowPrompt("Error",
-                                      "You have entered an invalid email "
-                                      "address. Please enter a valid one.",
-                                      "Retry", "Main Menu");
+            int result = WindowPrompt(_("Error"),
+                                      _("You have entered an invalid email address. Please enter a valid one."),
+                                      _("Retry"), _("Main Menu"));
             if (result == 1) {
                 HaltGui();
                 mainWindow->Remove(&keyboard);
@@ -349,10 +350,9 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
     }
 
     if (wcslen(keyboard.kbtextstr) == 0) {
-        int result = WindowPrompt("Error",
-                                  "You cannot have an empty field. Either try "
-                                  "again or return to the main menu.",
-                                  "Retry", "Main Menu");
+        int result = WindowPrompt(_("Error"),
+                                  _("You cannot have an empty field. Either try again or return to the main menu."),
+                                  _("Retry"), _("Main Menu"));
         if (result == 1) {
             HaltGui();
             mainWindow->Remove(&keyboard);
@@ -390,7 +390,7 @@ static int MenuCredits() {
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
 
-    GuiText titleTxt("Credits", 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(_("Credits"), 28, (GXColor){255, 255, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
@@ -401,7 +401,7 @@ static int MenuCredits() {
     nameTxt1.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     nameTxt2.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
 
-    GuiText saveBtnTxt("Back", 22, (GXColor){0, 0, 0, 255});
+    GuiText saveBtnTxt(_("Back"), 22, (GXColor){0, 0, 0, 255});
     GuiImage saveBtnImg(&btnOutline);
     GuiImage saveBtnImgOver(&btnOutlineOver);
     GuiButton saveBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
@@ -451,7 +451,7 @@ static int MenuCredits() {
 static int MenuSettings() {
     int menu = MENU_NONE;
 
-    GuiText titleTxt("Set Personal Data", 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(_("Set Personal Data"), 28, (GXColor){255, 255, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
@@ -468,7 +468,7 @@ static int MenuSettings() {
     trigHome.SetButtonOnlyTrigger(
         -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
 
-    GuiText firstNameBtnTxt("First Name", 22, (GXColor){0, 0, 0, 255});
+    GuiText firstNameBtnTxt(_("First Name"), 22, (GXColor){0, 0, 0, 255});
     firstNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage firstNameBtnImg(&btnLargeOutline);
     GuiImage firstNameBtnImgOver(&btnLargeOutlineOver);
@@ -483,7 +483,7 @@ static int MenuSettings() {
     firstNameBtn.SetTrigger(&trigA);
     firstNameBtn.SetEffectGrow();
 
-    GuiText lastNameBtnTxt("Last Name", 22, (GXColor){0, 0, 0, 255});
+    GuiText lastNameBtnTxt(_("Last Name"), 22, (GXColor){0, 0, 0, 255});
     lastNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
     GuiImage lastNameBtnImg(&btnLargeOutline);
     GuiImage lastNameImgOver(&btnLargeOutlineOver);
@@ -498,8 +498,8 @@ static int MenuSettings() {
     lastNameBtn.SetTrigger(&trigA);
     lastNameBtn.SetEffectGrow();
 
-    GuiText email_addressBtnTxt1("Email", 22, (GXColor){0, 0, 0, 255});
-    GuiText email_addressBtnTxt2("Address", 22, (GXColor){0, 0, 0, 255});
+    GuiText email_addressBtnTxt1(_("Email"), 22, (GXColor){0, 0, 0, 255});
+    GuiText email_addressBtnTxt2(_("Address"), 22, (GXColor){0, 0, 0, 255});
     email_addressBtnTxt1.SetPosition(0, -20);
     email_addressBtnTxt2.SetPosition(0, +10);
     GuiImage email_addressBtnImg(&btnLargeOutline);
@@ -516,8 +516,8 @@ static int MenuSettings() {
     email_addressBtn.SetTrigger(&trigA);
     email_addressBtn.SetEffectGrow();
 
-    GuiText home_addressBtnTxt1("Home", 22, (GXColor){0, 0, 0, 255});
-    GuiText home_addressBtnTxt2("Address", 22, (GXColor){0, 0, 0, 255});
+    GuiText home_addressBtnTxt1(_("Home"), 22, (GXColor){0, 0, 0, 255});
+    GuiText home_addressBtnTxt2(_("Address"), 22, (GXColor){0, 0, 0, 255});
     home_addressBtnTxt1.SetPosition(0, -20);
     home_addressBtnTxt2.SetPosition(0, +10);
     GuiImage home_addressBtnImg(&btnLargeOutline);
@@ -534,7 +534,7 @@ static int MenuSettings() {
     home_addressBtn.SetTrigger(&trigA);
     home_addressBtn.SetEffectGrow();
 
-    GuiText creditsBtnTxt("Credits", 22, (GXColor){0, 0, 0, 255});
+    GuiText creditsBtnTxt(_("Credits"), 22, (GXColor){0, 0, 0, 255});
     GuiImage creditsBtnImg(&btnLargeOutline);
     GuiImage creditsBtnImgOver(&btnLargeOutlineOver);
     GuiButton creditsBtn(btnLargeOutline.GetWidth(),
@@ -548,7 +548,7 @@ static int MenuSettings() {
     creditsBtn.SetTrigger(&trigA);
     creditsBtn.SetEffectGrow();
 
-    GuiText cityBtnTxt("City", 22, (GXColor){0, 0, 0, 255});
+    GuiText cityBtnTxt(_("City"), 22, (GXColor){0, 0, 0, 255});
     GuiImage cityBtnImg(&btnLargeOutline);
     GuiImage cityBtnImgOver(&btnLargeOutlineOver);
     GuiButton cityBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
@@ -561,7 +561,7 @@ static int MenuSettings() {
     cityBtn.SetTrigger(&trigA);
     cityBtn.SetEffectGrow();
 
-    GuiText saveBtnTxt("Done", 22, (GXColor){0, 0, 0, 255});
+    GuiText saveBtnTxt(_("Done"), 22, (GXColor){0, 0, 0, 255});
     GuiImage saveBtnImg(&btnOutline);
     GuiImage saveBtnImgOver(&btnOutlineOver);
     GuiButton saveBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
@@ -575,7 +575,7 @@ static int MenuSettings() {
     saveBtn.SetTrigger(&trigHome);
     saveBtn.SetEffectGrow();
 
-    GuiText cancelBtnTxt("Cancel", 22, (GXColor){0, 0, 0, 255});
+    GuiText cancelBtnTxt(_("Cancel"), 22, (GXColor){0, 0, 0, 255});
     GuiImage cancelBtnImg(&btnOutline);
     GuiImage cancelBtnImgOver(&btnOutlineOver);
     GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
@@ -628,10 +628,9 @@ static int MenuSettings() {
                 Selection();
             } else {
                 int result = WindowPrompt(
-                    "Error saving",
-                    "An error occurred while attempting to save your "
-                    "information. Would you like to retry?",
-                    "Cancel", "Retry");
+                    _("Error saving"),
+                    _("An error occurred while attempting to save your information. Would you like to retry?"),
+                    _("Cancel"), _("Retry"));
                 if (result == 1) {
                     // The user selected to cancel.
                     menu = MENU_EXIT;
@@ -680,6 +679,12 @@ static int KeyboardDataEntry(wchar_t *input, const char *name) {
  * MainMenu
  ***************************************************************************/
 void MainMenu(int menu) {
+    if (!text_language()) {
+        printf("Unable to load language");
+        sleep(5);
+        ExitApp();
+    }
+
     int currentMenu = menu;
 
     pointer[0] = new GuiImageData(player1_point_png);
@@ -728,22 +733,22 @@ void MainMenu(int menu) {
             break;
         case MENU_EDIT_FIRST_NAME:
             currentMenu =
-                KeyboardDataEntry(currentData.user_first_name, "First Name");
+                KeyboardDataEntry(currentData.user_first_name, _("First Name"));
             break;
         case MENU_EDIT_LAST_NAME:
             currentMenu =
-                KeyboardDataEntry(currentData.user_last_name, "Last Name");
+                KeyboardDataEntry(currentData.user_last_name, _("Last Name"));
             break;
         case MENU_EDIT_EMAIL_ADDRESS:
             currentMenu = KeyboardDataEntry(currentData.user_email_address,
-                                            "Email Address");
+                                            _("Email Address"));
             break;
         case MENU_EDIT_HOME_ADDRESS:
             currentMenu = KeyboardDataEntry(currentData.user_home_address,
-                                            "Home Address");
+                                            _("Home Address"));
             break;
         case MENU_EDIT_CITY:
-            currentMenu = KeyboardDataEntry(currentData.user_city, "City");
+            currentMenu = KeyboardDataEntry(currentData.user_city, _("City"));
             break;
         case MENU_CREDITS:
             currentMenu = MenuCredits();
