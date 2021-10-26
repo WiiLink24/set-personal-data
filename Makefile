@@ -22,7 +22,7 @@ SOURCES		:=	source/kaitai \
 							source/musl source/aes \
 							source/gui \
 							source/channel
-DATA		:=	data/title data/fonts data/i10n data/gui
+DATA		:=	data/title data/fonts data/i10n data/gui data
 INCLUDES	:=
 
 #---------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	 -lpatcher -lpng `freetype-config --libs` -lz -lfat -lwiiuse -lbte -lasnd -logc -lvorbisidec -logg
+LIBS	:=	 -lcurl -lwiisocket -lmbedtls -lmbedcrypto -lmbedx509 -lpatcher -lpng `freetype-config --libs` -lz -lfat -lwiiuse -lbte -lasnd -logc -lvorbisidec -logg
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -134,6 +134,10 @@ $(OFILES_SOURCES) : $(HFILES)
 # These rules link in binary data
 #---------------------------------------------------------------------------------
 %.dat.o	%_dat.h :	%.dat
+	@echo $(notdir $<)
+	$(bin2o)
+
+ %.pem.o	%_pem.h :	%.pem
 	@echo $(notdir $<)
 	$(bin2o)
 
