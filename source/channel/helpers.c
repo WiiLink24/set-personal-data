@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 static fstats stats ATTRIBUTE_ALIGN(32);
 #define ISFS_EEXIST -105
@@ -115,4 +116,14 @@ void *ISFS_GetFile(const char *path, u32 *size) {
     ISFS_Close(fd);
 
     return buf;
+}
+
+bool isDolphin() {
+    s32 checkDolphin;
+    checkDolphin = IOS_Open("/dev/dolphin", IPC_OPEN_NONE);
+    if (checkDolphin >= 0) {
+        return true;
+    } else {
+        return false;
+    }
 }

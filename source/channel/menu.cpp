@@ -9,10 +9,15 @@
 #include <unistd.h>
 
 #include "gui/gui.h"
+#include <network.h>
 #include "gui/gettext.h"
 #include "main.h"
 #include "menu.h"
 #include "pd_info.h"
+extern "C" {
+    #include "helpers.h"
+    #include "post.h"
+}
 
 #define THREAD_SLEEP 100
 // 48 KiB was chosen after many days of testing.
@@ -256,6 +261,35 @@ void Selection() {
                          "Digicam", "Demae");
         if (result == 1) {
             Exit_to_Digicam();
+        } else if ((result == 2) && (!isDolphin())){
+            result = WindowPrompt("",
+                         _("Since you have the Demae Channel, you have the option to save your address with the server so you can order real food. The WiiLink team will never view this data, only the server and the restaurant will access this."),
+                         _("Yes"), _("No")
+                         );
+
+            if (result == 1) {
+                char address[3075];
+                char mac_address[128];
+                char buffer[6] = {0};
+
+                net_get_mac_address(&buffer);
+
+                sprintf(mac_address, "mac=%02x-%02x-%02x-%02x-%02x-%02x", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+                sprintf(address, "address=%ls", currentData.user_home_address);
+                s32 ret = post_request((char *)"http://dev.wiilink24.com/add", mac_address, address);
+
+                if (ret != 0) {
+                    result = WindowPrompt("",
+                                          _("An error has occurred. Please report this issue and choose an option."),
+                                          _("Wii Menu"), _("Main Menu")
+                    );
+
+                    if (result == 1) {
+                        ExitApp();
+                    }
+                }
+            }
+            Exit_to_Demae();
         } else {
             Exit_to_Demae();
         }

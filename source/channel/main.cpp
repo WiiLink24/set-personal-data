@@ -4,9 +4,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <wiiuse/wpad.h>
+#include <network.h>
 
 // IOS patches
 extern "C" {
+#include <wiisocket.h>
 #include <libpatcher/libpatcher.h>
 }
 
@@ -56,8 +58,10 @@ int main(void) {
         WII_ReturnToMenu();
     }
 
+    net_init();
     ISFS_Initialize();
     CONF_Init();
+    wiisocket_init();
     SetupPads();
     InitAudio();
     InitFreeType((u8 *)noto_sans_jp_regular_otf, noto_sans_jp_regular_otf_size);
