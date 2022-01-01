@@ -70,7 +70,7 @@ int main(void) {
         ExitApp();
     }
 
-    MainMenu(1);
+    MainMenu(-2);
 
     return 0;
 }

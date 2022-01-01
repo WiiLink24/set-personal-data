@@ -5,7 +5,10 @@ meta:
 seq:
   - id: file_header
     type: header
-    size: 0x80
+    size: 5
+  - id: pin_block
+    type: pin_block
+    size: 123
   - id: info
     type: info_block
     size: 0x256F
@@ -22,6 +25,17 @@ types:
         doc: <|
           This is checked by all known PD SDKs to be less than or equal to 2.
           It's assumed that 1 exists with lesser features - presumably without profiles.
+  pin_block:
+    seq:
+      - id: pin_magic
+        size: 12
+      - id: padding
+        size: 8
+      - id: pin
+        type: str
+        size: 8
+        if: pin_magic != [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        encoding: UTF-16BE
   info_block:
     seq:
       - id: magic

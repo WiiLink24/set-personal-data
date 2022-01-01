@@ -838,6 +838,14 @@ typedef struct _keytype {
     wchar_t ch, chShift;
 } Key;
 
+typedef struct _numtype {
+    const char *num;
+} numKey;
+
+typedef struct _padtype {
+    wchar_t num;
+} padKey;
+
 //! Configurable textfield
 class GuiTextField : public GuiWindow {
   public:
@@ -856,10 +864,38 @@ class GuiTextField : public GuiWindow {
     GuiImageData *keyTextbox;
 };
 
+class GuiNumberpad : public GuiWindow {
+  public:
+    GuiNumberpad(wchar_t *t, u32 max);
+    ~GuiNumberpad();
+    void Update(GuiTrigger *t);
+    wchar_t kbtextstr[256];
+    GuiTextField *kbTextfield;
+
+  protected:
+    size_t kbtextmaxlen;
+    numKey numKeys[4][3];
+    padKey padKeys[4][3];
+    GuiImageData *keyMedium;
+    GuiImageData *keyMediumOver;
+    GuiImageData *key;
+    GuiImageData *keyOver;
+    GuiText *keyBackText;
+    GuiImage *keyBackImg;
+    GuiImage *keyBackOverImg;
+    GuiButton *keyBack;
+    GuiTrigger *trigA;
+    GuiTrigger *trig2;
+    GuiButton *keyBtn[4][3];
+    GuiImage *keyImg[4][3];
+    GuiImage *keyImgOver[4][3];
+    GuiText *keyTxt[4][3];
+};
+
 //! On-screen keyboard
 class GuiKeyboard : public GuiWindow {
   public:
-    GuiKeyboard(wchar_t *t, u32 m);
+    GuiKeyboard(wchar_t *t, u32 max);
     ~GuiKeyboard();
     void Update(GuiTrigger *t);
     wchar_t kbtextstr[256];

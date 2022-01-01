@@ -15,7 +15,8 @@ void InitGUIThreads();
 void MainMenu(int menuitem);
 
 enum {
-    MENU_EXIT = -1,
+    MENU_INITIAL_PIN = -2,
+    MENU_EXIT,
     MENU_NONE,
     MENU_PRIMARY,
     MENU_EDIT_FIRST_NAME,
@@ -23,7 +24,12 @@ enum {
     MENU_EDIT_EMAIL_ADDRESS,
     MENU_EDIT_HOME_ADDRESS,
     MENU_EDIT_CITY,
-    MENU_CREDITS
+    MENU_PHONE,
+    MENU_PIN,
+    MENU_EDIT_PIN,
+    MENU_DELETE_PIN,
+    MENU_ADD_PIN
+   // MENU_CREDITS
 };
 
 #endif

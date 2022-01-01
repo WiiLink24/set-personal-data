@@ -57,6 +57,15 @@ bool PD_PopulateData() {
         // Attempt to parse via the provided Kaitai Struct
         pd_t data(&ks);
         pd_t::info_block_t *infoBlock = data.info();
+        pd_t::pin_block_t *pinBlock = data.pin_block();
+
+        // First we will detect if the pd.dat is password protected
+        if (pinBlock->pin_magic() != std::string("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 12)) {
+            currentData.passwordProtected = true;
+            const wchar_t *pin = StringToWcharPipeline(pinBlock->pin());
+            wcsncpy(currentData.user_pin, pin, 8);
+        } else
+            currentData.passwordProtected = false;
 
         // Convert current data from pd.dat
         const wchar_t *first_name =
@@ -67,6 +76,7 @@ bool PD_PopulateData() {
         const wchar_t *home_address =
             StringToWcharPipeline(infoBlock->home_address());
         const wchar_t *city = StringToWcharPipeline(infoBlock->city());
+        const wchar_t *phone_number = StringToWcharPipeline(infoBlock->phone_number());
 
         // Populate data
         wcsncpy(currentData.user_first_name, first_name, 32);
@@ -74,6 +84,7 @@ bool PD_PopulateData() {
         wcsncpy(currentData.user_email_address, email_address, 128);
         wcsncpy(currentData.user_home_address, home_address, 128);
         wcsncpy(currentData.user_city, city, 32);
+        wcsncpy(currentData.user_phone_number, phone_number, 32);
     } catch (const std::exception &e) {
         std::cout << "A C++ exception occurred." << std::endl;
         std::cout << e.what() << std::endl;
@@ -102,6 +113,7 @@ bool PD_WriteData() {
             WcharToStringPipeline(currentData.user_home_address, 128 * 2);
         std::string *city =
             WcharToStringPipeline(currentData.user_city, 32 * 2);
+        std::string *phone_number = WcharToStringPipeline(currentData.user_phone_number, 32 * 2);
 
         // We specify specific offsets within the file.
         // TODO: Replace with Kaitai serialization?
@@ -129,6 +141,19 @@ bool PD_WriteData() {
 
         // Update city
         memcpy(filePointer + 435, city->c_str(), city->length());
+
+        // Update phone number
+        memcpy(filePointer + 1011, phone_number->c_str(), phone_number->length());
+
+        // Update PIN if needed
+        if (currentData.passwordProtected) {
+            memcpy(filePointer + 5,
+                   "\x01\x00\x95\xCE\x9C\xA4\x7A\x3E\x37\x00\x00\x00", 12);
+            std::string *pin = WcharToStringPipeline(currentData.user_pin, 4 * 2);
+            memcpy(filePointer + 25, pin->c_str(), pin->length());
+        }
+        else
+            memcpy(filePointer + 5, "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 12);
 
         return PD_SaveFileContents();
     } catch (const std::exception &e) {
