@@ -1,3 +1,3 @@
-void ExitApp();
-void Exit_to_Digicam();
-void Exit_to_Demae();
+#include "menu.h"
+
+void ExitApp(ExitType type);

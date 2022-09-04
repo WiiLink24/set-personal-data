@@ -26,7 +26,8 @@ static GuiSound *bgMusic = NULL;
 static GuiWindow *mainWindow = NULL;
 static lwp_t guithread = LWP_THREAD_NULL;
 static bool guiHalt = true;
-static bool ExitRequested = false;
+bool ExitRequested = false;
+ExitType exitType = ExitType::WII_MENU;
 
 // From pd_info.cpp
 extern struct PDInfoData currentData;
@@ -245,7 +246,8 @@ static void *UpdateGUI(void *arg) {
                                        (GXColor){0, 0, 0, (u8)i}, 1);
                     Menu_Render();
                 }
-                ExitApp();
+
+                ExitApp(exitType);
             }
         }
     }
@@ -272,7 +274,8 @@ void Selection() {
                           ISFS_OPEN_WRITE);
 
     if (digicam < 0 && demae < 0) {
-        ExitApp();
+        ExitRequested = true;
+        exitType = ExitType::WII_MENU;
     }
 
     if (digicam > 0 && demae < 0) {
@@ -281,9 +284,11 @@ void Selection() {
                          _("Please choose which channel you would like to load."),
                          _("Wii Menu"), "Digicam");
         if (result == 1) {
-            ExitApp();
+            ExitRequested = true;
+            exitType = ExitType::WII_MENU;
         } else {
-            Exit_to_Digicam();
+            ExitRequested = true;
+            exitType = ExitType::DIGICAM;
         }
     }
 
@@ -293,9 +298,11 @@ void Selection() {
                          _("Please choose which channel you would like to load."),
                          _("Wii Menu"), "Demae");
         if (result == 1) {
-            ExitApp();
+            ExitRequested = true;
+            exitType = ExitType::WII_MENU;
         } else {
-            Exit_to_Demae();
+            ExitRequested = true;
+            exitType = ExitType::DEMAE;
         }
     }
 
@@ -305,9 +312,11 @@ void Selection() {
                          _("Please choose which channel you would like to load."),
                          "Digicam", "Demae");
         if (result == 1) {
-            Exit_to_Digicam();
+            ExitRequested = true;
+            exitType = ExitType::DIGICAM;
         } else {
-            Exit_to_Demae();
+            ExitRequested = true;
+            exitType = ExitType::DEMAE;
         }
     }
 
@@ -504,7 +513,7 @@ static int InitialPin() {
     int menu = MENU_NONE;
 
     if (!currentData.passwordProtected) {
-        return MENU_PRIMARY;
+        return MENU_OPTIONS1;
     }
 
     MessageWindow(_("Set Personal Data"), _("Your personal data is PIN protected. Please enter your 4-digit PIN."), 3);
@@ -573,17 +582,19 @@ static int InitialPin() {
                                           _("You have entered the incorrect PIN. Either try again or return to the main menu."),
                                           _("Wii Menu"), _("Retry"));
                 if (result == 1) {
-                    ExitApp();
+                    ExitRequested = true;
+                    exitType = ExitType::WII_MENU;
                 } else {
                     swprintf(keyboard.kbtextstr, 1, L"\0");
                     keyboard.kbTextfield->SetText(keyboard.kbtextstr);
                 }
             } else {
-                menu = MENU_PRIMARY;
+                menu = MENU_OPTIONS1;
             }
         }
         else if (cancelBtn.GetState() == STATE_CLICKED) {
-            ExitApp();
+            ExitRequested = true;
+            exitType = ExitType::WII_MENU;
         }
     }
 
@@ -686,7 +697,7 @@ static int PinMenu() {
         usleep(THREAD_SLEEP);
 
         if (backBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_PRIMARY;
+            menu = MENU_OPTIONS1;
         } else if (editPinBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EDIT_PIN;
         } else if (deletePinBtn.GetState() == STATE_CLICKED) {
@@ -874,7 +885,7 @@ static int DeletePin() {
                 }
             } else {
                 currentData.passwordProtected = false;
-                menu = MENU_PRIMARY;
+                menu = MENU_OPTIONS1;
             }
         }
         else if (cancelBtn.GetState() == STATE_CLICKED) {
@@ -1044,7 +1055,7 @@ static int PhoneNumber() {
 
         if (okBtn.GetState() == STATE_CLICKED) {
             swprintf(currentData.user_phone_number, 32, L"%ls", keyboard.kbtextstr);
-            menu = MENU_PRIMARY;
+            menu = MENU_OPTIONS1;
         }
         else if (cancelBtn.GetState() == STATE_CLICKED) {
             menu = MENU_PIN;
@@ -1060,7 +1071,7 @@ static int PhoneNumber() {
 /****************************************************************************
  * MenuSettings
  ***************************************************************************/
-static int MenuSettings() {
+static int MenuSettings1() {
     int menu = MENU_NONE;
 
     GuiText titleTxt(_("Set Personal Data"), 28, (GXColor){255, 255, 255, 255});
@@ -1076,9 +1087,20 @@ static int MenuSettings() {
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
+
+    GuiTrigger trigPlus;
+    trigPlus.SetButtonOnlyTrigger(-1, WPAD_BUTTON_PLUS | WPAD_CLASSIC_BUTTON_PLUS,
+                              0);
+
     GuiTrigger trigHome;
     trigHome.SetButtonOnlyTrigger(
         -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
+
+    // Used to traverse screens
+    GuiButton nextScreenBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    nextScreenBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
+    nextScreenBtn.SetPosition(-25, -15);
+    nextScreenBtn.SetTrigger(&trigPlus);
 
     GuiText firstNameBtnTxt(_("First Name"), 22, (GXColor){0, 0, 0, 255});
     firstNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
@@ -1087,7 +1109,7 @@ static int MenuSettings() {
     GuiButton firstNameBtn(btnLargeOutline.GetWidth(),
                            btnLargeOutline.GetHeight());
     firstNameBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    firstNameBtn.SetPosition(-175, 120);
+    firstNameBtn.SetPosition(-100, 120);
     firstNameBtn.SetLabel(&firstNameBtnTxt);
     firstNameBtn.SetImage(&firstNameBtnImg);
     firstNameBtn.SetImageOver(&firstNameBtnImgOver);
@@ -1102,7 +1124,7 @@ static int MenuSettings() {
     GuiButton lastNameBtn(btnLargeOutline.GetWidth(),
                           btnLargeOutline.GetHeight());
     lastNameBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    lastNameBtn.SetPosition(0, 120);
+    lastNameBtn.SetPosition(100, 120);
     lastNameBtn.SetLabel(&lastNameBtnTxt);
     lastNameBtn.SetImage(&lastNameBtnImg);
     lastNameBtn.SetImageOver(&lastNameImgOver);
@@ -1116,29 +1138,14 @@ static int MenuSettings() {
     GuiImage email_addressBtnImgOver(&btnLargeOutlineOver);
     GuiButton email_addressBtn(btnLargeOutline.GetWidth(),
                                btnLargeOutline.GetHeight());
-    email_addressBtn.SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-    email_addressBtn.SetPosition(-65, 250);
+    email_addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    email_addressBtn.SetPosition(100, 250);
     email_addressBtn.SetLabel(&email_addressBtnTxt);
     email_addressBtn.SetImage(&email_addressBtnImg);
     email_addressBtn.SetImageOver(&email_addressBtnImgOver);
     email_addressBtn.SetSoundOver(&btnSoundOver);
     email_addressBtn.SetTrigger(&trigA);
     email_addressBtn.SetEffectGrow();
-
-    GuiText home_addressBtnTxt(_("Home Address"), 22, (GXColor){0, 0, 0, 255});
-    home_addressBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage home_addressBtnImg(&btnLargeOutline);
-    GuiImage home_addressBtnImgOver(&btnLargeOutlineOver);
-    GuiButton home_addressBtn(btnLargeOutline.GetWidth(),
-                              btnLargeOutline.GetHeight());
-    home_addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    home_addressBtn.SetPosition(-175, 250);
-    home_addressBtn.SetLabel(&home_addressBtnTxt);
-    home_addressBtn.SetImage(&home_addressBtnImg);
-    home_addressBtn.SetImageOver(&home_addressBtnImgOver);
-    home_addressBtn.SetSoundOver(&btnSoundOver);
-    home_addressBtn.SetTrigger(&trigA);
-    home_addressBtn.SetEffectGrow();
 
     GuiText phoneBtnTxt(_("Phone Number"), 22, (GXColor){0, 0, 0, 255});
     phoneBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
@@ -1147,26 +1154,13 @@ static int MenuSettings() {
     GuiButton phoneBtn(btnLargeOutline.GetWidth(),
                          btnLargeOutline.GetHeight());
     phoneBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    phoneBtn.SetPosition(0, 250);
+    phoneBtn.SetPosition(-100, 250);
     phoneBtn.SetLabel(&phoneBtnTxt);
     phoneBtn.SetImage(&phoneBtnImg);
     phoneBtn.SetImageOver(&phoneBtnImgOver);
     phoneBtn.SetSoundOver(&btnSoundOver);
     phoneBtn.SetTrigger(&trigA);
     phoneBtn.SetEffectGrow();
-
-    GuiText cityBtnTxt(_("City"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage cityBtnImg(&btnLargeOutline);
-    GuiImage cityBtnImgOver(&btnLargeOutlineOver);
-    GuiButton cityBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-    cityBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    cityBtn.SetPosition(175, 120);
-    cityBtn.SetLabel(&cityBtnTxt);
-    cityBtn.SetImage(&cityBtnImg);
-    cityBtn.SetImageOver(&cityBtnImgOver);
-    cityBtn.SetSoundOver(&btnSoundOver);
-    cityBtn.SetTrigger(&trigA);
-    cityBtn.SetEffectGrow();
 
     GuiText saveBtnTxt(_("Done"), 22, (GXColor){0, 0, 0, 255});
     GuiImage saveBtnImg(&btnOutline);
@@ -1215,9 +1209,8 @@ static int MenuSettings() {
     w.Append(&lastNameBtn);
     w.Append(&email_addressBtn);
     w.Append(&saveBtn);
-    w.Append(&home_addressBtn);
-    w.Append(&cityBtn);
     w.Append(&phoneBtn);
+    w.Append(&nextScreenBtn);
 
     w.Append(&saveBtn);
     w.Append(&pinBtn);
@@ -1238,10 +1231,8 @@ static int MenuSettings() {
             menu = MENU_EDIT_EMAIL_ADDRESS;
         } else if (cancelBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EXIT;
-        } else if (home_addressBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_EDIT_HOME_ADDRESS;
-        } else if (cityBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_EDIT_CITY;
+        } else if (nextScreenBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_OPTIONS2;
         } else if (saveBtn.GetState() == STATE_CLICKED) {
             // Attempt to save the current configuration.
             bool success = PD_WriteData();
@@ -1274,6 +1265,177 @@ static int MenuSettings() {
 }
 
 /****************************************************************************
+ * MenuSettings
+ ***************************************************************************/
+static int MenuSettings2() {
+    int menu = MENU_NONE;
+
+    GuiText titleTxt(_("Set Personal Data"), 28, (GXColor){255, 255, 255, 255});
+    titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    titleTxt.SetPosition(0, 25);
+
+    GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+    GuiImageData btnOutline(button_png);
+    GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnLargeOutline(button_large_png);
+    GuiImageData btnLargeOutlineOver(button_large_over_png);
+
+    GuiTrigger trigA;
+    trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
+                           PAD_BUTTON_A);
+    GuiTrigger trigHome;
+    trigHome.SetButtonOnlyTrigger(
+        -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
+
+
+    GuiTrigger trigMinus;
+    trigMinus.SetButtonOnlyTrigger(
+        -1, WPAD_BUTTON_MINUS | WPAD_CLASSIC_BUTTON_MINUS, 0);
+
+    // Used to traverse screens
+    GuiButton nextScreenBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    nextScreenBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
+    nextScreenBtn.SetPosition(-25, -15);
+    nextScreenBtn.SetTrigger(&trigMinus);
+
+    GuiText cityBtnTxt(_("City"), 22, (GXColor){0, 0, 0, 255});
+    GuiImage cityBtnImg(&btnLargeOutline);
+    GuiImage cityBtnImgOver(&btnLargeOutlineOver);
+    GuiButton cityBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    cityBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
+    cityBtn.SetPosition(175, 0);
+    cityBtn.SetLabel(&cityBtnTxt);
+    cityBtn.SetImage(&cityBtnImg);
+    cityBtn.SetImageOver(&cityBtnImgOver);
+    cityBtn.SetSoundOver(&btnSoundOver);
+    cityBtn.SetTrigger(&trigA);
+    cityBtn.SetEffectGrow();
+
+    GuiText home_addressBtnTxt(_("Home Address"), 22, (GXColor){0, 0, 0, 255});
+    home_addressBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
+    GuiImage home_addressBtnImg(&btnLargeOutline);
+    GuiImage home_addressBtnImgOver(&btnLargeOutlineOver);
+    GuiButton home_addressBtn(btnLargeOutline.GetWidth(),
+                              btnLargeOutline.GetHeight());
+    home_addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
+    home_addressBtn.SetPosition(-175, 0);
+    home_addressBtn.SetLabel(&home_addressBtnTxt);
+    home_addressBtn.SetImage(&home_addressBtnImg);
+    home_addressBtn.SetImageOver(&home_addressBtnImgOver);
+    home_addressBtn.SetSoundOver(&btnSoundOver);
+    home_addressBtn.SetTrigger(&trigA);
+    home_addressBtn.SetEffectGrow();
+
+    GuiText zipBtnTxt(_("Zip Code"), 22, (GXColor){0, 0, 0, 255});
+    GuiImage zipBtnImg(&btnLargeOutline);
+    GuiImage zipBtnImgOver(&btnLargeOutlineOver);
+    GuiButton zipBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    zipBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
+    zipBtn.SetPosition(0, 0);
+    zipBtn.SetLabel(&zipBtnTxt);
+    zipBtn.SetImage(&zipBtnImg);
+    zipBtn.SetImageOver(&zipBtnImgOver);
+    zipBtn.SetSoundOver(&btnSoundOver);
+    zipBtn.SetTrigger(&trigA);
+    zipBtn.SetEffectGrow();
+
+    GuiText saveBtnTxt(_("Done"), 22, (GXColor){0, 0, 0, 255});
+    GuiImage saveBtnImg(&btnOutline);
+    GuiImage saveBtnImgOver(&btnOutlineOver);
+    GuiButton saveBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    saveBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
+    saveBtn.SetPosition(-25, -15);
+    saveBtn.SetLabel(&saveBtnTxt);
+    saveBtn.SetImage(&saveBtnImg);
+    saveBtn.SetImageOver(&saveBtnImgOver);
+    saveBtn.SetSoundOver(&btnSoundOver);
+    saveBtn.SetTrigger(&trigA);
+    saveBtn.SetTrigger(&trigHome);
+    saveBtn.SetEffectGrow();
+
+    GuiText pinBtnTxt("PIN", 22, (GXColor){0, 0, 0, 255});
+    GuiImage pinBtnImg(&btnOutline);
+    GuiImage pinBtnImgOver(&btnOutlineOver);
+    GuiButton pinBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    pinBtn.SetAlignment(ALIGN_CENTRE, ALIGN_BOTTOM);
+    pinBtn.SetPosition(0, -15);
+    pinBtn.SetLabel(&pinBtnTxt);
+    pinBtn.SetImage(&pinBtnImg);
+    pinBtn.SetImageOver(&pinBtnImgOver);
+    pinBtn.SetSoundOver(&btnSoundOver);
+    pinBtn.SetTrigger(&trigA);
+    pinBtn.SetEffectGrow();
+
+    GuiText cancelBtnTxt(_("Cancel"), 22, (GXColor){0, 0, 0, 255});
+    GuiImage cancelBtnImg(&btnOutline);
+    GuiImage cancelBtnImgOver(&btnOutlineOver);
+    GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    cancelBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    cancelBtn.SetPosition(25, -15);
+    cancelBtn.SetLabel(&cancelBtnTxt);
+    cancelBtn.SetImage(&cancelBtnImg);
+    cancelBtn.SetImageOver(&cancelBtnImgOver);
+    cancelBtn.SetSoundOver(&btnSoundOver);
+    cancelBtn.SetTrigger(&trigA);
+    cancelBtn.SetEffectGrow();
+
+    HaltGui();
+    GuiWindow w(screenwidth, screenheight);
+
+    w.Append(&titleTxt);
+    w.Append(&zipBtn);
+    w.Append(&saveBtn);
+    w.Append(&pinBtn);
+    w.Append(&cancelBtn);
+    w.Append(&nextScreenBtn);
+    w.Append(&home_addressBtn);
+    w.Append(&cityBtn);
+
+    mainWindow->Append(&w);
+
+    ResumeGui();
+
+    while (menu == MENU_NONE) {
+        usleep(THREAD_SLEEP);
+
+        if (saveBtn.GetState() == STATE_CLICKED) {
+            // Attempt to save the current configuration.
+            bool success = PD_WriteData();
+            if (success) {
+                Selection();
+            } else {
+                int result = WindowPrompt(
+                    _("Error saving"),
+                    _("An error occurred while attempting to save your information. Would you like to retry?"),
+                    _("Cancel"), _("Retry"));
+                if (result == 1) {
+                    // The user selected to cancel.
+                    menu = MENU_EXIT;
+                } else {
+                    // The user selected to retry. We will do nothing
+                    // as this while loop will repeat.
+                    saveBtn.SetState(STATE_CLICKED);
+                }
+            }
+        } else if (home_addressBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_EDIT_HOME_ADDRESS;
+        } else if (cityBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_EDIT_CITY;
+        } else if (nextScreenBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_OPTIONS1;
+        } else if (pinBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_PIN;
+        } else if (zipBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_EDIT_ZIP_CODE;
+        }
+    }
+
+    HaltGui();
+    mainWindow->Remove(&w);
+    return menu;
+}
+
+/****************************************************************************
  * KeyboardDataEntry
  ***************************************************************************/
 
@@ -1289,7 +1451,7 @@ static int KeyboardDataEntry(wchar_t *input, const char *name) {
         usleep(THREAD_SLEEP);
 
         OnScreenKeyboard(input, 255, name);
-        menu = MENU_PRIMARY;
+        menu = MENU_OPTIONS1;
     }
 
     HaltGui();
@@ -1305,7 +1467,8 @@ void MainMenu(int menu) {
     if (!text_language()) {
         printf("Unable to load language");
         sleep(5);
-        ExitApp();
+        ExitRequested = true;
+        exitType = ExitType::WII_MENU;
     }
 
     int currentMenu = menu;
@@ -1354,8 +1517,11 @@ void MainMenu(int menu) {
         case MENU_INITIAL_PIN:
             currentMenu = InitialPin();
             break;
-        case MENU_PRIMARY:
-            currentMenu = MenuSettings();
+        case MENU_OPTIONS1:
+            currentMenu = MenuSettings1();
+            break;
+        case MENU_OPTIONS2:
+            currentMenu = MenuSettings2();
             break;
         case MENU_EDIT_FIRST_NAME:
             currentMenu =
@@ -1376,6 +1542,9 @@ void MainMenu(int menu) {
         case MENU_EDIT_CITY:
             currentMenu = KeyboardDataEntry(currentData.user_city, _("City"));
             break;
+        case MENU_EDIT_ZIP_CODE:
+            currentMenu = KeyboardDataEntry(currentData.user_zip_code, "Zip Code");
+            break;
         case MENU_PHONE:
             currentMenu = PhoneNumber();
             break;
@@ -1395,13 +1564,14 @@ void MainMenu(int menu) {
             currentMenu = MenuCredits();
             break;*/
         default:
-            currentMenu = MenuSettings();
+            currentMenu = MenuSettings1();
             break;
         }
     }
 
     ResumeGui();
     ExitRequested = true;
+    exitType = ExitType::WII_MENU;
     while (1)
         usleep(THREAD_SLEEP);
 

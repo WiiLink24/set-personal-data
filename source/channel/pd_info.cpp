@@ -77,6 +77,7 @@ bool PD_PopulateData() {
             StringToWcharPipeline(infoBlock->home_address());
         const wchar_t *city = StringToWcharPipeline(infoBlock->city());
         const wchar_t *phone_number = StringToWcharPipeline(infoBlock->phone_number());
+        const wchar_t *zip_code = StringToWcharPipeline(infoBlock->postal_code());
 
         // Populate data
         wcsncpy(currentData.user_first_name, first_name, 32);
@@ -85,6 +86,7 @@ bool PD_PopulateData() {
         wcsncpy(currentData.user_home_address, home_address, 128);
         wcsncpy(currentData.user_city, city, 32);
         wcsncpy(currentData.user_phone_number, phone_number, 32);
+        wcsncpy(currentData.user_zip_code, zip_code, 34);
     } catch (const std::exception &e) {
         std::cout << "A C++ exception occurred." << std::endl;
         std::cout << e.what() << std::endl;
@@ -114,11 +116,13 @@ bool PD_WriteData() {
         std::string *city =
             WcharToStringPipeline(currentData.user_city, 32 * 2);
         std::string *phone_number = WcharToStringPipeline(currentData.user_phone_number, 32 * 2);
+        std::string *zip = WcharToStringPipeline(currentData.user_zip_code, 17 * 2);
 
         // We specify specific offsets within the file.
         // TODO: Replace with Kaitai serialization?
         void *filePointer = PD_GetFileContents();
 
+        memcpy(filePointer + 335, zip->c_str(), zip->length());
         // Update first name
         // INFO block
         memcpy(filePointer + 207, last_name->c_str(), last_name->length());

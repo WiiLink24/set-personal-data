@@ -21,26 +21,29 @@ extern "C" {
 #define TITLE_ID(x, y) (((u64)(x) << 32) | (y))
 
 static void power_cb() {
-    StopGX();
-    STM_ShutdownToIdle();
+    ExitRequested = true;
+    exitType = ExitType::POWER;
 }
 
-void ExitApp() {
+void ExitApp(ExitType type) {
     StopGX();
-    WII_ReturnToMenu();
+
+    switch (type) {
+    case ExitType::WII_MENU:
+        WII_ReturnToMenu();
+    case ExitType::POWER:
+        STM_ShutdownToIdle();
+    case ExitType::DEMAE:
+        WII_LaunchTitle(TITLE_ID(0x00010001, 0x4843484a));
+    case ExitType::DIGICAM:
+        WII_LaunchTitle(TITLE_ID(0x00010001, 0x4843444a));
+    }
 }
 
-void Exit_to_Digicam() {
-    StopGX();
-    WII_LaunchTitle(TITLE_ID(0x00010001, 0x4843444a));
+static void reset_cb(u32 level, void *unk) {
+    ExitRequested = true;
+    exitType = ExitType::WII_MENU;
 }
-
-void Exit_to_Demae() {
-    StopGX();
-    WII_LaunchTitle(TITLE_ID(0x00010001, 0x4843484a));
-}
-
-static void reset_cb(u32 level, void *unk) { ExitApp(); }
 
 int main(void) {
     // Make hardware buttons functional.
@@ -67,7 +70,7 @@ int main(void) {
     if (!result) {
         printf("Failed to read pd.dat!\n");
         sleep(5);
-        ExitApp();
+        ExitApp(exitType);
     }
 
     MainMenu(-2);
