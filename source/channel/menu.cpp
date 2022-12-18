@@ -1083,14 +1083,12 @@ static int MenuSettings1() {
     GuiImageData btnOutlineOver(button_over_png);
     GuiImageData btnLargeOutline(button_large_png);
     GuiImageData btnLargeOutlineOver(button_large_over_png);
+    GuiImageData btnRightArrow(right_arrow_png);
+    GuiImageData btnRightArrowOver(right_arrow_over_png);
 
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
-
-    GuiTrigger trigPlus;
-    trigPlus.SetButtonOnlyTrigger(-1, WPAD_BUTTON_PLUS | WPAD_CLASSIC_BUTTON_PLUS,
-                              0);
 
     GuiTrigger trigHome;
     trigHome.SetButtonOnlyTrigger(
@@ -1098,9 +1096,15 @@ static int MenuSettings1() {
 
     // Used to traverse screens
     GuiButton nextScreenBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    nextScreenBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
-    nextScreenBtn.SetPosition(-25, -15);
-    nextScreenBtn.SetTrigger(&trigPlus);
+    nextScreenBtn.SetAlignment(ALIGN_RIGHT, ALIGN_MIDDLE);
+    GuiImage _btnRightArrow(&btnRightArrow);
+    nextScreenBtn.SetImage(&_btnRightArrow);
+    GuiImage _btnRightArrowOver(&btnRightArrowOver);
+    nextScreenBtn.SetImageOver(&_btnRightArrowOver);
+    nextScreenBtn.SetSoundOver(&btnSoundOver);
+    nextScreenBtn.SetPosition(100, 0);
+    nextScreenBtn.SetTrigger(&trigA);
+    nextScreenBtn.SetEffectGrow();
 
     GuiText firstNameBtnTxt(_("First Name"), 22, (GXColor){0, 0, 0, 255});
     firstNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
@@ -1279,6 +1283,8 @@ static int MenuSettings2() {
     GuiImageData btnOutlineOver(button_over_png);
     GuiImageData btnLargeOutline(button_large_png);
     GuiImageData btnLargeOutlineOver(button_large_over_png);
+    GuiImageData btnLeftArrow(left_arrow_png);
+    GuiImageData btnLeftArrowOver(left_arrow_over_png);
 
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
@@ -1287,16 +1293,17 @@ static int MenuSettings2() {
     trigHome.SetButtonOnlyTrigger(
         -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
 
-
-    GuiTrigger trigMinus;
-    trigMinus.SetButtonOnlyTrigger(
-        -1, WPAD_BUTTON_MINUS | WPAD_CLASSIC_BUTTON_MINUS, 0);
-
     // Used to traverse screens
     GuiButton nextScreenBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    nextScreenBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
-    nextScreenBtn.SetPosition(-25, -15);
-    nextScreenBtn.SetTrigger(&trigMinus);
+    nextScreenBtn.SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
+    GuiImage _btnLeftArrow(&btnLeftArrow);
+    nextScreenBtn.SetImage(&_btnLeftArrow);
+    GuiImage _btnLeftArrowOver(&btnLeftArrowOver);
+    nextScreenBtn.SetImageOver(&_btnLeftArrowOver);
+    nextScreenBtn.SetSoundOver(&btnSoundOver);
+    nextScreenBtn.SetPosition(10, 0);
+    nextScreenBtn.SetTrigger(&trigA);
+    nextScreenBtn.SetEffectGrow();
 
     GuiText cityBtnTxt(_("City"), 22, (GXColor){0, 0, 0, 255});
     GuiImage cityBtnImg(&btnLargeOutline);
@@ -1570,8 +1577,8 @@ void MainMenu(int menu) {
     }
 
     ResumeGui();
-    ExitRequested = true;
     exitType = ExitType::WII_MENU;
+    ExitRequested = true;
     while (1)
         usleep(THREAD_SLEEP);
 
