@@ -8,8 +8,8 @@
 
 #include <unistd.h>
 
-#include "gui/gui.h"
 #include "gui/gettext.h"
+#include "gui/gui.h"
 #include "main.h"
 #include "menu.h"
 #include "pd_info.h"
@@ -18,15 +18,16 @@
 // 48 KiB was chosen after many days of testing.
 // It horrifies the author.
 #define GUI_STACK_SIZE 48 * 1024
-#define _(string) gettext (string)
+#define _(string) gettext(string)
 
 static GuiImageData *pointer[4];
 static GuiImage *bgImg = NULL;
-static GuiSound *bgMusic = NULL;
+// static GuiSound *bgMusic = NULL;
 static GuiWindow *mainWindow = NULL;
 static lwp_t guithread = LWP_THREAD_NULL;
 static bool guiHalt = true;
 bool ExitRequested = false;
+bool startApp = false;
 ExitType exitType = ExitType::WII_MENU;
 
 // From pd_info.cpp
@@ -76,6 +77,8 @@ int WindowPrompt(const char *title, const char *msg, const char *btn1Label,
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
     GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
@@ -92,9 +95,9 @@ int WindowPrompt(const char *title, const char *msg, const char *btn1Label,
     msgTxt.SetWrap(true, 400);
 
     GuiText btn1Txt(btn1Label, 22, (GXColor){0, 0, 0, 255});
-    GuiImage btn1Img(&btnOutline);
-    GuiImage btn1ImgOver(&btnOutlineOver);
-    GuiButton btn1(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage btn1Img(&btnCircleOutline);
+    GuiImage btn1ImgOver(&btnCircleOutlineOver);
+    GuiButton btn1(btnCircleOutline.GetWidth(), btnCircleOutline.GetHeight());
 
     if (btn2Label) {
         btn1.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
@@ -113,9 +116,9 @@ int WindowPrompt(const char *title, const char *msg, const char *btn1Label,
     btn1.SetEffectGrow();
 
     GuiText btn2Txt(btn2Label, 22, (GXColor){0, 0, 0, 255});
-    GuiImage btn2Img(&btnOutline);
-    GuiImage btn2ImgOver(&btnOutlineOver);
-    GuiButton btn2(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage btn2Img(&btnCircleOutline);
+    GuiImage btn2ImgOver(&btnCircleOutlineOver);
+    GuiButton btn2(btnCircleOutline.GetWidth(), btnCircleOutline.GetHeight());
     btn2.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
     btn2.SetPosition(-20, -25);
     btn2.SetLabel(&btn2Txt);
@@ -171,6 +174,8 @@ void MessageWindow(const char *title, const char *msg, u32 time) {
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
     GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
@@ -189,7 +194,6 @@ void MessageWindow(const char *title, const char *msg, u32 time) {
     promptWindow.Append(&dialogBoxImg);
     promptWindow.Append(&titleTxt);
     promptWindow.Append(&msgTxt);
-
 
     promptWindow.SetEffect(EFFECT_SLIDE_TOP | EFFECT_SLIDE_IN, 50);
     HaltGui();
@@ -232,6 +236,16 @@ static void *UpdateGUI(void *arg) {
                                  userInput[i].wpad->ir.y - 48, 96, 96,
                                  pointer[i]->GetImage(),
                                  userInput[i].wpad->ir.angle, 1, 1, 255);
+            }
+
+            // Run this for loop only once
+            if (!startApp) {
+                for (i = 255; i >= 0; i -= 15) {
+                    mainWindow->Draw();
+                    Menu_DrawRectangle(0, 0, screenwidth, screenheight,
+                                       (GXColor){0, 0, 0, (u8)i}, 1);
+                    Menu_Render();
+                }
             }
 
             Menu_Render();
@@ -279,10 +293,10 @@ void Selection() {
     }
 
     if (digicam > 0 && demae < 0) {
-        int result =
-            WindowPrompt(_("Choose Channel"),
-                         _("Please choose which channel you would like to load."),
-                         _("Wii Menu"), "Digicam");
+        int result = WindowPrompt(
+            _("Choose Channel"),
+            _("Please choose which channel you would like to load."),
+            _("Wii Menu"), "Digicam");
         if (result == 1) {
             ExitRequested = true;
             exitType = ExitType::WII_MENU;
@@ -293,10 +307,10 @@ void Selection() {
     }
 
     if (digicam < 0 && demae > 0) {
-        int result =
-            WindowPrompt(_("Choose Channel"),
-                         _("Please choose which channel you would like to load."),
-                         _("Wii Menu"), "Demae");
+        int result = WindowPrompt(
+            _("Choose Channel"),
+            _("Please choose which channel you would like to load."),
+            _("Wii Menu"), "Demae");
         if (result == 1) {
             ExitRequested = true;
             exitType = ExitType::WII_MENU;
@@ -307,10 +321,10 @@ void Selection() {
     }
 
     if (digicam > 0 && demae > 0) {
-        int result =
-            WindowPrompt(_("Choose Channel"),
-                         _("Please choose which channel you would like to load."),
-                         "Digicam", "Demae");
+        int result = WindowPrompt(
+            _("Choose Channel"),
+            _("Please choose which channel you would like to load."), "Digicam",
+            "Demae");
         if (result == 1) {
             ExitRequested = true;
             exitType = ExitType::DIGICAM;
@@ -338,18 +352,20 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
     GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
 
-    GuiText titleTxt(name, 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(name, 28, (GXColor){70, 187, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
     GuiText okBtnTxt("OK", 22, (GXColor){0, 0, 0, 255});
-    GuiImage okBtnImg(&btnOutline);
-    GuiImage okBtnImgOver(&btnOutlineOver);
-    GuiButton okBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage okBtnImg(&btnCircleOutline);
+    GuiImage okBtnImgOver(&btnCircleOutlineOver);
+    GuiButton okBtn(btnCircleOutline.GetWidth(), btnCircleOutline.GetHeight());
 
     okBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
     okBtn.SetPosition(-50, 25);
@@ -362,9 +378,10 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
     okBtn.SetEffectGrow();
 
     GuiText cancelBtnTxt(_("Cancel"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage cancelBtnImg(&btnOutline);
-    GuiImage cancelBtnImgOver(&btnOutlineOver);
-    GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage cancelBtnImg(&btnCircleOutline);
+    GuiImage cancelBtnImgOver(&btnCircleOutlineOver);
+    GuiButton cancelBtn(btnCircleOutline.GetWidth(),
+                        btnCircleOutline.GetHeight());
     cancelBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
     cancelBtn.SetPosition(50, 25);
     cancelBtn.SetLabel(&cancelBtnTxt);
@@ -396,7 +413,8 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
     if (var == currentData.user_email_address) {
         if (wcsstr(keyboard.kbtextstr, L"@") == 0) {
             int result = WindowPrompt(_("Error"),
-                                      _("You have entered an invalid email address. Please enter a valid one."),
+                                      _("You have entered an invalid email "
+                                        "address. Please enter a valid one."),
                                       _("Retry"), _("Main Menu"));
             if (result == 1) {
                 HaltGui();
@@ -410,7 +428,8 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
 
     if (wcslen(keyboard.kbtextstr) == 0) {
         int result = WindowPrompt(_("Error"),
-                                  _("You cannot have an empty field. Either try again or return to the main menu."),
+                                  _("You cannot have an empty field. Either "
+                                    "try again or return to the main menu."),
                                   _("Retry"), _("Main Menu"));
         if (result == 1) {
             HaltGui();
@@ -516,7 +535,10 @@ static int InitialPin() {
         return MENU_OPTIONS1;
     }
 
-    MessageWindow(_("Set Personal Data"), _("Your personal data is PIN protected. Please enter your 4-digit PIN."), 3);
+    MessageWindow(_("Set Personal Data"),
+                  _("Your personal data is PIN protected. Please enter your "
+                    "4-digit PIN."),
+                  3);
 
     // Place an empty wchar_t to satisfy the function
     wchar_t empty = L'\0';
@@ -529,15 +551,16 @@ static int InitialPin() {
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
     GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
 
-
     GuiText okBtnTxt(_("Enter"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage okBtnImg(&btnOutline);
-    GuiImage okBtnImgOver(&btnOutlineOver);
-    GuiButton okBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage okBtnImg(&btnCircleOutline);
+    GuiImage okBtnImgOver(&btnCircleOutlineOver);
+    GuiButton okBtn(btnCircleOutline.GetWidth(), btnCircleOutline.GetHeight());
 
     okBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
     okBtn.SetPosition(-50, 25);
@@ -550,9 +573,10 @@ static int InitialPin() {
     okBtn.SetEffectGrow();
 
     GuiText cancelBtnTxt(_("Exit"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage cancelBtnImg(&btnOutline);
-    GuiImage cancelBtnImgOver(&btnOutlineOver);
-    GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage cancelBtnImg(&btnCircleOutline);
+    GuiImage cancelBtnImgOver(&btnCircleOutlineOver);
+    GuiButton cancelBtn(btnCircleOutline.GetWidth(),
+                        btnCircleOutline.GetHeight());
     cancelBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
     cancelBtn.SetPosition(50, 25);
     cancelBtn.SetLabel(&cancelBtnTxt);
@@ -578,9 +602,11 @@ static int InitialPin() {
 
         if (okBtn.GetState() == STATE_CLICKED) {
             if ((wcsstr(keyboard.kbtextstr, currentData.user_pin) == NULL)) {
-                int result = WindowPrompt(_("Incorrect PIN"),
-                                          _("You have entered the incorrect PIN. Either try again or return to the main menu."),
-                                          _("Wii Menu"), _("Retry"));
+                int result =
+                    WindowPrompt(_("Incorrect PIN"),
+                                 _("You have entered the incorrect PIN. Either "
+                                   "try again or return to the main menu."),
+                                 _("Wii Menu"), _("Retry"));
                 if (result == 1) {
                     ExitRequested = true;
                     exitType = ExitType::WII_MENU;
@@ -591,8 +617,7 @@ static int InitialPin() {
             } else {
                 menu = MENU_OPTIONS1;
             }
-        }
-        else if (cancelBtn.GetState() == STATE_CLICKED) {
+        } else if (cancelBtn.GetState() == STATE_CLICKED) {
             ExitRequested = true;
             exitType = ExitType::WII_MENU;
         }
@@ -613,21 +638,22 @@ static int PinMenu() {
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
     GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
     GuiImageData btnLargeOutline(button_large_png);
     GuiImageData btnLargeOutlineOver(button_large_over_png);
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
 
-    GuiText titleTxt("PIN", 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt("PIN", 28, (GXColor){70, 187, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
     GuiText addPinBtnTxt(_("Add PIN"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage addPinBtnImg(&btnLargeOutline);
-    GuiImage addPinBtnImgOver(&btnLargeOutlineOver);
-    GuiButton addPinBtn(btnLargeOutline.GetWidth(),
-                           btnLargeOutline.GetHeight());
+    GuiImage addPinBtnImg(&btnOutline);
+    GuiImage addPinBtnImgOver(&btnOutlineOver);
+    GuiButton addPinBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     addPinBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
     addPinBtn.SetPosition(0, 0);
     addPinBtn.SetLabel(&addPinBtnTxt);
@@ -638,12 +664,11 @@ static int PinMenu() {
     addPinBtn.SetEffectGrow();
 
     GuiText editPinBtnTxt(_("Edit PIN"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage editPinBtnImg(&btnLargeOutline);
-    GuiImage editPinBtnImgOver(&btnLargeOutlineOver);
-    GuiButton editPinBtn(btnLargeOutline.GetWidth(),
-                        btnLargeOutline.GetHeight());
+    GuiImage editPinBtnImg(&btnOutline);
+    GuiImage editPinBtnImgOver(&btnOutlineOver);
+    GuiButton editPinBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     editPinBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    editPinBtn.SetPosition(0, 120);
+    editPinBtn.SetPosition(0, 170);
     editPinBtn.SetLabel(&editPinBtnTxt);
     editPinBtn.SetImage(&editPinBtnImg);
     editPinBtn.SetImageOver(&editPinBtnImgOver);
@@ -652,12 +677,11 @@ static int PinMenu() {
     editPinBtn.SetEffectGrow();
 
     GuiText deletePinBtnTxt(_("Delete PIN"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage deletePinBtnImg(&btnLargeOutline);
-    GuiImage deletePinBtnImgOver(&btnLargeOutlineOver);
-    GuiButton deletePinBtn(btnLargeOutline.GetWidth(),
-                         btnLargeOutline.GetHeight());
+    GuiImage deletePinBtnImg(&btnOutline);
+    GuiImage deletePinBtnImgOver(&btnOutlineOver);
+    GuiButton deletePinBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     deletePinBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    deletePinBtn.SetPosition(0, 250);
+    deletePinBtn.SetPosition(0, 240);
     deletePinBtn.SetLabel(&deletePinBtnTxt);
     deletePinBtn.SetImage(&deletePinBtnImg);
     deletePinBtn.SetImageOver(&deletePinBtnImgOver);
@@ -666,9 +690,10 @@ static int PinMenu() {
     deletePinBtn.SetEffectGrow();
 
     GuiText backBtnTxt(_("Back"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage backBtnImg(&btnOutline);
-    GuiImage backBtnImgOver(&btnOutlineOver);
-    GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage backBtnImg(&btnCircleOutline);
+    GuiImage backBtnImgOver(&btnCircleOutlineOver);
+    GuiButton backBtn(btnCircleOutline.GetWidth(),
+                      btnCircleOutline.GetHeight());
     backBtn.SetAlignment(ALIGN_CENTRE, ALIGN_BOTTOM);
     backBtn.SetPosition(0, -15);
     backBtn.SetLabel(&backBtnTxt);
@@ -722,28 +747,30 @@ static int PinMenu() {
 static int AddPin() {
     int menu = MENU_NONE;
 
-    MessageWindow(_("Add PIN"), _("Please enter a 4-digit PIN that you will remember."), 3);
+    MessageWindow(_("Add PIN"),
+                  _("Please enter a 4-digit PIN that you will remember."), 3);
 
     // Place an empty wchar_t to satisfy the function
     wchar_t empty = L'\0';
     GuiNumberpad keyboard(&empty, 5);
 
-    GuiText titleTxt(_("Edit PIN"), 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(_("Edit PIN"), 28, (GXColor){70, 187, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
     GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
 
-
     GuiText okBtnTxt(_("Enter"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage okBtnImg(&btnOutline);
-    GuiImage okBtnImgOver(&btnOutlineOver);
-    GuiButton okBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage okBtnImg(&btnCircleOutline);
+    GuiImage okBtnImgOver(&btnCircleOutlineOver);
+    GuiButton okBtn(btnCircleOutline.GetWidth(), btnCircleOutline.GetHeight());
 
     okBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
     okBtn.SetPosition(-50, 25);
@@ -756,9 +783,10 @@ static int AddPin() {
     okBtn.SetEffectGrow();
 
     GuiText cancelBtnTxt(_("Back"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage cancelBtnImg(&btnOutline);
-    GuiImage cancelBtnImgOver(&btnOutlineOver);
-    GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage cancelBtnImg(&btnCircleOutline);
+    GuiImage cancelBtnImgOver(&btnCircleOutlineOver);
+    GuiButton cancelBtn(btnCircleOutline.GetWidth(),
+                        btnCircleOutline.GetHeight());
     cancelBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
     cancelBtn.SetPosition(50, 25);
     cancelBtn.SetLabel(&cancelBtnTxt);
@@ -784,7 +812,9 @@ static int AddPin() {
 
         if (okBtn.GetState() == STATE_CLICKED) {
             if (wcslen(keyboard.kbtextstr) != 4) {
-                MessageWindow(_("Error"), _("You cannot have a PIN shorter than 4 numbers!"), 3);
+                MessageWindow(
+                    _("Error"),
+                    _("You cannot have a PIN shorter than 4 numbers!"), 3);
                 swprintf(keyboard.kbtextstr, 1, L"\0");
                 keyboard.kbTextfield->SetText(keyboard.kbtextstr);
             } else {
@@ -792,8 +822,7 @@ static int AddPin() {
                 swprintf(currentData.user_pin, 8, L"%ls", keyboard.kbtextstr);
                 menu = MENU_PIN;
             }
-        }
-        else if (cancelBtn.GetState() == STATE_CLICKED) {
+        } else if (cancelBtn.GetState() == STATE_CLICKED) {
             menu = MENU_PIN;
         }
     }
@@ -812,28 +841,30 @@ static int AddPin() {
 static int DeletePin() {
     int menu = MENU_NONE;
 
-    MessageWindow(_("Delete PIN"), _("Please enter your 4-digit PIN to confirm."), 3);
+    MessageWindow(_("Delete PIN"),
+                  _("Please enter your 4-digit PIN to confirm."), 3);
 
     // Place an empty wchar_t to satisfy the function
     wchar_t empty = L'\0';
     GuiNumberpad keyboard(&empty, 5);
 
-    GuiText titleTxt(_("Input PIN"), 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(_("Input PIN"), 28, (GXColor){70, 187, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
     GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
 
-
     GuiText okBtnTxt(_("Enter"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage okBtnImg(&btnOutline);
-    GuiImage okBtnImgOver(&btnOutlineOver);
-    GuiButton okBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage okBtnImg(&btnCircleOutline);
+    GuiImage okBtnImgOver(&btnCircleOutlineOver);
+    GuiButton okBtn(btnCircleOutline.GetWidth(), btnCircleOutline.GetHeight());
 
     okBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
     okBtn.SetPosition(-50, 25);
@@ -846,9 +877,10 @@ static int DeletePin() {
     okBtn.SetEffectGrow();
 
     GuiText cancelBtnTxt(_("Back"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage cancelBtnImg(&btnOutline);
-    GuiImage cancelBtnImgOver(&btnOutlineOver);
-    GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage cancelBtnImg(&btnCircleOutline);
+    GuiImage cancelBtnImgOver(&btnCircleOutlineOver);
+    GuiButton cancelBtn(btnCircleOutline.GetWidth(),
+                        btnCircleOutline.GetHeight());
     cancelBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
     cancelBtn.SetPosition(50, 25);
     cancelBtn.SetLabel(&cancelBtnTxt);
@@ -874,9 +906,11 @@ static int DeletePin() {
 
         if (okBtn.GetState() == STATE_CLICKED) {
             if ((wcsstr(keyboard.kbtextstr, currentData.user_pin) == NULL)) {
-                int result = WindowPrompt(_("Incorrect PIN"),
-                                          _("You have entered the incorrect PIN. Either try again or return to the main menu."),
-                                          _("Back"), _("Retry"));
+                int result =
+                    WindowPrompt(_("Incorrect PIN"),
+                                 _("You have entered the incorrect PIN. Either "
+                                   "try again or return to the main menu."),
+                                 _("Back"), _("Retry"));
                 if (result == 1) {
                     menu = MENU_PIN;
                 } else {
@@ -887,8 +921,7 @@ static int DeletePin() {
                 currentData.passwordProtected = false;
                 menu = MENU_OPTIONS1;
             }
-        }
-        else if (cancelBtn.GetState() == STATE_CLICKED) {
+        } else if (cancelBtn.GetState() == STATE_CLICKED) {
             menu = MENU_PIN;
         }
     }
@@ -907,28 +940,31 @@ static int DeletePin() {
 static int EditPin() {
     int menu = MENU_NONE;
 
-    MessageWindow(_("Edit PIN"), _("Please enter a 4-digit PIN to replace your current one."), 3);
+    MessageWindow(_("Edit PIN"),
+                  _("Please enter a 4-digit PIN to replace your current one."),
+                  3);
 
     // Place an empty wchar_t to satisfy the function
     wchar_t empty = L'\0';
     GuiNumberpad keyboard(&empty, 5);
 
-    GuiText titleTxt(_("Edit PIN"), 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(_("Edit PIN"), 28, (GXColor){70, 187, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
     GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
 
-
     GuiText okBtnTxt(_("Enter"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage okBtnImg(&btnOutline);
-    GuiImage okBtnImgOver(&btnOutlineOver);
-    GuiButton okBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage okBtnImg(&btnCircleOutline);
+    GuiImage okBtnImgOver(&btnCircleOutlineOver);
+    GuiButton okBtn(btnCircleOutline.GetWidth(), btnCircleOutline.GetHeight());
 
     okBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
     okBtn.SetPosition(-50, 25);
@@ -941,9 +977,10 @@ static int EditPin() {
     okBtn.SetEffectGrow();
 
     GuiText cancelBtnTxt(_("Back"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage cancelBtnImg(&btnOutline);
-    GuiImage cancelBtnImgOver(&btnOutlineOver);
-    GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage cancelBtnImg(&btnCircleOutline);
+    GuiImage cancelBtnImgOver(&btnCircleOutlineOver);
+    GuiButton cancelBtn(btnCircleOutline.GetWidth(),
+                        btnCircleOutline.GetHeight());
     cancelBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
     cancelBtn.SetPosition(50, 25);
     cancelBtn.SetLabel(&cancelBtnTxt);
@@ -969,15 +1006,16 @@ static int EditPin() {
 
         if (okBtn.GetState() == STATE_CLICKED) {
             if (wcslen(keyboard.kbtextstr) != 4) {
-                MessageWindow(_("Error"), _("You cannot have a PIN shorter than 4 numbers!"), 3);
+                MessageWindow(
+                    _("Error"),
+                    _("You cannot have a PIN shorter than 4 numbers!"), 3);
                 swprintf(keyboard.kbtextstr, 1, L"\0");
                 keyboard.kbTextfield->SetText(keyboard.kbtextstr);
             } else {
                 swprintf(currentData.user_pin, 8, L"%ls", keyboard.kbtextstr);
                 menu = MENU_PIN;
             }
-        }
-        else if (cancelBtn.GetState() == STATE_CLICKED) {
+        } else if (cancelBtn.GetState() == STATE_CLICKED) {
             menu = MENU_PIN;
         }
     }
@@ -999,22 +1037,23 @@ static int PhoneNumber() {
     // Place an empty wchar_t to satisfy the function
     GuiNumberpad keyboard(currentData.user_phone_number, 33);
 
-    GuiText titleTxt(_("Phone Number"), 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(_("Phone Number"), 28, (GXColor){70, 187, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
     GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
     GuiTrigger trigA;
     trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
                            PAD_BUTTON_A);
 
-
     GuiText okBtnTxt(_("Enter"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage okBtnImg(&btnOutline);
-    GuiImage okBtnImgOver(&btnOutlineOver);
-    GuiButton okBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage okBtnImg(&btnCircleOutline);
+    GuiImage okBtnImgOver(&btnCircleOutlineOver);
+    GuiButton okBtn(btnCircleOutline.GetWidth(), btnCircleOutline.GetHeight());
 
     okBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
     okBtn.SetPosition(-50, 25);
@@ -1027,9 +1066,10 @@ static int PhoneNumber() {
     okBtn.SetEffectGrow();
 
     GuiText cancelBtnTxt(_("Back"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage cancelBtnImg(&btnOutline);
-    GuiImage cancelBtnImgOver(&btnOutlineOver);
-    GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage cancelBtnImg(&btnCircleOutline);
+    GuiImage cancelBtnImgOver(&btnCircleOutlineOver);
+    GuiButton cancelBtn(btnCircleOutline.GetWidth(),
+                        btnCircleOutline.GetHeight());
     cancelBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
     cancelBtn.SetPosition(50, 25);
     cancelBtn.SetLabel(&cancelBtnTxt);
@@ -1054,10 +1094,10 @@ static int PhoneNumber() {
         usleep(THREAD_SLEEP);
 
         if (okBtn.GetState() == STATE_CLICKED) {
-            swprintf(currentData.user_phone_number, 32, L"%ls", keyboard.kbtextstr);
+            swprintf(currentData.user_phone_number, 32, L"%ls",
+                     keyboard.kbtextstr);
             menu = MENU_OPTIONS1;
-        }
-        else if (cancelBtn.GetState() == STATE_CLICKED) {
+        } else if (cancelBtn.GetState() == STATE_CLICKED) {
             menu = MENU_PIN;
         }
     }
@@ -1074,13 +1114,15 @@ static int PhoneNumber() {
 static int MenuSettings1() {
     int menu = MENU_NONE;
 
-    GuiText titleTxt(_("Set Personal Data"), 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(_("Set Personal Data"), 28, (GXColor){70, 187, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
     GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
     GuiImageData btnLargeOutline(button_large_png);
     GuiImageData btnLargeOutlineOver(button_large_over_png);
     GuiImageData btnRightArrow(right_arrow_png);
@@ -1095,25 +1137,25 @@ static int MenuSettings1() {
         -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
 
     // Used to traverse screens
-    GuiButton nextScreenBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiButton nextScreenBtn(btnRightArrow.GetWidth(), btnRightArrow.GetHeight());
     nextScreenBtn.SetAlignment(ALIGN_RIGHT, ALIGN_MIDDLE);
     GuiImage _btnRightArrow(&btnRightArrow);
     nextScreenBtn.SetImage(&_btnRightArrow);
     GuiImage _btnRightArrowOver(&btnRightArrowOver);
     nextScreenBtn.SetImageOver(&_btnRightArrowOver);
     nextScreenBtn.SetSoundOver(&btnSoundOver);
-    nextScreenBtn.SetPosition(100, 0);
+    nextScreenBtn.SetPosition(-40, -10);
     nextScreenBtn.SetTrigger(&trigA);
     nextScreenBtn.SetEffectGrow();
 
     GuiText firstNameBtnTxt(_("First Name"), 22, (GXColor){0, 0, 0, 255});
-    firstNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage firstNameBtnImg(&btnLargeOutline);
-    GuiImage firstNameBtnImgOver(&btnLargeOutlineOver);
-    GuiButton firstNameBtn(btnLargeOutline.GetWidth(),
-                           btnLargeOutline.GetHeight());
+    firstNameBtnTxt.SetWrap(true, btnOutline.GetWidth() - 30);
+    firstNameBtnTxt.SetPosition(0, -3);
+    GuiImage firstNameBtnImg(&btnOutline);
+    GuiImage firstNameBtnImgOver(&btnOutlineOver);
+    GuiButton firstNameBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     firstNameBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    firstNameBtn.SetPosition(-100, 120);
+    firstNameBtn.SetPosition(0, 100);
     firstNameBtn.SetLabel(&firstNameBtnTxt);
     firstNameBtn.SetImage(&firstNameBtnImg);
     firstNameBtn.SetImageOver(&firstNameBtnImgOver);
@@ -1122,13 +1164,13 @@ static int MenuSettings1() {
     firstNameBtn.SetEffectGrow();
 
     GuiText lastNameBtnTxt(_("Last Name"), 22, (GXColor){0, 0, 0, 255});
-    lastNameBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage lastNameBtnImg(&btnLargeOutline);
-    GuiImage lastNameImgOver(&btnLargeOutlineOver);
-    GuiButton lastNameBtn(btnLargeOutline.GetWidth(),
-                          btnLargeOutline.GetHeight());
+    lastNameBtnTxt.SetWrap(true, btnOutline.GetWidth() - 30);
+    lastNameBtnTxt.SetPosition(0, -3);
+    GuiImage lastNameBtnImg(&btnOutline);
+    GuiImage lastNameImgOver(&btnOutlineOver);
+    GuiButton lastNameBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     lastNameBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    lastNameBtn.SetPosition(100, 120);
+    lastNameBtn.SetPosition(0, 170);
     lastNameBtn.SetLabel(&lastNameBtnTxt);
     lastNameBtn.SetImage(&lastNameBtnImg);
     lastNameBtn.SetImageOver(&lastNameImgOver);
@@ -1136,14 +1178,15 @@ static int MenuSettings1() {
     lastNameBtn.SetTrigger(&trigA);
     lastNameBtn.SetEffectGrow();
 
-    GuiText email_addressBtnTxt(_("Email Address"), 22, (GXColor){0, 0, 0, 255});
-    email_addressBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage email_addressBtnImg(&btnLargeOutline);
-    GuiImage email_addressBtnImgOver(&btnLargeOutlineOver);
-    GuiButton email_addressBtn(btnLargeOutline.GetWidth(),
-                               btnLargeOutline.GetHeight());
+    GuiText email_addressBtnTxt(_("Email Address"), 22,
+                                (GXColor){0, 0, 0, 255});
+    email_addressBtnTxt.SetWrap(true, btnOutline.GetWidth() - 30);
+    email_addressBtnTxt.SetPosition(0, -3);
+    GuiImage email_addressBtnImg(&btnOutline);
+    GuiImage email_addressBtnImgOver(&btnOutlineOver);
+    GuiButton email_addressBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     email_addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    email_addressBtn.SetPosition(100, 250);
+    email_addressBtn.SetPosition(0, 240);
     email_addressBtn.SetLabel(&email_addressBtnTxt);
     email_addressBtn.SetImage(&email_addressBtnImg);
     email_addressBtn.SetImageOver(&email_addressBtnImgOver);
@@ -1152,13 +1195,13 @@ static int MenuSettings1() {
     email_addressBtn.SetEffectGrow();
 
     GuiText phoneBtnTxt(_("Phone Number"), 22, (GXColor){0, 0, 0, 255});
-    phoneBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage phoneBtnImg(&btnLargeOutline);
-    GuiImage phoneBtnImgOver(&btnLargeOutlineOver);
-    GuiButton phoneBtn(btnLargeOutline.GetWidth(),
-                         btnLargeOutline.GetHeight());
+    phoneBtnTxt.SetWrap(true, btnOutline.GetWidth() - 30);
+    phoneBtnTxt.SetPosition(0, -3);
+    GuiImage phoneBtnImg(&btnOutline);
+    GuiImage phoneBtnImgOver(&btnOutlineOver);
+    GuiButton phoneBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     phoneBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-    phoneBtn.SetPosition(-100, 250);
+    phoneBtn.SetPosition(0, 310);
     phoneBtn.SetLabel(&phoneBtnTxt);
     phoneBtn.SetImage(&phoneBtnImg);
     phoneBtn.SetImageOver(&phoneBtnImgOver);
@@ -1167,11 +1210,14 @@ static int MenuSettings1() {
     phoneBtn.SetEffectGrow();
 
     GuiText saveBtnTxt(_("Done"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage saveBtnImg(&btnOutline);
-    GuiImage saveBtnImgOver(&btnOutlineOver);
-    GuiButton saveBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage saveBtnImg(&btnCircleOutline);
+    GuiImage saveBtnImgOver(&btnCircleOutlineOver);
+    GuiButton saveBtn(btnCircleOutline.GetWidth(),
+                      btnCircleOutline.GetHeight());
+    saveBtnTxt.SetWrap(true, btnCircleOutline.GetWidth() - 30);
+    saveBtnTxt.SetPosition(0, -3);
     saveBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
-    saveBtn.SetPosition(-25, -15);
+    saveBtn.SetPosition(-25, -20);
     saveBtn.SetLabel(&saveBtnTxt);
     saveBtn.SetImage(&saveBtnImg);
     saveBtn.SetImageOver(&saveBtnImgOver);
@@ -1181,11 +1227,13 @@ static int MenuSettings1() {
     saveBtn.SetEffectGrow();
 
     GuiText pinBtnTxt("PIN", 22, (GXColor){0, 0, 0, 255});
-    GuiImage pinBtnImg(&btnOutline);
-    GuiImage pinBtnImgOver(&btnOutlineOver);
-    GuiButton pinBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage pinBtnImg(&btnCircleOutline);
+    GuiImage pinBtnImgOver(&btnCircleOutlineOver);
+    GuiButton pinBtn(btnCircleOutline.GetWidth(), btnCircleOutline.GetHeight());
+    pinBtnTxt.SetWrap(true, btnCircleOutline.GetWidth() - 30);
+    pinBtnTxt.SetPosition(0, -3);
     pinBtn.SetAlignment(ALIGN_CENTRE, ALIGN_BOTTOM);
-    pinBtn.SetPosition(0, -15);
+    pinBtn.SetPosition(0, -20);
     pinBtn.SetLabel(&pinBtnTxt);
     pinBtn.SetImage(&pinBtnImg);
     pinBtn.SetImageOver(&pinBtnImgOver);
@@ -1194,11 +1242,14 @@ static int MenuSettings1() {
     pinBtn.SetEffectGrow();
 
     GuiText cancelBtnTxt(_("Cancel"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage cancelBtnImg(&btnOutline);
-    GuiImage cancelBtnImgOver(&btnOutlineOver);
-    GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiImage cancelBtnImg(&btnCircleOutline);
+    GuiImage cancelBtnImgOver(&btnCircleOutlineOver);
+    GuiButton cancelBtn(btnCircleOutline.GetWidth(),
+                        btnCircleOutline.GetHeight());
+    cancelBtnTxt.SetWrap(true, btnCircleOutline.GetWidth() - 30);
+    cancelBtnTxt.SetPosition(0, -3);
     cancelBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-    cancelBtn.SetPosition(25, -15);
+    cancelBtn.SetPosition(25, -20);
     cancelBtn.SetLabel(&cancelBtnTxt);
     cancelBtn.SetImage(&cancelBtnImg);
     cancelBtn.SetImageOver(&cancelBtnImgOver);
@@ -1245,7 +1296,8 @@ static int MenuSettings1() {
             } else {
                 int result = WindowPrompt(
                     _("Error saving"),
-                    _("An error occurred while attempting to save your information. Would you like to retry?"),
+                    _("An error occurred while attempting to save your "
+                      "information. Would you like to retry?"),
                     _("Cancel"), _("Retry"));
                 if (result == 1) {
                     // The user selected to cancel.
@@ -1274,13 +1326,15 @@ static int MenuSettings1() {
 static int MenuSettings2() {
     int menu = MENU_NONE;
 
-    GuiText titleTxt(_("Set Personal Data"), 28, (GXColor){255, 255, 255, 255});
+    GuiText titleTxt(_("Set Personal Data"), 28, (GXColor){70, 187, 255, 255});
     titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
     titleTxt.SetPosition(0, 25);
 
     GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
     GuiImageData btnOutline(button_png);
     GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
     GuiImageData btnLargeOutline(button_large_png);
     GuiImageData btnLargeOutlineOver(button_large_over_png);
     GuiImageData btnLeftArrow(left_arrow_png);
@@ -1294,23 +1348,25 @@ static int MenuSettings2() {
         -1, WPAD_BUTTON_HOME | WPAD_CLASSIC_BUTTON_HOME, 0);
 
     // Used to traverse screens
-    GuiButton nextScreenBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    GuiButton nextScreenBtn(btnLeftArrow.GetWidth(), btnLeftArrow.GetHeight());
     nextScreenBtn.SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
     GuiImage _btnLeftArrow(&btnLeftArrow);
     nextScreenBtn.SetImage(&_btnLeftArrow);
     GuiImage _btnLeftArrowOver(&btnLeftArrowOver);
     nextScreenBtn.SetImageOver(&_btnLeftArrowOver);
     nextScreenBtn.SetSoundOver(&btnSoundOver);
-    nextScreenBtn.SetPosition(10, 0);
+    nextScreenBtn.SetPosition(40, 0);
     nextScreenBtn.SetTrigger(&trigA);
     nextScreenBtn.SetEffectGrow();
 
     GuiText cityBtnTxt(_("City"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage cityBtnImg(&btnLargeOutline);
-    GuiImage cityBtnImgOver(&btnLargeOutlineOver);
-    GuiButton cityBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    cityBtnTxt.SetWrap(true, btnOutline.GetWidth() - 30);
+    cityBtnTxt.SetPosition(0, -3);
+    GuiImage cityBtnImg(&btnOutline);
+    GuiImage cityBtnImgOver(&btnOutlineOver);
+    GuiButton cityBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     cityBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
-    cityBtn.SetPosition(175, 0);
+    cityBtn.SetPosition(0, -70);
     cityBtn.SetLabel(&cityBtnTxt);
     cityBtn.SetImage(&cityBtnImg);
     cityBtn.SetImageOver(&cityBtnImgOver);
@@ -1319,13 +1375,13 @@ static int MenuSettings2() {
     cityBtn.SetEffectGrow();
 
     GuiText home_addressBtnTxt(_("Home Address"), 22, (GXColor){0, 0, 0, 255});
-    home_addressBtnTxt.SetWrap(true, btnLargeOutline.GetWidth() - 30);
-    GuiImage home_addressBtnImg(&btnLargeOutline);
-    GuiImage home_addressBtnImgOver(&btnLargeOutlineOver);
-    GuiButton home_addressBtn(btnLargeOutline.GetWidth(),
-                              btnLargeOutline.GetHeight());
+    home_addressBtnTxt.SetWrap(true, btnOutline.GetWidth() - 30);
+    home_addressBtnTxt.SetPosition(0, -3);
+    GuiImage home_addressBtnImg(&btnOutline);
+    GuiImage home_addressBtnImgOver(&btnOutlineOver);
+    GuiButton home_addressBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     home_addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
-    home_addressBtn.SetPosition(-175, 0);
+    home_addressBtn.SetPosition(0, 0);
     home_addressBtn.SetLabel(&home_addressBtnTxt);
     home_addressBtn.SetImage(&home_addressBtnImg);
     home_addressBtn.SetImageOver(&home_addressBtnImgOver);
@@ -1334,11 +1390,13 @@ static int MenuSettings2() {
     home_addressBtn.SetEffectGrow();
 
     GuiText zipBtnTxt(_("Zip Code"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage zipBtnImg(&btnLargeOutline);
-    GuiImage zipBtnImgOver(&btnLargeOutlineOver);
-    GuiButton zipBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+    zipBtnTxt.SetWrap(true, btnOutline.GetWidth() - 30);
+    zipBtnTxt.SetPosition(0, -3);
+    GuiImage zipBtnImg(&btnOutline);
+    GuiImage zipBtnImgOver(&btnOutlineOver);
+    GuiButton zipBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
     zipBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
-    zipBtn.SetPosition(0, 0);
+    zipBtn.SetPosition(0, 70);
     zipBtn.SetLabel(&zipBtnTxt);
     zipBtn.SetImage(&zipBtnImg);
     zipBtn.SetImageOver(&zipBtnImgOver);
@@ -1347,11 +1405,14 @@ static int MenuSettings2() {
     zipBtn.SetEffectGrow();
 
     GuiText saveBtnTxt(_("Done"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage saveBtnImg(&btnOutline);
-    GuiImage saveBtnImgOver(&btnOutlineOver);
-    GuiButton saveBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    saveBtnTxt.SetWrap(true, btnCircleOutline.GetWidth() - 30);
+    saveBtnTxt.SetPosition(0, -3);
+    GuiImage saveBtnImg(&btnCircleOutline);
+    GuiImage saveBtnImgOver(&btnCircleOutlineOver);
+    GuiButton saveBtn(btnCircleOutline.GetWidth(),
+                      btnCircleOutline.GetHeight());
     saveBtn.SetAlignment(ALIGN_RIGHT, ALIGN_BOTTOM);
-    saveBtn.SetPosition(-25, -15);
+    saveBtn.SetPosition(-25, -20);
     saveBtn.SetLabel(&saveBtnTxt);
     saveBtn.SetImage(&saveBtnImg);
     saveBtn.SetImageOver(&saveBtnImgOver);
@@ -1361,11 +1422,13 @@ static int MenuSettings2() {
     saveBtn.SetEffectGrow();
 
     GuiText pinBtnTxt("PIN", 22, (GXColor){0, 0, 0, 255});
-    GuiImage pinBtnImg(&btnOutline);
-    GuiImage pinBtnImgOver(&btnOutlineOver);
-    GuiButton pinBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    pinBtnTxt.SetWrap(true, btnCircleOutline.GetWidth() - 30);
+    pinBtnTxt.SetPosition(0, -3);
+    GuiImage pinBtnImg(&btnCircleOutline);
+    GuiImage pinBtnImgOver(&btnCircleOutlineOver);
+    GuiButton pinBtn(btnCircleOutline.GetWidth(), btnCircleOutline.GetHeight());
     pinBtn.SetAlignment(ALIGN_CENTRE, ALIGN_BOTTOM);
-    pinBtn.SetPosition(0, -15);
+    pinBtn.SetPosition(0, -20);
     pinBtn.SetLabel(&pinBtnTxt);
     pinBtn.SetImage(&pinBtnImg);
     pinBtn.SetImageOver(&pinBtnImgOver);
@@ -1374,11 +1437,14 @@ static int MenuSettings2() {
     pinBtn.SetEffectGrow();
 
     GuiText cancelBtnTxt(_("Cancel"), 22, (GXColor){0, 0, 0, 255});
-    GuiImage cancelBtnImg(&btnOutline);
-    GuiImage cancelBtnImgOver(&btnOutlineOver);
-    GuiButton cancelBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    cancelBtnTxt.SetWrap(true, btnCircleOutline.GetWidth() - 30);
+    cancelBtnTxt.SetPosition(0, -3);
+    GuiImage cancelBtnImg(&btnCircleOutline);
+    GuiImage cancelBtnImgOver(&btnCircleOutlineOver);
+    GuiButton cancelBtn(btnCircleOutline.GetWidth(),
+                        btnCircleOutline.GetHeight());
     cancelBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
-    cancelBtn.SetPosition(25, -15);
+    cancelBtn.SetPosition(25, -20);
     cancelBtn.SetLabel(&cancelBtnTxt);
     cancelBtn.SetImage(&cancelBtnImg);
     cancelBtn.SetImageOver(&cancelBtnImgOver);
@@ -1413,7 +1479,8 @@ static int MenuSettings2() {
             } else {
                 int result = WindowPrompt(
                     _("Error saving"),
-                    _("An error occurred while attempting to save your information. Would you like to retry?"),
+                    _("An error occurred while attempting to save your "
+                      "information. Would you like to retry?"),
                     _("Cancel"), _("Retry"));
                 if (result == 1) {
                     // The user selected to cancel.
@@ -1492,20 +1559,27 @@ void MainMenu(int menu) {
     // Create a white stripe beneath the title and above actionable buttons.
     bgImg->ColorStripe(75, (GXColor){0xff, 0xff, 0xff, 255});
     bgImg->ColorStripe(76, (GXColor){0xff, 0xff, 0xff, 255});
+    bgImg->ColorStripe(77, (GXColor){0xff, 0xff, 0xff, 255});
 
-    bgImg->ColorStripe(screenheight - 77, (GXColor){0xff, 0xff, 0xff, 255});
-    bgImg->ColorStripe(screenheight - 78, (GXColor){0xff, 0xff, 0xff, 255});
+    bgImg->ColorStripe(screenheight - 90, (GXColor){0xff, 0xff, 0xff, 255});
+    bgImg->ColorStripe(screenheight - 91, (GXColor){0xff, 0xff, 0xff, 255});
+    bgImg->ColorStripe(screenheight - 92, (GXColor){0xff, 0xff, 0xff, 255});
 
     GuiImage *topChannelGradient =
         new GuiImage(new GuiImageData(channel_gradient_top_png));
-    topChannelGradient->SetTile(screenwidth / 4);
+    topChannelGradient->SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
 
     GuiImage *bottomChannelGradient =
         new GuiImage(new GuiImageData(channel_gradient_bottom_png));
-    bottomChannelGradient->SetTile(screenwidth / 4);
-    bottomChannelGradient->SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+    bottomChannelGradient->SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+
+    // Create a tilable grey stripes between both stripes.
+    GuiImage *bgstripes = new GuiImage(new GuiImageData(bg_stripes_png));
+    bgstripes->SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+    bgstripes->SetPosition(0, 78);
 
     mainWindow->Append(bgImg);
+    mainWindow->Append(bgstripes);
     mainWindow->Append(topChannelGradient);
     mainWindow->Append(bottomChannelGradient);
 
@@ -1516,8 +1590,9 @@ void MainMenu(int menu) {
     ResumeGui();
 
     // bgMusic = new GuiSound(bg_music_ogg, bg_music_ogg_size, SOUND_OGG);
-    // bgMusic->SetVolume(50);
+    // bgMusic->SetVolume(100);
     // bgMusic->Play(); // startup music
+    // bgMusic->SetLoop(true);
 
     while (currentMenu != MENU_EXIT) {
         switch (currentMenu) {
@@ -1550,7 +1625,8 @@ void MainMenu(int menu) {
             currentMenu = KeyboardDataEntry(currentData.user_city, _("City"));
             break;
         case MENU_EDIT_ZIP_CODE:
-            currentMenu = KeyboardDataEntry(currentData.user_zip_code, "Zip Code");
+            currentMenu =
+                KeyboardDataEntry(currentData.user_zip_code, "Zip Code");
             break;
         case MENU_PHONE:
             currentMenu = PhoneNumber();
@@ -1567,9 +1643,9 @@ void MainMenu(int menu) {
         case MENU_ADD_PIN:
             currentMenu = AddPin();
             break;
-       /* case MENU_CREDITS:
-            currentMenu = MenuCredits();
-            break;*/
+            /* case MENU_CREDITS:
+                 currentMenu = MenuCredits();
+                 break;*/
         default:
             currentMenu = MenuSettings1();
             break;
@@ -1584,8 +1660,8 @@ void MainMenu(int menu) {
 
     HaltGui();
 
-    bgMusic->Stop();
-    delete bgMusic;
+    // bgMusic->Stop();
+    // delete bgMusic;
     delete bgImg;
     delete mainWindow;
 

@@ -21,6 +21,7 @@ enum ExitType {
 void InitGUIThreads();
 void MainMenu(int menuitem);
 extern bool ExitRequested;
+extern bool startApp;
 extern ExitType exitType;
 
 enum {
