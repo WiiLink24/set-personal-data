@@ -157,6 +157,10 @@ $(OFILES_SOURCES) : $(HFILES)
 	@echo $(notdir $<)
 	$(bin2o)
 
+%.ogg.o	%_ogg.h :	%.ogg
+	@echo $(notdir $<)
+	$(bin2o)
+
 -include $(DEPENDS)
 
 #---------------------------------------------------------------------------------

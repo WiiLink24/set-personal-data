@@ -15,6 +15,7 @@
 #include <wiiuse/wpad.h>
 
 #include "gui.h"
+#include "channel/menu.h"
 #include "input.h"
 
 #define DEFAULT_FIFO_SIZE 256 * 1024
@@ -182,6 +183,7 @@ void Menu_Render() {
     VIDEO_Flush();
     VIDEO_WaitVSync();
     FrameTimer++;
+    startApp = true;
 }
 
 /****************************************************************************

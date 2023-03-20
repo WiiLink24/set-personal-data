@@ -65,14 +65,7 @@ int main(void) {
     InitAudio();
     InitFreeType((u8 *)noto_sans_jp_regular_otf, noto_sans_jp_regular_otf_size);
     InitGUIThreads();
-
-    /*u32 deviceId;
-    s32 ret = ES_GetDeviceID(&deviceId);
-    if (ret != 0) {
-        printf("Failed to obtain device ID.\n");
-        ExitApp(exitType);
-    }*/
-
+    
     bool result = PD_PopulateData();
     if (!result) {
         printf("Failed to read pd.dat!\n");

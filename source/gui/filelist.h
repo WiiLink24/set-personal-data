@@ -23,7 +23,10 @@
 #include "nl_lang.h"
 
 // Sounds
-// #include "bg_music_ogg.h"
+#include "button_tick_ogg.h"
+#include "button_press_ogg.h"
+
+// Old sounds
 #include "button_click_pcm.h"
 #include "button_over_pcm.h"
 
@@ -32,8 +35,11 @@
 #include "button_large_png.h"
 #include "button_over_png.h"
 #include "button_png.h"
+#include "button_circle_over_png.h"
+#include "button_circle_png.h"
 #include "channel_gradient_bottom_png.h"
 #include "channel_gradient_top_png.h"
+#include "bg_stripes_png.h"
 #include "dialogue_box_png.h"
 #include "keyboard_key_over_png.h"
 #include "keyboard_key_png.h"
