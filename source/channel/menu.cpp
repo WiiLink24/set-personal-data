@@ -344,7 +344,7 @@ void Selection() {
  * Opens an on-screen keyboard window, with the data entered being stored
  * into the specified variable.
  ***************************************************************************/
-void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
+void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name, bool can_empty) {
     int save = -1;
 
     GuiKeyboard keyboard(var, maxlen);
@@ -410,7 +410,7 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
             save = 0;
     }
 
-    if (var == currentData.user_email_address) {
+    if (var == currentData.user_email_address && !can_empty) {
         if (wcsstr(keyboard.kbtextstr, L"@") == 0) {
             int result = WindowPrompt(_("Error"),
                                       _("You have entered an invalid email "
@@ -421,12 +421,12 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
                 mainWindow->Remove(&keyboard);
                 mainWindow->Remove(&titleTxt);
                 mainWindow->SetState(STATE_DEFAULT);
-                OnScreenKeyboard(var, maxlen, name);
+                OnScreenKeyboard(var, maxlen, name, can_empty);
             }
         }
     }
 
-    if (wcslen(keyboard.kbtextstr) == 0) {
+    if (wcslen(keyboard.kbtextstr) == 0 && !can_empty) {
         int result = WindowPrompt(_("Error"),
                                   _("You cannot have an empty field. Either "
                                     "try again or return to the main menu."),
@@ -436,7 +436,7 @@ void OnScreenKeyboard(wchar_t *var, u16 maxlen, const char *name) {
             mainWindow->Remove(&keyboard);
             mainWindow->Remove(&titleTxt);
             mainWindow->SetState(STATE_DEFAULT);
-            OnScreenKeyboard(var, maxlen, name);
+            OnScreenKeyboard(var, maxlen, name, can_empty);
         } else {
             save = 0;
         }
@@ -1098,7 +1098,7 @@ static int PhoneNumber() {
                      keyboard.kbtextstr);
             menu = MENU_OPTIONS1;
         } else if (cancelBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_PIN;
+            menu = MENU_OPTIONS1;
         }
     }
 
@@ -1365,8 +1365,8 @@ static int MenuSettings2() {
     GuiImage cityBtnImg(&btnOutline);
     GuiImage cityBtnImgOver(&btnOutlineOver);
     GuiButton cityBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    cityBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
-    cityBtn.SetPosition(0, -70);
+    cityBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    cityBtn.SetPosition(0, 100);
     cityBtn.SetLabel(&cityBtnTxt);
     cityBtn.SetImage(&cityBtnImg);
     cityBtn.SetImageOver(&cityBtnImgOver);
@@ -1380,8 +1380,8 @@ static int MenuSettings2() {
     GuiImage home_addressBtnImg(&btnOutline);
     GuiImage home_addressBtnImgOver(&btnOutlineOver);
     GuiButton home_addressBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    home_addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
-    home_addressBtn.SetPosition(0, 0);
+    home_addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    home_addressBtn.SetPosition(0, 170);
     home_addressBtn.SetLabel(&home_addressBtnTxt);
     home_addressBtn.SetImage(&home_addressBtnImg);
     home_addressBtn.SetImageOver(&home_addressBtnImgOver);
@@ -1395,14 +1395,29 @@ static int MenuSettings2() {
     GuiImage zipBtnImg(&btnOutline);
     GuiImage zipBtnImgOver(&btnOutlineOver);
     GuiButton zipBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
-    zipBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
-    zipBtn.SetPosition(0, 70);
+    zipBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    zipBtn.SetPosition(0, 240);
     zipBtn.SetLabel(&zipBtnTxt);
     zipBtn.SetImage(&zipBtnImg);
     zipBtn.SetImageOver(&zipBtnImgOver);
     zipBtn.SetSoundOver(&btnSoundOver);
     zipBtn.SetTrigger(&trigA);
     zipBtn.SetEffectGrow();
+
+    GuiText stateBtnTxt(_("State"), 22, (GXColor){0, 0, 0, 255});
+    stateBtnTxt.SetWrap(true, btnOutline.GetWidth() - 30);
+    stateBtnTxt.SetPosition(0, -3);
+    GuiImage stateBtnImg(&btnOutline);
+    GuiImage stateBtnImgOver(&btnOutlineOver);
+    GuiButton stateBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    stateBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    stateBtn.SetPosition(0, 310);
+    stateBtn.SetLabel(&stateBtnTxt);
+    stateBtn.SetImage(&stateBtnImg);
+    stateBtn.SetImageOver(&stateBtnImgOver);
+    stateBtn.SetSoundOver(&btnSoundOver);
+    stateBtn.SetTrigger(&trigA);
+    stateBtn.SetEffectGrow();
 
     GuiText saveBtnTxt(_("Done"), 22, (GXColor){0, 0, 0, 255});
     saveBtnTxt.SetWrap(true, btnCircleOutline.GetWidth() - 30);
@@ -1463,6 +1478,7 @@ static int MenuSettings2() {
     w.Append(&nextScreenBtn);
     w.Append(&home_addressBtn);
     w.Append(&cityBtn);
+    w.Append(&stateBtn);
 
     mainWindow->Append(&w);
 
@@ -1492,11 +1508,13 @@ static int MenuSettings2() {
                 }
             }
         } else if (home_addressBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_EDIT_HOME_ADDRESS;
+            menu = MENU_EDIT_ADDRESS;
         } else if (cityBtn.GetState() == STATE_CLICKED) {
             menu = MENU_EDIT_CITY;
+        } else if (stateBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_EDIT_STATE;
         } else if (nextScreenBtn.GetState() == STATE_CLICKED) {
-            menu = MENU_OPTIONS1;
+                menu = MENU_OPTIONS1;
         } else if (pinBtn.GetState() == STATE_CLICKED) {
             menu = MENU_PIN;
         } else if (zipBtn.GetState() == STATE_CLICKED) {
@@ -1513,7 +1531,7 @@ static int MenuSettings2() {
  * KeyboardDataEntry
  ***************************************************************************/
 
-static int KeyboardDataEntry(wchar_t *input, const char *name) {
+static int KeyboardDataEntry(wchar_t *input, const char *name, bool can_empty = false) {
     int menu = MENU_NONE;
 
     HaltGui();
@@ -1524,13 +1542,100 @@ static int KeyboardDataEntry(wchar_t *input, const char *name) {
     while (menu == MENU_NONE) {
         usleep(THREAD_SLEEP);
 
-        OnScreenKeyboard(input, 255, name);
+        OnScreenKeyboard(input, 255, name, can_empty);
         menu = MENU_OPTIONS1;
     }
 
     HaltGui();
 
     mainWindow->Remove(&w);
+    return menu;
+}
+
+int HomeAddress() {
+    int menu = MENU_NONE;
+
+    GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+    GuiImageData btnOutline(button_png);
+    GuiImageData btnOutlineOver(button_over_png);
+    GuiImageData btnCircleOutline(button_circle_png);
+    GuiImageData btnCircleOutlineOver(button_circle_over_png);
+    GuiImageData btnLargeOutline(button_large_png);
+    GuiImageData btnLargeOutlineOver(button_large_over_png);
+    GuiTrigger trigA;
+    trigA.SetSimpleTrigger(-1, WPAD_BUTTON_A | WPAD_CLASSIC_BUTTON_A,
+                           PAD_BUTTON_A);
+
+    GuiText titleTxt("Home Address", 28, (GXColor){70, 187, 255, 255});
+    titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+    titleTxt.SetPosition(0, 25);
+
+    GuiText addressBtnTxt(_("Home Address"), 22, (GXColor){0, 0, 0, 255});
+    GuiImage addressBtnImg(&btnOutline);
+    GuiImage addressBtnImgOver(&btnOutlineOver);
+    GuiButton addressBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    addressBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
+    addressBtn.SetPosition(0, -70);
+    addressBtn.SetLabel(&addressBtnTxt);
+    addressBtn.SetImage(&addressBtnImg);
+    addressBtn.SetImageOver(&addressBtnImgOver);
+    addressBtn.SetSoundOver(&btnSoundOver);
+    addressBtn.SetTrigger(&trigA);
+    addressBtn.SetEffectGrow();
+
+    GuiText aptBtnTxt(_("Apartment Number"), 22, (GXColor){0, 0, 0, 255});
+    GuiImage aptBtnImg(&btnOutline);
+    GuiImage aptBtnImgOver(&btnOutlineOver);
+    GuiButton aptBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+    aptBtn.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
+    aptBtn.SetPosition(0, 70);
+    aptBtn.SetLabel(&aptBtnTxt);
+    aptBtn.SetImage(&aptBtnImg);
+    aptBtn.SetImageOver(&aptBtnImgOver);
+    aptBtn.SetSoundOver(&btnSoundOver);
+    aptBtn.SetTrigger(&trigA);
+    aptBtn.SetEffectGrow();
+
+    GuiText backBtnTxt(_("Back"), 22, (GXColor){0, 0, 0, 255});
+    GuiImage backBtnImg(&btnCircleOutline);
+    GuiImage backBtnImgOver(&btnCircleOutlineOver);
+    GuiButton backBtn(btnCircleOutline.GetWidth(),
+                      btnCircleOutline.GetHeight());
+    backBtn.SetAlignment(ALIGN_CENTRE, ALIGN_BOTTOM);
+    backBtn.SetPosition(0, -15);
+    backBtn.SetLabel(&backBtnTxt);
+    backBtn.SetImage(&backBtnImg);
+    backBtn.SetImageOver(&backBtnImgOver);
+    backBtn.SetSoundOver(&btnSoundOver);
+    backBtn.SetTrigger(&trigA);
+    backBtn.SetEffectGrow();
+
+    HaltGui();
+    GuiWindow w(screenwidth, screenheight);
+    mainWindow->Append(&w);
+    mainWindow->Append(&titleTxt);
+
+    w.Append(&addressBtn);
+    w.Append(&aptBtn);
+    w.Append(&backBtn);
+    ResumeGui();
+
+    while (menu == MENU_NONE) {
+        usleep(THREAD_SLEEP);
+
+        if (backBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_OPTIONS1;
+        } else if (addressBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_EDIT_HOME_ADDRESS;
+        } else if (aptBtn.GetState() == STATE_CLICKED) {
+            menu = MENU_EDIT_APT_NUMBER;
+        }
+    }
+
+    HaltGui();
+
+    mainWindow->Remove(&w);
+    mainWindow->Remove(&titleTxt);
     return menu;
 }
 
@@ -1617,12 +1722,21 @@ void MainMenu(int menu) {
             currentMenu = KeyboardDataEntry(currentData.user_email_address,
                                             _("Email Address"));
             break;
+        case MENU_EDIT_ADDRESS:
+            currentMenu = HomeAddress();
+            break;
         case MENU_EDIT_HOME_ADDRESS:
             currentMenu = KeyboardDataEntry(currentData.user_home_address,
                                             _("Home Address"));
             break;
+        case MENU_EDIT_APT_NUMBER:
+            currentMenu = KeyboardDataEntry(currentData.user_apt_number, _("Apartment Number"), true);
+            break;
         case MENU_EDIT_CITY:
             currentMenu = KeyboardDataEntry(currentData.user_city, _("City"));
+            break;
+        case MENU_EDIT_STATE:
+            currentMenu = KeyboardDataEntry(currentData.user_state, _("State"));
             break;
         case MENU_EDIT_ZIP_CODE:
             currentMenu =

@@ -9,6 +9,8 @@ struct PDInfoData {
     wchar_t user_phone_number[32];
     wchar_t user_zip_code[17];
     wchar_t user_pin[8];
+    wchar_t user_state[32];
+    wchar_t user_apt_number[128];
     bool passwordProtected;
 };
 

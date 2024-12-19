@@ -78,6 +78,8 @@ bool PD_PopulateData() {
         const wchar_t *city = StringToWcharPipeline(infoBlock->city());
         const wchar_t *phone_number = StringToWcharPipeline(infoBlock->phone_number());
         const wchar_t *zip_code = StringToWcharPipeline(infoBlock->postal_code());
+        const wchar_t *state = StringToWcharPipeline(infoBlock->state_or_prefecture());
+        const wchar_t *apt_number = StringToWcharPipeline(infoBlock->apartment_number());
 
         // Populate data
         wcsncpy(currentData.user_first_name, first_name, 32);
@@ -87,6 +89,8 @@ bool PD_PopulateData() {
         wcsncpy(currentData.user_city, city, 32);
         wcsncpy(currentData.user_phone_number, phone_number, 32);
         wcsncpy(currentData.user_zip_code, zip_code, 34);
+        wcsncpy(currentData.user_state, state, 32);
+        wcsncpy(currentData.user_apt_number, apt_number, 128);
     } catch (const std::exception &e) {
         std::cout << "A C++ exception occurred." << std::endl;
         std::cout << e.what() << std::endl;
@@ -117,6 +121,8 @@ bool PD_WriteData() {
             WcharToStringPipeline(currentData.user_city, 32 * 2);
         std::string *phone_number = WcharToStringPipeline(currentData.user_phone_number, 32 * 2);
         std::string *zip = WcharToStringPipeline(currentData.user_zip_code, 17 * 2);
+        std::string *state = WcharToStringPipeline(currentData.user_state, 32 * 2);
+        std::string *apt_number = WcharToStringPipeline(currentData.user_apt_number, 128 * 2);
 
         // We specify specific offsets within the file.
         // TODO: Replace with Kaitai serialization?
@@ -148,6 +154,10 @@ bool PD_WriteData() {
 
         // Update phone number
         memcpy(filePointer + 1011, phone_number->c_str(), phone_number->length());
+
+        memcpy(filePointer + 371, state->c_str(), state->length());
+
+        memcpy(filePointer + 755, apt_number->c_str(), apt_number->length());
 
         // Update PIN if needed
         if (currentData.passwordProtected) {
